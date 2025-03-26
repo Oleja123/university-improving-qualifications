@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Hello, {{ user.username }}!</h1>
+    {% for course in courses %}
+        <div>
+            <p>
+                Название: {{ course.name }}
+                <b>
+                    Тип: {{ course.type }}
+                </b>
+            </p>
+        </div>
+    {% endfor %}
+{% endblock %}
