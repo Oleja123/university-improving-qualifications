@@ -2,14 +2,23 @@
 <html>
     <head>
         {% if title %}
-            <title>{{ title }} - University</title>
+            <title>{{ title }} - Университет</title>
         {% else %}
-            <title>welcome - University</title>
+            <title>Добро пожаловать в Университет </title>
         {% endif %}
     </head>
     <body>
-        <div>University: <a href="/index">Home</a></div>
+        <div>Университет: <a href="{{ url_for('index') }}">Главная</a> <a href="{{ url_for('login') }}">Вход</a></div>
         <hr>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </body>
 </html>
