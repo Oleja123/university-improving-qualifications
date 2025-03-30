@@ -8,7 +8,15 @@
         {% endif %}
     </head>
     <body>
-        <div>Университет: <a href="{{ url_for('index') }}">Главная</a> <a href="{{ url_for('login') }}">Вход</a></div>
+        <div>
+            Университет: 
+            <a href="{{ url_for('index') }}">Главная</a>
+            {% if current_user.is_anonymous %}
+            <a href="{{ url_for('login') }}">Войти</a>
+            {% else %}
+            <a href="{{ url_for('logout') }}">Выйти</a>
+            {% endif %}
+        </div>
         <hr>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
