@@ -15,9 +15,11 @@ users_roles = sa.Table(
               primary_key=True)
 )
 
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
+
 
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
@@ -34,11 +36,11 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def has_role(self, role):
         query = self.roles.select().where(Role.name == role)
         return db.session.scalar(query) is not None
-    
+
     def add_roles(self, roles):
         query = sa.select(Role).where(Role.name.in_(roles))
         res = db.session.scalars(query).all()
@@ -50,13 +52,14 @@ class User(UserMixin, db.Model):
             if not self.has_role(role.name):
                 self.roles.add(role)
 
-
     def __repr__(self):
         return f'User {self.username}'
-    
+
+
 class Role(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    name: so.Mapped[str] = so.mapped_column(sa.String(64), index = True, unique = True)
+    name: so.Mapped[str] = so.mapped_column(
+        sa.String(64), index=True, unique=True)
 
     def __repr__(self):
         return f'Role {self.name}'
