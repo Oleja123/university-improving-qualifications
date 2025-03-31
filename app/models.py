@@ -40,6 +40,21 @@ class User(UserMixin, db.Model):
     def has_role(self, role):
         query = self.roles.select().where(Role.name == role)
         return db.session.scalar(query) is not None
+    
+    def get_roles(self):
+        if self.roles is None:
+            return
+        query = self.roles.select()
+        return db.session.scalars(query).all()
+    
+    # def remove_roles(self, roles):
+    #     query = sa.select(Role).where(Role.name.in_(roles))
+    #     res = db.session.scalars(query).all()
+    #     if res is None:
+    #         return
+    #     if res is not list:
+    #         res = [res]
+    #     self.roles.remove(res)
 
     def add_roles(self, roles):
         query = sa.select(Role).where(Role.name.in_(roles))
@@ -48,8 +63,9 @@ class User(UserMixin, db.Model):
             return
         if res is not list:
             res = [res]
+        current_roles = [i.name for i in self.get_roles()]
         for role in res:
-            if not self.has_role(role.name):
+            if not role.name in current_roles:
                 self.roles.add(role)
 
     def __repr__(self):
