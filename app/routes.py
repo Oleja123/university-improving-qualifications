@@ -5,6 +5,7 @@ from app.forms import LoginForm
 import sqlalchemy as sa
 from app.models import User
 from urllib.parse import urlsplit
+from app.decorators.role_decorator import role_accepted
 
 
 @app.route('/')
@@ -38,3 +39,9 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/admin')
+@login_required
+@role_accepted('Admin')
+def get_admin():
+    return render_template('admin.html')

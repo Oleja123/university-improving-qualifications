@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 from flask_login import UserMixin
 
-
 user_role = sa.Table(
     'users_roles',
     db.metadata,
@@ -36,12 +35,12 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
-    
+
     def check_role(self, role: str) -> bool:
         if role is None:
             return False
         return self.role.name == role
-    
+
     def set_role(self, role: str) -> bool:
         if self.role is not None:
             return False
