@@ -8,20 +8,20 @@ from flask_login import UserMixin
 user_role = sa.Table(
     'users_roles',
     db.metadata,
-    sa.Column('user_id', sa.Integer, sa.ForeignKey('user.id'),
+    sa.Column('teacher_id', sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'),
               primary_key=True, unique=True),
-    sa.Column('role_id', sa.Integer, sa.ForeignKey('role.id'),
+    sa.Column('role_id', sa.Integer, sa.ForeignKey('role.id', ondelete='CASCADE'),
               primary_key=True)
 )
 
 
-users_departments = sa.Table(
-    'users_departments',
+teachers_departments = sa.Table(
+    'teachers_departments',
     db.metadata,
-    sa.Column('user_id', sa.Integer, sa.ForeignKey(
-        'user_id'), primary_key=True),
+    sa.Column('teacher_id', sa.Integer, sa.ForeignKey(
+        'user.id'), primary_key=True),
     sa.Column('department_id', sa.Integer, sa.ForeignKey(
-        'department_id'), primary_key=True)
+        'department.id'), primary_key=True)
 )
 
 
@@ -39,7 +39,10 @@ class User(UserMixin, db.Model):
         sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     role: so.Mapped['Role'] = so.relationship(secondary=user_role)
-    departments: so.Writ
+    departments: so.WriteOnlyMapped['Department'] = so.relationship(secondary=teachers_departments,
+                                                                    primaryjoin=(
+                                                                        teachers_departments.c.teacher_id == id),
+                                                                    back_populates='teachers')
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -79,7 +82,7 @@ class Faculty(db.Model):
     name: so.Mapped[str] = so.mapped_column(
         sa.String(128), index=True, unique=True)
     departments: so.WriteOnlyMapped['Department'] = so.relationship(
-        back_populates='faculty')
+        back_populates='faculty', passive_deletes=True)
 
     def __repr__(self):
         return f'Faculty {self.name}'
@@ -90,8 +93,18 @@ class Department(db.Model):
     name: so.Mapped[str] = so.mapped_column(
         sa.String(128), index=True, unique=True)
     faculty_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey(Faculty.id), index=True)
+        sa.ForeignKey(Faculty.id, ondelete='CASCADE'), index=True, nullable=True)
     faculty: so.Mapped[Faculty] = so.relationship(back_populates='departments')
+    teachers: so.WriteOnlyMapped['User'] = so.relationship(secondary=teachers_departments,
+                                                           primaryjoin=(
+                                                               teachers_departments.c.department_id == id),
+                                                           back_populates='departments', passive_deletes=True)
+    
+    def add_teacher(self, teacher: User) -> bool:
+        if teacher.role.name != 'Teacher':
+            return False
+        self.teachers.add(teacher)
+        return True
 
     def __repr__(self):
         return f'Department {self.name}'
