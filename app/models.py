@@ -15,6 +15,16 @@ user_role = sa.Table(
 )
 
 
+users_departments = sa.Table(
+    'users_departments',
+    db.metadata,
+    sa.Column('user_id', sa.Integer, sa.ForeignKey(
+        'user_id'), primary_key=True),
+    sa.Column('department_id', sa.Integer, sa.ForeignKey(
+        'department_id'), primary_key=True)
+)
+
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
@@ -29,6 +39,7 @@ class User(UserMixin, db.Model):
         sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     role: so.Mapped['Role'] = so.relationship(secondary=user_role)
+    departments: so.Writ
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -61,3 +72,26 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'Role {self.name}'
+
+
+class Faculty(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(
+        sa.String(128), index=True, unique=True)
+    departments: so.WriteOnlyMapped['Department'] = so.relationship(
+        back_populates='faculty')
+
+    def __repr__(self):
+        return f'Faculty {self.name}'
+
+
+class Department(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(
+        sa.String(128), index=True, unique=True)
+    faculty_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey(Faculty.id), index=True)
+    faculty: so.Mapped[Faculty] = so.relationship(back_populates='departments')
+
+    def __repr__(self):
+        return f'Department {self.name}'
