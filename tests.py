@@ -1,9 +1,29 @@
-from app.models import User, Role, Department, Faculty
+from app.models import User, Department, Faculty
 from app import app, db
 import sqlalchemy as sa
 import unittest
 import os
 os.environ['DATABASE_URL'] = 'sqlite://'
+
+
+# class UserModelCase(unittest.TestCase):
+#     def setUp(self):
+#         self.app_context = app.app_context()
+#         self.app_context.push()
+#         db.create_all()
+
+#     def tearDown(self):
+#         db.session.remove()
+#         db.drop_all()
+#         self.app_context.pop()
+
+#     def test_password_hashing(self):
+#         u = User(username='Oleja123', email='oleja@example.com', full_name='Salin Oleg Alexeevich')
+#         u.set_password('aboba')
+#         self.assertFalse(u.check_password('boba'))
+#         self.assertTrue(u.check_password('aboba'))
+
+#     def test_role(self):
 
 
 class FacultyModelCase(unittest.TestCase):
@@ -91,11 +111,7 @@ class DepartmentModelCase(unittest.TestCase):
                   full_name='Egov Eugene Nikolaeevich')
         t2 = User(username='tr0n1n', email='tr0n1n@ulstu.ru',
                   full_name='Tronin Vadim Georgeovich')
-        r = Role(name='Teacher')
         db.session.add(t1, t2)
-        db.session.add(r)
-        t1.set_role(r.name)
-        t2.set_role(r.name)
         db.session.commit()
         d1.add_teacher(t1)
         d1.add_teacher(t2)

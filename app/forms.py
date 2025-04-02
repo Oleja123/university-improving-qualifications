@@ -8,3 +8,8 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Вход')
+
+
+class EditFacultyForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    submit = SubmitField('Создать')
