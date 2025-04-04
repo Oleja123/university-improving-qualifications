@@ -1,9 +1,9 @@
 from app import app, db
 from flask import flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from app.forms import LoginForm, EditFacultyForm
+from app.forms import LoginForm, EditFacultyForm, EditDepartmentForm
 import sqlalchemy as sa
-from app.models import User, Faculty
+from app.models import User, Faculty, Department
 from urllib.parse import urlsplit
 
 
@@ -43,8 +43,9 @@ def logout():
 @app.route('/faculties')
 @login_required
 def faculties():
-    faculties = db.session.scalars(sa.select(Faculty).order_by(Faculty.name))
+    faculties = db.session.scalars(sa.select(Faculty).order_by(Faculty.name)).all()
     return render_template('faculties.html', title='Факультеты', faculties=faculties)
+
 
 @app.route('/faculties/create', methods=['GET', 'POST'])
 @login_required
@@ -80,6 +81,7 @@ def edit_faculty(faculty_id):
 
     return render_template('edit_faculty.html', form=form)
 
+
 @app.route('/faculties/delete/<faculty_id>', methods=['DELETE', 'GET'])
 @login_required
 def delete_faculty(faculty_id):
@@ -88,5 +90,63 @@ def delete_faculty(faculty_id):
         db.session.delete(faculty)
         db.session.commit()
         return redirect(url_for('faculties'))
+    except Exception as ex:
+        flash(ex)
+
+
+@app.route('/departments')
+@login_required
+def departments():
+    departments = db.session.scalars(sa.select(Department).order_by(Department.name)).all()
+    return render_template('departments.html', title='Кафедры', departments=departments)
+
+
+@app.route('/departments/create', methods=['GET', 'POST'])
+@login_required
+def create_department():
+    form = EditDepartmentForm()
+    if form.validate_on_submit():
+        faculty = db.session.get(Faculty, form.faculty.data)
+        department = Department(name=form.name.data, faculty=faculty)
+        try:
+            db.session.add(department)
+            db.session.commit()
+            return redirect(url_for('departments'))
+        except Exception as ex:
+            flash(ex)
+
+    return render_template('edit_department.html', form=form)
+
+
+@app.route('/departments/edit/<department_id>', methods=['GET', 'POST'])
+@login_required
+def edit_department(department_id):
+    form = EditDepartmentForm()
+    department = db.session.get(Department, department_id)
+    if department is None:
+        return redirect(url_for('departments'))
+    if form.validate_on_submit():
+        try:
+            department.name = form.name.data
+            faculty = db.session.get(Faculty, form.faculty.data)
+            department.faculty = faculty
+            db.session.commit()
+            return redirect(url_for('departments'))
+        except Exception as ex:
+            flash(ex)
+    form.name.data = department.name
+    form.faculty.data = department.faculty_id
+
+    return render_template('edit_department.html', form=form)
+
+
+@app.route('/departments/delete/<department_id>', methods=['DELETE', 'GET'])
+@login_required
+def delete_department(department_id):
+    try:
+        department = db.session.get(Department, department_id)
+        db.session.delete(department)
+        db.session.commit()
+        return redirect(url_for('departments'))
     except Exception as ex:
         flash(ex)

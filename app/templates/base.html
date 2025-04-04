@@ -14,6 +14,8 @@
             {% if current_user.is_anonymous %}
             <a href="{{ url_for('login') }}">Войти</a>
             {% else %}
+            <a href="{{ url_for('faculties') }}">Факультеты</a>
+            <a href="{{ url_for('departments') }}">Кафедры</a>
             <a href="{{ url_for('logout') }}">Выйти</a>
             {% endif %}
         </div>
