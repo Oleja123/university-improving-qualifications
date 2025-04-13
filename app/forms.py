@@ -17,6 +17,11 @@ class EditFacultyForm(FlaskForm):
     submit = SubmitField('Создать')
 
 
+class CourseTypeForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    submit = SubmitField('Создать')
+
+
 class EditDepartmentForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     faculty = SelectField('Факультет', validators=[DataRequired()], coerce=int)
