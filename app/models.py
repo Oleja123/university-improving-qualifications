@@ -70,10 +70,6 @@ class Department(db.Model):
                                                                teachers_departments.c.department_id == id),
                                                            back_populates='departments', passive_deletes=True)
 
-    def add_teacher(self, teacher: User) -> bool:
-        self.teachers.add(teacher)
-        return True
-
     def __repr__(self):
         return f'Department {self.name}'
 
