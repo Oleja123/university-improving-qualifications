@@ -4,6 +4,7 @@ import sqlalchemy.orm as so
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
 from flask_login import UserMixin
+from datetime import datetime
 
 teachers_departments = sa.Table(
     'teachers_departments',
@@ -76,3 +77,34 @@ class Department(db.Model):
     @classmethod
     def from_form(departent, form, faculty):
         return Department(name=form.name.data, faculty=faculty)
+
+
+class CourseType(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(
+        sa.String(128), index=True, unique=True)
+    courses: so.WriteOnlyMapped['Course'] = so.relationship(
+        back_populates='type', passive_deletes=True)
+    course_list: so.Mapped['CourseList'] = so.relationship(back_populates='type')
+    deadline: so.Mapped[datetime] = so.mapped_column(sa.DateTime, nullable=True)
+
+    def __repr__(self):
+        return f'Type {self.name}'
+
+class Course(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(
+        sa.String(256), index=True, unique=True)
+    type_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey(CourseType.id, ondelete='CASCADE'), index=True, nullable=False)
+    type: so.Mapped[CourseType] = so.relationship(back_populates='courses')
+
+    def __repr__(self):
+        return f'Course {self.name}'
+
+
+class CourseList(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    type_id: so.Mapped[int] = so.mapped_column(
+        sa.ForeignKey(CourseType.id, ondelete='CASCADE'), index=True, nullable=False)
+    type: so.Mapped[CourseType] = so.relationship(back_populates='course_list')
