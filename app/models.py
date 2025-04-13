@@ -53,6 +53,10 @@ class Faculty(db.Model):
     def __repr__(self):
         return f'Faculty {self.name}'
 
+    @classmethod
+    def from_form(faculty, form):
+        return faculty(name=form.name.data)
+
 
 class Department(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
@@ -72,3 +76,7 @@ class Department(db.Model):
 
     def __repr__(self):
         return f'Department {self.name}'
+
+    @classmethod
+    def from_form(departent, form, faculty):
+        return Department(name=form.name.data, faculty=faculty)
