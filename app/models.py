@@ -55,8 +55,8 @@ class Faculty(db.Model):
         return f'Faculty {self.name}'
 
     @classmethod
-    def from_form(faculty, form):
-        return faculty(name=form.name.data)
+    def from_form(cls, form):
+        return cls(name=form.name.data)
 
 
 class Department(db.Model):
@@ -75,8 +75,8 @@ class Department(db.Model):
         return f'Department {self.name}'
 
     @classmethod
-    def from_form(departent, form, faculty):
-        return Department(name=form.name.data, faculty=faculty)
+    def from_form(cls, form, faculty):
+        return cls(name=form.name.data, faculty=faculty)
 
 
 class CourseType(db.Model):
@@ -84,23 +84,34 @@ class CourseType(db.Model):
     name: so.Mapped[str] = so.mapped_column(
         sa.String(128), index=True, unique=True)
     courses: so.WriteOnlyMapped['Course'] = so.relationship(
+        back_populates='type')
+    course_list: so.Mapped['CourseList'] = so.relationship(
         back_populates='type', passive_deletes=True)
-    course_list: so.Mapped['CourseList'] = so.relationship(back_populates='type')
-    deadline: so.Mapped[datetime] = so.mapped_column(sa.DateTime, nullable=True)
+    deadline: so.Mapped[datetime] = so.mapped_column(
+        sa.DateTime, nullable=True)
 
     def __repr__(self):
         return f'Type {self.name}'
+
+    @classmethod
+    def from_form(cls, form):
+        return cls(name=form.name.data)
+
 
 class Course(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(
         sa.String(256), index=True, unique=True)
     type_id: so.Mapped[int] = so.mapped_column(
-        sa.ForeignKey(CourseType.id, ondelete='CASCADE'), index=True, nullable=False)
+        sa.ForeignKey(CourseType.id), index=True, nullable=False)
     type: so.Mapped[CourseType] = so.relationship(back_populates='courses')
 
     def __repr__(self):
         return f'Course {self.name}'
+
+    @classmethod
+    def from_form(cls, form, type):
+        return cls(name=form.name.data, type=type)
 
 
 class CourseList(db.Model):

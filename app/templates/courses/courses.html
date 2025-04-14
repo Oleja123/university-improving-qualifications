@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Курсы</h1>
+    <a href="{{ url_for('create_course') }}">
+        Создать курс
+    </a>
+    {% for course in courses %}
+        <tr valign="top">
+            <td>
+                <h1>{{course.name}}</h1>
+            </td>
+            <td>
+                <a href="{{ url_for('edit_course', course_id=course.id) }}">редактировать</a>
+            </td>
+            <td>
+                <a href="{{ url_for('delete_dcourse', course_id=course.id) }}">удалить</a>
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

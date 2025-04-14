@@ -1,10 +1,10 @@
 from app import app, db
 from flask import flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from app.forms import LoginForm, EditFacultyForm, EditDepartmentForm
+from app.forms import LoginForm, EditFacultyForm, EditDepartmentForm, EditCourseTypeForm
 import sqlalchemy as sa
 from app.models import User, Faculty, Department
-from app.services import DepartmentService, FacultyService
+from app.services import DepartmentService, FacultyService, TypeService
 from urllib.parse import urlsplit
 
 
@@ -44,7 +44,7 @@ def logout():
 @app.route('/faculties')
 @login_required
 def faculties():
-    return render_template('faculties.html', title='Факультеты', faculties=FacultyService.get_all())
+    return render_template('faculties/faculties.html', title='Факультеты', faculties=FacultyService.get_all())
 
 
 @app.route('/faculties/create', methods=['GET', 'POST'])
@@ -58,7 +58,7 @@ def create_faculty():
         except Exception as ex:
             flash(ex)
 
-    return render_template('edit_faculty.html', form=form)
+    return render_template('faculties/edit_faculty.html', form=form)
 
 
 @app.route('/faculties/edit/<faculty_id>', methods=['GET', 'POST'])
@@ -75,7 +75,7 @@ def edit_faculty(faculty_id):
             flash(ex)
     form.name.data = FacultyService.get_by_id(faculty_id).name
 
-    return render_template('edit_faculty.html', form=form)
+    return render_template('faculties/edit_faculty.html', form=form)
 
 
 @app.route('/faculties/delete/<faculty_id>', methods=['DELETE', 'GET'])
@@ -91,9 +91,7 @@ def delete_faculty(faculty_id):
 @app.route('/departments')
 @login_required
 def departments():
-    departments = db.session.scalars(
-        sa.select(Department).order_by(Department.name)).all()
-    return render_template('departments.html', title='Кафедры', departments=departments)
+    return render_template('departments/departments.html', title='Кафедры', departments=DepartmentService.get_all())
 
 
 @app.route('/departments/create', methods=['GET', 'POST'])
@@ -107,7 +105,7 @@ def create_department():
         except Exception as ex:
             flash(ex)
 
-    return render_template('edit_department.html', form=form)
+    return render_template('departments/edit_department.html', form=form)
 
 
 @app.route('/departments/edit/<department_id>', methods=['GET', 'POST'])
@@ -124,7 +122,7 @@ def edit_department(department_id):
     form.name.data = department.name
     form.faculty.data = department.faculty_id
 
-    return render_template('edit_department.html', form=form)
+    return render_template('departments/edit_department.html', form=form)
 
 
 @app.route('/departments/delete/<department_id>', methods=['DELETE', 'GET'])
@@ -133,5 +131,51 @@ def delete_department(department_id):
     try:
         DepartmentService.delete(department_id)
         return redirect(url_for('departments'))
+    except Exception as ex:
+        flash(ex)
+
+
+@app.route('/course_types')
+@login_required
+def course_types():
+    return render_template('types/types.html', title='Типы курсов', types=TypeService.get_all())
+
+
+@app.route('/course_types/create', methods=['GET', 'POST'])
+@login_required
+def create_course_type():
+    form = EditCourseTypeForm()
+    if form.validate_on_submit():
+        try:
+            TypeService.create(form)
+            return redirect(url_for('course_types'))
+        except Exception as ex:
+            flash(ex)
+
+    return render_template('types/edit_type.html', form=form)
+
+
+@app.route('/course_types/edit/<type_id>', methods=['GET', 'POST'])
+@login_required
+def edit_course_type(type_id):
+    form = EditCourseTypeForm()
+    if form.validate_on_submit():
+        try:
+            department = TypeService.edit(type_id, form)
+            return redirect(url_for('course_types'))
+        except Exception as ex:
+            flash(ex)
+    course_type = TypeService.get_by_id(type_id)
+    form.name.data = course_type.name
+
+    return render_template('types/edit_type.html', form=form)
+
+
+@app.route('/course_types/delete/<type_id>', methods=['DELETE', 'GET'])
+@login_required
+def delete_course_type(type_id):
+    try:
+        TypeService.delete(type_id)
+        return redirect(url_for('course_types'))
     except Exception as ex:
         flash(ex)

@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 from app.models import Faculty
+from app.services import FacultyService, TypeService
 import sqlalchemy as sa
 from app import db
 
@@ -17,7 +18,7 @@ class EditFacultyForm(FlaskForm):
     submit = SubmitField('Создать')
 
 
-class CourseTypeForm(FlaskForm):
+class EditCourseTypeForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     submit = SubmitField('Создать')
 
@@ -29,5 +30,16 @@ class EditDepartmentForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(EditDepartmentForm, self).__init__(*args, **kwargs)
-        faculties = db.session.scalars(sa.select(Faculty)).all()
+        faculties = FacultyService.get_all()
         self.faculty.choices = [(f.id, f.name) for f in faculties]
+
+
+class EditCourseForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    type = SelectField('Тип', validators=[DataRequired()], coerce=int)
+    submit = SubmitField('Создать')
+
+    def __init__(self, *args, **kwargs):
+        super(EditDepartmentForm, self).__init__(*args, **kwargs)
+        types = TypeService.get_all
+        self.type.choices = [(t.id, t.name) for t in types]
