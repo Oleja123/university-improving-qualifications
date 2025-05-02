@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ccb4efef2099
-Revises: 
-Create Date: 2025-04-14 09:31:13.080853
+Revision ID: f42e8691a4ec
+Revises: 7e5b40525afd
+Create Date: 2025-05-02 19:27:41.283192
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ccb4efef2099'
-down_revision = None
+revision = 'f42e8691a4ec'
+down_revision = '7e5b40525afd'
 branch_labels = None
 depends_on = None
 
@@ -37,46 +37,65 @@ def upgrade():
 
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=64), nullable=False),
-    sa.Column('full_name', sa.String(length=64), nullable=False),
-    sa.Column('email', sa.String(length=120), nullable=False),
+    sa.Column('email', sa.String(length=64), nullable=False),
+    sa.Column('full_name', sa.String(length=128), nullable=False),
     sa.Column('password_hash', sa.String(length=256), nullable=True),
+    sa.Column('role', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
-        batch_op.create_index(batch_op.f('ix_user_username'), ['username'], unique=True)
+        batch_op.create_index(batch_op.f('ix_user_role'), ['role'], unique=False)
 
     op.create_table('course',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=256), nullable=False),
-    sa.Column('type_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['type_id'], ['course_type.id'], ),
+    sa.Column('name', sa.String(length=128), nullable=False),
+    sa.Column('course_type_id', sa.Integer(), nullable=False),
+    sa.Column('is_included', sa.Boolean(), nullable=False),
+    sa.ForeignKeyConstraint(['course_type_id'], ['course_type.id'], ondelete='Cascade'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('course', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_course_course_type_id'), ['course_type_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_course_is_included'), ['is_included'], unique=False)
         batch_op.create_index(batch_op.f('ix_course_name'), ['name'], unique=True)
-        batch_op.create_index(batch_op.f('ix_course_type_id'), ['type_id'], unique=False)
-
-    op.create_table('course_list',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('type_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['type_id'], ['course_type.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    with op.batch_alter_table('course_list', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_course_list_type_id'), ['type_id'], unique=False)
 
     op.create_table('department',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=False),
-    sa.Column('faculty_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['faculty_id'], ['faculty.id'], ondelete='CASCADE'),
+    sa.Column('faculty_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['faculty_id'], ['faculty.id'], ondelete='Cascade'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('department', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_department_faculty_id'), ['faculty_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_department_name'), ['name'], unique=True)
+
+    op.create_table('notification',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('message', sa.String(length=256), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('has_read', sa.Boolean(), nullable=False),
+    sa.Column('time_sent', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='Cascade'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('notification', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_notification_message'), ['message'], unique=True)
+        batch_op.create_index(batch_op.f('ix_notification_user_id'), ['user_id'], unique=False)
+
+    op.create_table('teacher_course',
+    sa.Column('teacher_id', sa.Integer(), nullable=False),
+    sa.Column('course_id', sa.Integer(), nullable=False),
+    sa.Column('sertificate_path', sa.String(length=260), nullable=True),
+    sa.ForeignKeyConstraint(['course_id'], ['course.id'], ),
+    sa.ForeignKeyConstraint(['teacher_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('teacher_id', 'course_id'),
+    sa.UniqueConstraint('sertificate_path')
+    )
+    with op.batch_alter_table('teacher_course', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_teacher_course_course_id'), ['course_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_teacher_course_teacher_id'), ['teacher_id'], unique=False)
 
     op.create_table('teachers_departments',
     sa.Column('teacher_id', sa.Integer(), nullable=False),
@@ -91,22 +110,29 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('teachers_departments')
+    with op.batch_alter_table('teacher_course', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_teacher_course_teacher_id'))
+        batch_op.drop_index(batch_op.f('ix_teacher_course_course_id'))
+
+    op.drop_table('teacher_course')
+    with op.batch_alter_table('notification', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_notification_user_id'))
+        batch_op.drop_index(batch_op.f('ix_notification_message'))
+
+    op.drop_table('notification')
     with op.batch_alter_table('department', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_department_name'))
         batch_op.drop_index(batch_op.f('ix_department_faculty_id'))
 
     op.drop_table('department')
-    with op.batch_alter_table('course_list', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_course_list_type_id'))
-
-    op.drop_table('course_list')
     with op.batch_alter_table('course', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_course_type_id'))
         batch_op.drop_index(batch_op.f('ix_course_name'))
+        batch_op.drop_index(batch_op.f('ix_course_is_included'))
+        batch_op.drop_index(batch_op.f('ix_course_course_type_id'))
 
     op.drop_table('course')
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f('ix_user_username'))
+        batch_op.drop_index(batch_op.f('ix_user_role'))
         batch_op.drop_index(batch_op.f('ix_user_email'))
 
     op.drop_table('user')
