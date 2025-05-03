@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
@@ -14,6 +15,7 @@ class TeacherCourse(db.Model):
     course = db.relationship('Course')
     sertificate_path: so.Mapped[Optional[str]] = so.mapped_column(
         sa.String(260), unique=True)
+    date_approved: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime)
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.name}, {self.course.name}'

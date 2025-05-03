@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f42e8691a4ec
-Revises: 7e5b40525afd
-Create Date: 2025-05-02 19:27:41.283192
+Revision ID: 88970c7fda27
+Revises: 
+Create Date: 2025-05-03 09:18:39.781250
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f42e8691a4ec'
-down_revision = '7e5b40525afd'
+revision = '88970c7fda27'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -52,7 +52,7 @@ def upgrade():
     sa.Column('name', sa.String(length=128), nullable=False),
     sa.Column('course_type_id', sa.Integer(), nullable=False),
     sa.Column('is_included', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['course_type_id'], ['course_type.id'], ondelete='Cascade'),
+    sa.ForeignKeyConstraint(['course_type_id'], ['course_type.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('course', schema=None) as batch_op:
@@ -64,7 +64,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=False),
     sa.Column('faculty_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['faculty_id'], ['faculty.id'], ondelete='Cascade'),
+    sa.ForeignKeyConstraint(['faculty_id'], ['faculty.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('department', schema=None) as batch_op:
@@ -77,7 +77,7 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('has_read', sa.Boolean(), nullable=False),
     sa.Column('time_sent', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='Cascade'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('notification', schema=None) as batch_op:
@@ -88,6 +88,7 @@ def upgrade():
     sa.Column('teacher_id', sa.Integer(), nullable=False),
     sa.Column('course_id', sa.Integer(), nullable=False),
     sa.Column('sertificate_path', sa.String(length=260), nullable=True),
+    sa.Column('date_approved', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['course_id'], ['course.id'], ),
     sa.ForeignKeyConstraint(['teacher_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('teacher_id', 'course_id'),

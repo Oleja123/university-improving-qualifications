@@ -2,8 +2,6 @@ from app.dto.department_dto import DepartmentDTO
 from app.dto.faculty_dto import FacultyDTO
 from sqlalchemy.exc import IntegrityError
 from app.services import department_service, faculty_service
-from app.models.faculty import Faculty
-from app.models.department import Department
 from app import app, db
 import unittest
 import os
@@ -67,12 +65,12 @@ class DepartmentServiceCase(unittest.TestCase):
         self.assertEqual(department.faculty.name, 'Test Faculty')
         self.assertIn(department, faculty_service.get_departments(FacultyDTO(department.faculty.id)))
 
-    # def test_cascade_on_faculty_delete(self): #когда постгру поставлю проверю
-    #     app.logger.info('Запуск теста каскадного удаления при удалении факультета')
-    #     department_service.create(DepartmentDTO(name='Math', faculty_id=self.faculty.id))
-    #     faculty_service.delete(self.faculty.id)
-    #     deleted = department_service.get_by_name('Math')
-    #     self.assertIsNone(deleted)
+    def test_cascade_on_faculty_delete(self): 
+        app.logger.info('Запуск теста каскадного удаления при удалении факультета')
+        department_service.create(DepartmentDTO(name='Math', faculty_id=self.faculty.id))
+        faculty_service.delete(self.faculty.id)
+        deleted = department_service.get_by_name('Math')
+        self.assertIsNone(deleted)
 
     def test_same_name_create(self):
         app.logger.info('Запуск теста уникальности имени кафедры')
