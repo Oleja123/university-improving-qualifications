@@ -5,11 +5,11 @@ from app.services import faculty_service
 import sqlalchemy as sa
 
 
-def get_all(faculty=None):
+def get_all(faculties=None):
     try:
         query = sa.select(Department)
-        if faculty is not None:
-            query = query.where(Department.faculty_id == faculty)
+        if faculties is not None:
+            query = query.where(Department.faculty_id.in_(faculties))
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
@@ -17,11 +17,11 @@ def get_all(faculty=None):
         raise Exception('Неизвестная ошибка')
 
 
-def get_all_paginated(page: int, faculty=None):
+def get_all_paginated(page: int, faculties=None):
     try:
         query = sa.select(Department)
-        if faculty is not None:
-            query = query.where(Department.faculty_id == faculty)
+        if faculties is not None:
+            query = query.where(Department.faculty_id.in_(faculties))
         return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()

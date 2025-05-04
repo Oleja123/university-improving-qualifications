@@ -150,12 +150,12 @@ class DepartmentServiceCase(unittest.TestCase):
         original_per_page = app.config['DEPARTMENTS_PER_PAGE']
         app.config['DEPARTMENTS_PER_PAGE'] = 1
         
-        page1 = department_service.get_all_paginated(page=1, faculty=faculty2.id)
+        page1 = department_service.get_all_paginated(page=1, faculties=[faculty2.id])
         self.assertEqual(len(page1.items), 1)
         self.assertEqual(page1.items[0].name, 'Dep1')
         self.assertTrue(page1.has_next)
             
-        page2 = department_service.get_all_paginated(page=2, faculty=faculty2.id)
+        page2 = department_service.get_all_paginated(page=2, faculties=[faculty2.id])
         self.assertEqual(len(page2.items), 1)
         self.assertEqual(page2.items[0].name, 'Dep2')
         self.assertFalse(page2.has_next)

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 from app.models.notification import Notification
 from app.dto.notification_dto import NotificationDTO
@@ -11,7 +11,7 @@ def get_by_id(id: int) :
 
 def send_message(notificaionDTO: NotificationDTO):
     user = user_service.get_by_id(notificaionDTO.user_id)
-    notification = Notification(message=notificaionDTO.message, user=user, time_sent=datetime.now(), has_read=False)
+    notification = Notification(message=notificaionDTO.message, user=user, has_read=False)
     db.session.add(notification)
     db.session.commit()
 

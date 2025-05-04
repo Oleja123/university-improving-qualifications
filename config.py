@@ -9,4 +9,4 @@ class Config:
         'DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     DEPARTMENTS_PER_PAGE = 3
     NOTIFICATIONS_PER_PAGE = 3
-    TEACHERS_PER_PAGE = 3
+    USERS_PER_PAGE = 3

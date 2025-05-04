@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 
@@ -13,8 +13,7 @@ class Notification(db.Model):
     user: so.Mapped['User'] = so.relationship(
         back_populates='notifications')
     has_read: so.Mapped[bool] = so.mapped_column(sa.Boolean)
-    time_sent: so.Mapped[datetime] = so.mapped_column(
-        sa.DateTime)
+    time_sent: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'Notification {self.name}'
