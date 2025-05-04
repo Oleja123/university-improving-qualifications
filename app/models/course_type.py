@@ -2,7 +2,14 @@ from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
+
+
+def add_years(start_date, years):
+    try:
+        return start_date.replace(year=start_date.year + years)
+    except ValueError:
+        return start_date.replace(year=start_date.year + years, day=28)
 
 
 class CourseType(db.Model):
@@ -13,7 +20,7 @@ class CourseType(db.Model):
     courses: so.WriteOnlyMapped['Course'] = so.relationship(
         back_populates='course_type', passive_deletes=True)
     deadline: so.Mapped[Optional[datetime]] = so.mapped_column(
-        sa.DateTime)
+        index=True, default=lambda: add_years(datetime.now(timezone.utc), 3))
 
     def __repr__(self):
         return f'Course Type {self.name}'
