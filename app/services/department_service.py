@@ -1,18 +1,31 @@
-from app import db
+from app import db, app
 from app.dto.department_dto import DepartmentDTO
 from app.models.department import Department
 from app.services import faculty_service
 import sqlalchemy as sa
 
 
-def get_all():
-    return db.session.execute(sa.select(Department)).scalars().all()
+def get_all(faculty=None):
+    query = sa.select(Department)
+    if faculty is not None:
+        query = query.where(Department.faculty_id == faculty)
+    return db.session.execute(query).scalars().all()
 
-def get_by_id(id: int) :
+
+def get_all_paginated(page: int, faculty=None):
+    query = sa.select(Department)
+    if faculty is not None:
+        query = query.where(Department.faculty_id == faculty)
+    return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
+
+
+def get_by_id(id: int):
     return db.session.get(Department, id)
+
 
 def get_by_name(name: str):
     return db.session.execute(sa.select(Department).where(Department.name == name)).scalar_one_or_none()
+
 
 def create(departmentDTO: DepartmentDTO):
     if departmentDTO.faculty_id is None:
@@ -25,9 +38,14 @@ def create(departmentDTO: DepartmentDTO):
     db.session.commit()
     return True
 
+def get_teachers(page: int, department: Department):
+    query = department.teachers.select()
+    return db.paginate(query, page=page, per_page=app.config['TEACHERS_PER_PAGE'], error_out=False)
+
+
 def update(departmentDTO: DepartmentDTO):
     record = get_by_id(departmentDTO.id)
-    if record is None: 
+    if record is None:
         return False
     if departmentDTO.name is not None:
         record.name = departmentDTO.name
@@ -36,6 +54,7 @@ def update(departmentDTO: DepartmentDTO):
         record.faculty = faculty
     db.session.commit()
     return True
+
 
 def delete(id: int) -> bool:
     department = get_by_id(id)

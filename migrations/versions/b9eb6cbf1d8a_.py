@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 88970c7fda27
+Revision ID: b9eb6cbf1d8a
 Revises: 
-Create Date: 2025-05-03 09:18:39.781250
+Create Date: 2025-05-04 11:07:43.661082
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '88970c7fda27'
+revision = 'b9eb6cbf1d8a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -37,15 +37,15 @@ def upgrade():
 
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('email', sa.String(length=64), nullable=False),
+    sa.Column('username', sa.String(length=64), nullable=False),
     sa.Column('full_name', sa.String(length=128), nullable=False),
     sa.Column('password_hash', sa.String(length=256), nullable=True),
     sa.Column('role', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
         batch_op.create_index(batch_op.f('ix_user_role'), ['role'], unique=False)
+        batch_op.create_index(batch_op.f('ix_user_username'), ['username'], unique=True)
 
     op.create_table('course',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -133,8 +133,8 @@ def downgrade():
 
     op.drop_table('course')
     with op.batch_alter_table('user', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_user_username'))
         batch_op.drop_index(batch_op.f('ix_user_role'))
-        batch_op.drop_index(batch_op.f('ix_user_email'))
 
     op.drop_table('user')
     with op.batch_alter_table('faculty', schema=None) as batch_op:

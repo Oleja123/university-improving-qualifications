@@ -25,7 +25,7 @@ class DepartmentServiceCase(unittest.TestCase):
         test_departments = [
             DepartmentDTO(name='IS', faculty_id=self.faculty.id),
             DepartmentDTO(name='CT', faculty_id=self.faculty.id),
-            DepartmentDTO(name='AB', faculty_id=self.faculty.id)
+            DepartmentDTO(name='AB', faculty_id=self.faculty.id),
         ]
         for department in test_departments:
             department_service.create(department)
@@ -86,6 +86,70 @@ class DepartmentServiceCase(unittest.TestCase):
     def test_get_all_empty(self):
         app.logger.info('Запуск теста получения всех кафедр из пустой БД')
         self.assertEqual(len(department_service.get_all()), 0)
+
+    def test_get_all_paginated(self):
+        app.logger.info('Запуск теста пагинации кафедр')
+        self.create_departments()  
+        
+        page1 = department_service.get_all_paginated(page=1)
+        self.assertEqual(len(page1.items), 3)
+        self.assertEqual(page1.page, 1)
+        self.assertEqual(page1.per_page, app.config['DEPARTMENTS_PER_PAGE'])
+        self.assertFalse(page1.has_prev)
+        self.assertFalse(page1.has_next)
+        
+        original_per_page = app.config['DEPARTMENTS_PER_PAGE']
+        app.config['DEPARTMENTS_PER_PAGE'] = 2
+        
+        page1 = department_service.get_all_paginated(page=1)
+        self.assertEqual(len(page1.items), 2)
+        self.assertTrue(page1.has_next)
+        self.assertFalse(page1.has_prev)
+            
+        page2 = department_service.get_all_paginated(page=2)
+        app.logger.info(page2.items)
+        self.assertEqual(len(page2.items), 1)
+        self.assertFalse(page2.has_next)
+        self.assertTrue(page2.has_prev)
+        app.config['DEPARTMENTS_PER_PAGE'] = original_per_page
+
+    def test_get_all_paginated_empty(self):
+        app.logger.info('Запуск теста пагинации с пустым списком кафедр')
+        page = department_service.get_all_paginated(page=1)
+        self.assertEqual(len(page.items), 0)
+        self.assertEqual(page.total, 0)
+        self.assertFalse(page.has_prev)
+        self.assertFalse(page.has_next)
+
+    def test_get_all_paginated_empty(self):
+        app.logger.info('Запуск теста пагинации с пустым списком кафедр')
+        page = department_service.get_all_paginated(page=1)
+        self.assertEqual(len(page.items), 0)
+        self.assertEqual(page.total, 0)
+        self.assertFalse(page.has_prev)
+        self.assertFalse(page.has_next)
+
+    def test_get_all_paginated_with_faculty_filter(self):
+        app.logger.info('Запуск теста пагинации с фильтром по факультету')
+        faculty_service.create(FacultyDTO(name='Another Faculty'))
+        faculty2 = faculty_service.get_by_name('Another Faculty')
+        
+        department_service.create(DepartmentDTO(name='Dep1', faculty_id=faculty2.id))
+        department_service.create(DepartmentDTO(name='Dep2', faculty_id=faculty2.id))
+        
+        original_per_page = app.config['DEPARTMENTS_PER_PAGE']
+        app.config['DEPARTMENTS_PER_PAGE'] = 1
+        
+        page1 = department_service.get_all_paginated(page=1, faculty=faculty2.id)
+        self.assertEqual(len(page1.items), 1)
+        self.assertEqual(page1.items[0].name, 'Dep1')
+        self.assertTrue(page1.has_next)
+            
+        page2 = department_service.get_all_paginated(page=2, faculty=faculty2.id)
+        self.assertEqual(len(page2.items), 1)
+        self.assertEqual(page2.items[0].name, 'Dep2')
+        self.assertFalse(page2.has_next)
+        app.config['DEPARTMENTS_PER_PAGE'] = original_per_page
 
 
 if __name__ == '__main__':
