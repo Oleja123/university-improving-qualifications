@@ -14,20 +14,23 @@ from app.exceptions.wrong_password_error import WrongPasswordError
 def get_all_teachers(departments=None):
     try:
         if departments is not None:
-            query = query.join(User.departments).where(sa.and_(Department.id.in_(departments), User.role == user.TEACHER)).order_by(Department.name)
-        else: 
+            query = query.join(User.departments).where(sa.and_(Department.id.in_(
+                departments), User.role == user.TEACHER)).order_by(Department.name)
+        else:
             query = query.where(User.role == user.TEACHER)
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+
 
 def get_all_paginated_teachers(page: int, departments=None):
     try:
         query = sa.select(User)
         if departments is not None:
-            query = query.join(User.departments).where(sa.and_(Department.id.in_(departments), User.role == user.TEACHER)).order_by(Department.name)
+            query = query.join(User.departments).where(sa.and_(Department.id.in_(
+                departments), User.role == user.TEACHER)).order_by(Department.name)
         else:
             query = query.where(User.role == user.TEACHER)
         return db.paginate(query, page=page, per_page=app.config['USERS_PER_PAGE'], error_out=False)
@@ -35,12 +38,14 @@ def get_all_paginated_teachers(page: int, departments=None):
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
-    
+
+
 def get_all_fired(departments=None):
     try:
         if departments is not None:
-            query = query.join(User.departments).where(sa.and_(Department.id.in_(departments), User.role == user.FIRED)).order_by(Department.name)
-        else: 
+            query = query.join(User.departments).where(sa.and_(Department.id.in_(
+                departments), User.role == user.FIRED)).order_by(Department.name)
+        else:
             query = query.where(User.role == user.FIRED)
         return db.session.execute(query).scalars().all()
     except Exception as e:
@@ -48,11 +53,13 @@ def get_all_fired(departments=None):
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
+
 def get_all_paginated_fired(page: int, departments=None):
     try:
         query = sa.select(User)
         if departments is not None:
-            query = query.join(User.departments).where(sa.and_(Department.id.in_(departments), User.role == user.FIRED)).order_by(Department.name)
+            query = query.join(User.departments).where(sa.and_(Department.id.in_(
+                departments), User.role == user.FIRED)).order_by(Department.name)
         else:
             query = query.where(User.role == user.FIRED)
         return db.paginate(query, page=page, per_page=app.config['USERS_PER_PAGE'], error_out=False)
@@ -60,7 +67,8 @@ def get_all_paginated_fired(page: int, departments=None):
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
-    
+
+
 def get_all_admins():
     try:
         query = query.where(User.role == user.ADMIN)
@@ -69,6 +77,7 @@ def get_all_admins():
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+
 
 def get_all_paginated_admins(page: int):
     try:
@@ -79,6 +88,7 @@ def get_all_paginated_admins(page: int):
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+
 
 def get_by_id(id: int):
     try:
@@ -98,7 +108,8 @@ def get_by_id(id: int):
 
 def get_by_username(username: str):
     try:
-        res = db.session.execute(sa.select(User).where(User.username == username)).scalar_one_or_none()
+        res = db.session.execute(sa.select(User).where(
+            User.username == username)).scalar_one_or_none()
         if res is None:
             raise ValueError(f'Пользователь с именем {username} не существует')
         return res
@@ -110,7 +121,8 @@ def get_by_username(username: str):
         db.session.rollback()
         app.logger.error(e)
         raise Exception(f'Неизвестная ошибка')
-    
+
+
 def create(userDTO: UserDTO):
     try:
         user = User(
@@ -128,11 +140,13 @@ def create(userDTO: UserDTO):
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         app.logger.error(e)
-        raise ValueError(f'Пользователь с именем {userDTO.name} уже существует')
+        raise ValueError(
+            f'Пользователь с именем {userDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при создании кафедры')
+        raise Exception(f'Неизвестная ошибка при создании пользователя')
+
 
 def check_password(username, password):
     try:
@@ -151,6 +165,7 @@ def check_password(username, password):
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+
 
 def update(userDTO: UserDTO):
     try:
@@ -184,7 +199,6 @@ def delete(id: int) -> bool:
         raise Exception('Неизвестная ошибка')
 
 
-
 def get_departments(userDTO: UserDTO):
     try:
         user = None
@@ -201,17 +215,19 @@ def get_departments(userDTO: UserDTO):
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
+
 def get_notifications(page: int, only_new, user: User):
     try:
         query = user.notifications.select()
         if only_new:
-            query = query.where(Notification.has_read == True)
+            query = query.where(Notification.has_read == False)
         query = query.order_by(sa.desc(Notification.time_sent))
         return db.paginate(query, page=page, per_page=app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
     except Exception:
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+
 
 def get_courses(page: int, approved: bool, user: User):
     try:
