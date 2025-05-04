@@ -51,8 +51,8 @@ class FacultyServiceCase(unittest.TestCase):
         self.create_faculties()
         faculty = faculty_service.get_by_id(1)
         faculty_service.delete(faculty.id)
-        faculty = faculty_service.get_by_id(faculty.id)
-        self.assertTrue(faculty is None)
+        with self.assertRaises(ValueError):
+            faculty = faculty_service.get_by_id(faculty.id)
 
     def test_get_all(self):
         app.logger.info('Запуск получения всех факультетов')
@@ -62,19 +62,19 @@ class FacultyServiceCase(unittest.TestCase):
     def test_same_name_create(self):
         app.logger.info('Запуск проверки на одинаковые имена')
         self.create_faculties()
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValueError):
             facultyDTO = FacultyDTO(name='FIST')
             faculty_service.create(facultyDTO)
 
     def test_get_by_id_nonexistent(self):
         app.logger.info('Запуск теста получения несуществующего факультета по ID')
-        faculty = faculty_service.get_by_id(999)
-        self.assertIsNone(faculty)
+        with self.assertRaises(ValueError):
+            faculty = faculty_service.get_by_id(999)
 
     def test_get_by_name_nonexistent(self):
         app.logger.info('Запуск теста получения несуществующего факультета по имени')
-        faculty = faculty_service.get_by_name('NON_EXISTENT')
-        self.assertIsNone(faculty)
+        with self.assertRaises(ValueError):
+            faculty = faculty_service.get_by_name('NON_EXISTENT')
 
     def test_get_all_empty(self):
         app.logger.info('Запуск теста получения всех факультетов из пустой БД')

@@ -6,60 +6,119 @@ import sqlalchemy as sa
 
 
 def get_all(faculty=None):
-    query = sa.select(Department)
-    if faculty is not None:
-        query = query.where(Department.faculty_id == faculty)
-    return db.session.execute(query).scalars().all()
+    try:
+        query = sa.select(Department)
+        if faculty is not None:
+            query = query.where(Department.faculty_id == faculty)
+        return db.session.execute(query).scalars().all()
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
 
 
 def get_all_paginated(page: int, faculty=None):
-    query = sa.select(Department)
-    if faculty is not None:
-        query = query.where(Department.faculty_id == faculty)
-    return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
+    try:
+        query = sa.select(Department)
+        if faculty is not None:
+            query = query.where(Department.faculty_id == faculty)
+        return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
 
 
 def get_by_id(id: int):
-    return db.session.get(Department, id)
+    try:
+        res = db.session.get(Department, id)
+        if res is None:
+            raise ValueError(f'Кафедра с id = {id} не существует')
+        return res
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
 
 
 def get_by_name(name: str):
-    return db.session.execute(sa.select(Department).where(Department.name == name)).scalar_one_or_none()
+    try:
+        res = db.session.execute(sa.select(Department).where(Department.name == name)).scalar_one_or_none()
+        if res is None:
+            raise ValueError(f'Кафедра с именем {name} не существует')
+        return res
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка')
 
 
 def create(departmentDTO: DepartmentDTO):
-    if departmentDTO.faculty_id is None:
-        return False
-    faculty = faculty_service.get_by_id(departmentDTO.faculty_id)
-    if faculty is None:
-        return False
-    department = Department(name=departmentDTO.name, faculty=faculty)
-    db.session.add(department)
-    db.session.commit()
-    return True
+    try:
+        if departmentDTO.faculty_id is None:
+            raise ValueError('Не указан id факультета')
+        faculty = faculty_service.get_by_id(departmentDTO.faculty_id)
+        department = Department(name=departmentDTO.name, faculty=faculty)
+        db.session.add(department)
+        db.session.commit()
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except sa.exc.IntegrityError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise ValueError(f'Кафедра с именем {departmentDTO.name} уже существует')
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при создании кафедры')
 
 def get_teachers(page: int, department: Department):
-    query = department.teachers.select()
-    return db.paginate(query, page=page, per_page=app.config['TEACHERS_PER_PAGE'], error_out=False)
+    try:
+        query = department.teachers.select()
+        return db.paginate(query, page=page, per_page=app.config['TEACHERS_PER_PAGE'], error_out=False)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при получении преподавателей кафедры')
 
 
 def update(departmentDTO: DepartmentDTO):
-    record = get_by_id(departmentDTO.id)
-    if record is None:
-        return False
-    if departmentDTO.name is not None:
-        record.name = departmentDTO.name
-    if departmentDTO.faculty_id is not None:
-        faculty = faculty_service.get_by_id(departmentDTO.faculty_id)
-        record.faculty = faculty
-    db.session.commit()
-    return True
+    try:
+        record = get_by_id(departmentDTO.id)
+        if departmentDTO.name is not None:
+            record.name = departmentDTO.name
+        if departmentDTO.faculty_id is not None:
+            faculty = faculty_service.get_by_id(departmentDTO.faculty_id)
+            record.faculty = faculty
+        db.session.commit()
+    except ValueError as e:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка при обновлении кафедры')
 
 
 def delete(id: int) -> bool:
-    department = get_by_id(id)
-    if (department is None):
-        return False
-    db.session.delete(department)
-    db.session.commit()
-    return True
+    try:
+        department = get_by_id(id)
+        db.session.delete(department)
+        db.session.commit()
+    except ValueError as e:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка при удалении кафедры')

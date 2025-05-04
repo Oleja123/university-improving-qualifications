@@ -55,8 +55,8 @@ class DepartmentServiceCase(unittest.TestCase):
         department_service.create(DepartmentDTO(name='test', faculty_id=self.faculty.id))
         department = department_service.get_by_name('test')
         department_service.delete(department.id)
-        department = department_service.get_by_id(department.id)
-        self.assertTrue(department is None)
+        with self.assertRaises(ValueError):
+            department = department_service.get_by_id(department.id)
 
     def test_department_faculty_relationship(self):
         app.logger.info('Запуск теста связи кафедры с факультетом')
@@ -69,14 +69,24 @@ class DepartmentServiceCase(unittest.TestCase):
         app.logger.info('Запуск теста каскадного удаления при удалении факультета')
         department_service.create(DepartmentDTO(name='Math', faculty_id=self.faculty.id))
         faculty_service.delete(self.faculty.id)
-        deleted = department_service.get_by_name('Math')
-        self.assertIsNone(deleted)
+        with self.assertRaises(ValueError):
+            deleted = department_service.get_by_name('Math')
 
     def test_same_name_create(self):
         app.logger.info('Запуск теста уникальности имени кафедры')
         department_service.create(DepartmentDTO(name='Chemistry', faculty_id=self.faculty.id))
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValueError):
             department_service.create(DepartmentDTO(name='Chemistry', faculty_id=self.faculty.id))
+
+    def test_get_by_id_nonexistent(self):
+        app.logger.info('Запуск теста получения несуществующей кафедры по ID')
+        with self.assertRaises(ValueError):
+            department = department_service.get_by_id(999)
+
+    def test_get_by_name_nonexistent(self):
+        app.logger.info('Запуск теста получения несуществующей кафедры по имени')
+        with self.assertRaises(ValueError):
+            department = department_service.get_by_name('NON_EXISTENT')
 
     def test_get_all(self):
         app.logger.info('Запуск получения всех кафедр')

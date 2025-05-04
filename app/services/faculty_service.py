@@ -1,45 +1,105 @@
-from app import db
+from app import db, app
 from app.models.faculty import Faculty
 from app.dto.faculty_dto import FacultyDTO
 import sqlalchemy as sa
+import sqlalchemy.orm as so
 
 
 def get_all():
-    return db.session.execute(sa.select(Faculty)).scalars().all()
+    try:
+        return db.session.execute(sa.select(Faculty)).scalars().all()
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
 
 def get_by_id(id: int) :
-    return db.session.get(Faculty, id)
+    try:
+        res = db.session.get(Faculty, id)
+        if res is None:
+            raise ValueError(f'Факультет с id = {id} не существует')
+        return res
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
 
 def get_by_name(name: str):
-    return db.session.execute(sa.select(Faculty).where(Faculty.name == name)).scalar_one_or_none()
+    try:
+        res = db.session.execute(sa.select(Faculty).where(Faculty.name == name)).scalar_one_or_none()
+        if res is None:
+            raise ValueError(f'Факультет с именем {name} не существует')
+        return res
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка')
 
 def create(facultyDTO: FacultyDTO):
-    faculty = Faculty(name = facultyDTO.name)
-    db.session.add(faculty)
-    db.session.commit()
+    try:
+        faculty = Faculty(name = facultyDTO.name)
+        db.session.add(faculty)
+        db.session.commit()
+    except sa.exc.IntegrityError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise ValueError(f'Факультет с именем {facultyDTO.name} уже существует')
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при создании факультета')
+    
 
 def update(facultyDTO: FacultyDTO):
-    record = get_by_id(facultyDTO.id)
-    if record is None:
-        return False
-    record.name = facultyDTO.name
-    db.session.commit()
-    return True
+    try:
+        record = get_by_id(facultyDTO.id)
+        record.name = facultyDTO.name
+        db.session.commit()
+    except ValueError:
+        raise
+    except sa.exc.IntegrityError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise ValueError(f'Факультет с именем {facultyDTO.name} уже существует')
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при обновлении факультета')
+    
 
 def delete(id: int) -> bool:
-    faculty = get_by_id(id)
-    if (faculty is None):
-        return False
-    db.session.delete(faculty)
-    db.session.commit()
-    return True
+    try:
+        faculty = get_by_id(id)
+        db.session.delete(faculty)
+        db.session.commit()
+    except ValueError:
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при удалении факультета')
 
 def get_departments(facultyDTO: FacultyDTO):
-    faculty = None
-    if facultyDTO.id is not None:
-        faculty = get_by_id(facultyDTO.id)
-    else:
-        faculty = get_by_name(facultyDTO.name)
-    return db.session.scalars(faculty.departments.select()).all()
+    try:
+        faculty = None
+        if facultyDTO.id is not None:
+            faculty = get_by_id(facultyDTO.id)
+        else:
+            faculty = get_by_name(facultyDTO.name)
+        return db.session.scalars(faculty.departments.select()).all()
+    except ValueError:
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при получении факультетов')
 
 
