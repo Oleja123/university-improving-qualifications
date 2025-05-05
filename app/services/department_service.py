@@ -1,7 +1,11 @@
 from app import db, app
 from app.dto.department_dto import DepartmentDTO
+from app.exceptions.role_error import RoleError
 from app.models.department import Department
+from app.models.user import User
 from app.services import faculty_service
+from app.dto.user_dto import UserDTO
+from app.models import user
 import sqlalchemy as sa
 
 
@@ -108,6 +112,25 @@ def update(departmentDTO: DepartmentDTO):
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка при обновлении кафедры')
+    
+def add_teacher(id: int, user: User):
+    try:
+        record = get_by_id(id)
+        if(user.role != user.TEACHER):
+            raise RoleError('На кафедру добавляется не преподаватель')
+        record.teachers.add(user)
+        db.session.commit()
+    except RoleError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except ValueError as e:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка при добавлении преподавателя на кафедру')
 
 
 def delete(id: int) -> bool:
