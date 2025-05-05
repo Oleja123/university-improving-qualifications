@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ed1fe54c5c41
-Revises: b9eb6cbf1d8a
-Create Date: 2025-05-04 16:45:55.713072
+Revision ID: 9a2743632aff
+Revises: 
+Create Date: 2025-05-05 15:42:24.384598
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ed1fe54c5c41'
-down_revision = 'b9eb6cbf1d8a'
+revision = '9a2743632aff'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -25,6 +25,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('course_type', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_course_type_deadline'), ['deadline'], unique=False)
         batch_op.create_index(batch_op.f('ix_course_type_name'), ['name'], unique=True)
 
     op.create_table('faculty',
@@ -90,8 +91,8 @@ def upgrade():
     sa.Column('course_id', sa.Integer(), nullable=False),
     sa.Column('sertificate_path', sa.String(length=260), nullable=True),
     sa.Column('date_approved', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['course_id'], ['course.id'], ),
-    sa.ForeignKeyConstraint(['teacher_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['course_id'], ['course.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['teacher_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('teacher_id', 'course_id'),
     sa.UniqueConstraint('sertificate_path')
     )
@@ -145,6 +146,7 @@ def downgrade():
     op.drop_table('faculty')
     with op.batch_alter_table('course_type', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_course_type_name'))
+        batch_op.drop_index(batch_op.f('ix_course_type_deadline'))
 
     op.drop_table('course_type')
     # ### end Alembic commands ###
