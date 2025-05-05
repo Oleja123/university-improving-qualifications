@@ -61,8 +61,9 @@ class CourseTypeServiceCase(unittest.TestCase):
         course_type_service.create(course_typeDTO)
         created = course_type_service.get_by_name(course_typeDTO.name)
         course_type_service.delete(created.id)
-        course_type = course_type_service.get_by_id(created.id)
-        self.assertTrue(course_type is None)
+        with self.assertRaises(ValueError):
+            course_type = course_type_service.get_by_id(created.id)
+
 
     def test_get_all(self):
         app.logger.info('Запуск получения всех типов курсов')

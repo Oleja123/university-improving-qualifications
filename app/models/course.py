@@ -12,7 +12,7 @@ class Course(db.Model):
         sa.ForeignKey('course_type.id', ondelete='CASCADE'), index=True)
     course_type: so.Mapped['CourseType'] = so.relationship(
         back_populates='courses')
-    is_included: so.Mapped[bool] = so.mapped_column(sa.Boolean, index=True)
+    is_included: so.Mapped[bool] = so.mapped_column(sa.Boolean, index=True, default=False)
 
     def __repr__(self):
         return f'Course {self.name}'
