@@ -1,20 +1,82 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Кафедры</h1>
-    <a href="{{ url_for('create_department') }}">
-        Создать кафедру
-    </a>
-    {% for department in departments %}
-        <tr valign="top">
-            <td>
-                <h1>{{department.name}}</h1>
-            </td>
-            <td>
-                <a href="{{ url_for('edit_department', department_id=department.id) }}">редактировать</a>
-            </td>
-            <td>
-                <a href="{{ url_for('delete_department', department_id=department.id) }}">удалить</a>
-            </td>
-        </tr>
-    {% endfor %}
+    <div class="container">
+        <h1>Кафедры</h1>
+        <a class="btn btn-primary my-3" href="{{ url_for('create_department') }}" role="button">
+            Создать кафедру
+        </a>
+        <br>
+        <form method="get" action="{{ url_for('departments') }}" class="mb-1">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select name = 'faculty_id' class="form-select">
+                        {% for faculty in faculties %}
+                            {% if faculty.id|string == request.args.get('faculty_id') %}
+                                <option value="{{ faculty.id }}" selected> {{faculty.name}} </option>
+                            {% else %}
+                                <option value="{{ faculty.id }}"> {{faculty.name}} </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Фильтровать</button>
+                    <a href="{{ url_for('departments') }}" class="btn btn-secondary">Сбросить</a>
+                </div>
+            </div>
+        </form>
+        <br>
+        <table id="departments-table" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th> Название </th>
+                    <th> Факультет </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in departments.items %}
+                    <tr>
+                        <td></td>
+                        <td>{{department.name}}</td>
+                        <td>{{department.faculty.name}}</td>
+                        <td>
+                            <a href="{{ url_for('edit_department', department_id=department.id) }}">редактировать</a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('delete_department', department_id=department.id) }}">удалить</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <ul class="pagination">
+            {% if departments.has_prev %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('departments', page=departments.prev_num, faculty_id=request.args.get('faculty_id')) }}">Предыдущая страница</a></li>
+            {% else %}
+             <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
+            {% endif %}
+             </li>
+              
+            {% for page in departments.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+            {% if page == departments.page %}
+             <li class="page-item active"><a class="page-link" href="{{ url_for('departments', page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+            {% elif page %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('departments', page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+            {% else %}
+             <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
+            {% endif %}
+            {% endfor %}
+            
+            {% if departments.has_next %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('departments', page=departments.next_num, faculty_id=request.args.get('faculty_id')) }}">Следующая</a></li>
+            {% else %}
+             <li class="page-item disabled"><span class="page-link">Следующая</span>
+            {% endif %}
+        </ul>
+    </div>
+
 {% endblock %}

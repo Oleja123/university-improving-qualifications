@@ -3,6 +3,7 @@ import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
 from app.models.tables.teachers_departments import teachers_departments
+from flask_login import UserMixin
 
 
 ADMIN = 0
@@ -10,7 +11,7 @@ TEACHER = 1
 FIRED = 2
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(
         sa.String(64), index=True, unique=True)

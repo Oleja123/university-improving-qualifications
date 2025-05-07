@@ -26,6 +26,7 @@ def get_all_paginated(page: int, faculties=None):
         query = sa.select(Department)
         if faculties is not None:
             query = query.where(Department.faculty_id.in_(faculties))
+        query = query.order_by(Department.faculty_id)
         return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()

@@ -90,15 +90,12 @@ def create(userDTO: UserDTO):
         raise Exception(f'Неизвестная ошибка при создании пользователя')
 
 
-def check_password(username: str, password: str):
+def check_password(user: User, password: str):
     try:
-        user = get_by_username(username)
+        user = get_by_username(user.username)
         res = check_password_hash(user.password_hash, password)
         if not res:
             raise WrongPasswordError('Неверный пароль')
-    except ValueError:
-        db.session.rollback()
-        raise
     except WrongPasswordError as e:
         db.session.rollback()
         app.logger.error(e)
@@ -165,7 +162,7 @@ def get_notifications(page: int, only_new, user: User):
             query = query.where(Notification.has_read == False)
         query = query.order_by(sa.desc(Notification.time_sent))
         return db.paginate(query, page=page, per_page=app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
-    except Exception:
+    except Exception as e:
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
@@ -178,7 +175,7 @@ def get_courses(page: int, approved: bool, user: User):
             query = query.where(TeacherCourse.date_approved is not None)
         query = query.order_by(Course.name)
         return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
-    except Exception:
+    except Exception as e:
         db.session.rollback()
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
