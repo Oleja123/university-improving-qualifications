@@ -7,7 +7,7 @@ import sqlalchemy.orm as so
 
 def get_all():
     try:
-        return db.session.execute(sa.select(Faculty)).scalars().all()
+        return db.session.execute(sa.select(Faculty).order_by(Faculty.name)).scalars().all()
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)

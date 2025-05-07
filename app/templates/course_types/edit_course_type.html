@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Кафедра</h1>
+<h1>Тип курсов</h1>
 <form action="" method="post" novalidate>
   {{ form.hidden_tag() }}
   <p>
     {{ form.name.label(class="form-label") }}<br>
-    {{ form.name(size=128, class="form-control") }}<br>
-    {{ form.faculty.label(class="form-label") }}<br>
-    {{ form.faculty(class="form-control") }}
+    {{ form.name(size=128, class="form-control") }}
   </p>
   <p>{{ form.submit(class="btn btn-primary") }}</p>
 </form>

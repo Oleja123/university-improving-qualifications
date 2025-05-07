@@ -7,7 +7,7 @@ from datetime import datetime
 
 def get_all():
     try:
-        return db.session.execute(sa.select(CourseType)).scalars().all()
+        return db.session.execute(sa.select(CourseType).order_by(CourseType.name)).scalars().all()
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)

@@ -25,6 +25,8 @@ class EditCourseTypeForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
     submit = SubmitField('Создать')
 
+    def from_model(self, model):
+        self.name.data = model.name
 
 class EditDepartmentForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
@@ -41,12 +43,12 @@ class EditDepartmentForm(FlaskForm):
         self.faculty.data = model.faculty_id
 
 
-# class EditCourseForm(FlaskForm):
-#     name = StringField('Название', validators=[DataRequired()])
-#     type = SelectField('Тип', validators=[DataRequired()], coerce=int)
-#     submit = SubmitField('Создать')
+class EditCourseForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    type = SelectField('Тип', validators=[DataRequired()], coerce=int)
+    submit = SubmitField('Создать')
 
-#     def __init__(self, *args, **kwargs):
-#         super(EditCourseForm, self).__init__(*args, **kwargs)
-#         types = TypeService.get_all
-#         self.type.choices = [(t.id, t.name) for t in types]
+    def __init__(self, *args, **kwargs):
+        super(EditCourseForm, self).__init__(*args, **kwargs)
+        types = TypeService.get_all
+        self.type.choices = [(t.id, t.name) for t in types]

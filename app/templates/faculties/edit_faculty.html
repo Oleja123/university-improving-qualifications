@@ -5,10 +5,10 @@
   <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
     <p>
-      {{ form.name.label }}<br>
-      {{ form.name(size=128) }}
+      {{ form.name.label(class="form-label") }}<br>
+      {{ form.name(size=128, class="form-control") }}
     </p>
-    <p>{{ form.submit() }}</p>
+    <p>{{ form.submit(class="btn btn-primary") }}</p>
 </div>
 </form>
 {% endblock %}
