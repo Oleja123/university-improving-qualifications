@@ -16,10 +16,22 @@ def get_all(included=None, course_type=None):
         raise Exception('Неизвестная ошибка')
 
 
-def get_all_paginated(page: int, included=None, course_type=None):
+def get_all_paginated(page: int, included=None, course_types=None):
     try:
-        query = sa.select(Course).where(sa.and_(sa.or_(included is None, Course.is_included == included), 
-                                                sa.or_(course_type is None, Course.course_type_id == course_type))).order_by(Course.course_type_id)
+        query = sa.select(Course)
+        conditions = []
+        app.logger.info(f"условия {included, course_types}")
+        if included is not None:
+            conditions.append(Course.is_included == included)
+
+        if course_types is not None:
+            conditions.append(Course.course_type_id.in_(course_types))
+
+        app.logger.info(f"условия {conditions}")
+
+        if conditions:
+            query = query.where(sa.and_(*conditions))
+        query = query.order_by(Course.course_type_id)
         return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
@@ -46,6 +58,7 @@ def change_included(id: int):
     try:
         res = get_by_id(id)
         res.is_included = not res.is_included
+        db.session.commit()
         return res
     except ValueError as e:
         db.session.rollback()

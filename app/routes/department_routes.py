@@ -49,7 +49,7 @@ def edit_department(department_id):
     return render_template('departments/edit_department.html', form=form)
 
 
-@app.route('/departments/delete/<department_id>', methods=['DELETE', 'GET'])
+@app.route('/departments/delete/<department_id>', methods=['DELETE'])
 @login_required
 def delete_department(department_id):
     try:

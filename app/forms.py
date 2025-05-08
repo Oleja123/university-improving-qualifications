@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 from app.models import Faculty
 import sqlalchemy as sa
 from app import db
-from app.services import faculty_service
+from app.services import course_type_service, faculty_service
 
 class LoginForm(FlaskForm):
     username = StringField('Имя', validators=[DataRequired()])
@@ -45,10 +45,14 @@ class EditDepartmentForm(FlaskForm):
 
 class EditCourseForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired()])
-    type = SelectField('Тип', validators=[DataRequired()], coerce=int)
+    course_type = SelectField('Тип', validators=[DataRequired()], coerce=int)
     submit = SubmitField('Создать')
 
     def __init__(self, *args, **kwargs):
         super(EditCourseForm, self).__init__(*args, **kwargs)
-        types = TypeService.get_all
-        self.type.choices = [(t.id, t.name) for t in types]
+        course_types = course_type_service.get_all()
+        self.course_type.choices = [(t.id, t.name) for t in course_types]
+
+    def from_model(self, model):
+        self.name.data = model.name
+        self.course_type.data = model.course_type_id
