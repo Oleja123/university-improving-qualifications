@@ -138,7 +138,7 @@
                         console.log("Успешно обновлено:", response);
                     },
                     error: function(xhr) {
-                        console.error("Ошибка:", xhr.responseText);
+                        alert('Ошибка при добавлении');
                         checkbox.prop('checked', !value);
                     }
                 });

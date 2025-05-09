@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Курс</h1>
+    <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.full_name.label(class="form-label") }}<br>
+        {{ form.full_name(size=128, class="form-control") }}<br>
+        {{ form.username.label(class="form-label") }}<br>
+        {{ form.username(size=128, class="form-control") }}<br>
+        {{ form.password.label(class="form-label") }}<br>
+        {{ form.password(class="form-control") }}
+    </p>
+    <p>{{ form.submit(class="btn btn-primary") }}</p>
+    </form>
+{% endblock %}

@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length, Optional
 from app.models import Faculty
 import sqlalchemy as sa
-from app import db
 from app.services import course_type_service, faculty_service
 
 class LoginForm(FlaskForm):
@@ -56,3 +55,16 @@ class EditCourseForm(FlaskForm):
     def from_model(self, model):
         self.name.data = model.name
         self.course_type.data = model.course_type_id
+
+
+class EditUserForm(FlaskForm):
+    full_name = StringField('Полное имя', validators=[DataRequired()])
+    username = StringField('Имя пользователя', validators=[DataRequired(),
+                                                           Length(min=6, message='Имя пользователя должно содержать минимум 6 символов')])
+    password = StringField('Пароль', validators=[Optional(), Length(min=6, message='Пароль должен содержать минимум 6 символов')])
+
+    def from_model(self, model):
+        self.full_name.data = model.full_name
+        self.username.data = model.username
+
+    submit = SubmitField('Создать')

@@ -10,10 +10,21 @@ import sqlalchemy as sa
 from app.models import user
 from app.exceptions.wrong_password_error import WrongPasswordError
 
-def get_all_users(userDTO: UserDTO):
+def get_all(userDTO: UserDTO):
     try:
-        query = sa.select(User).where(sa.and_(sa.or_(userDTO.full_name is None, User.full_name == userDTO.full_name),
-                                    sa.or_(userDTO.role is None, User.role == userDTO.role)))
+        query = sa.select(User)
+        conditions = []
+        if userDTO.role is not None:
+            conditions.append(User.role == userDTO.role)
+
+        if userDTO.is_fired is not None:
+            conditions.append(User.is_fired == userDTO.is_fired)
+
+        app.logger.info(f"условия {conditions}")
+
+        if conditions:
+            query = query.where(sa.and_(*conditions))
+        query = query.order_by(User.full_name)
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
@@ -21,10 +32,21 @@ def get_all_users(userDTO: UserDTO):
         raise Exception('Неизвестная ошибка')
 
 
-def get_all_paginated_users(page: int, userDTO: UserDTO):
+def get_all_paginated(page: int, userDTO: UserDTO):
     try:
-        query = sa.select(User).where(sa.and_(sa.or_(userDTO.full_name is None, User.full_name == userDTO.full_name),
-                                    sa.or_(userDTO.role is None, User.role == userDTO.role)))
+        query = sa.select(User)
+        conditions = []
+        if userDTO.role is not None:
+            conditions.append(User.role == userDTO.role)
+
+        if userDTO.is_fired is not None:
+            conditions.append(User.is_fired == userDTO.is_fired)
+
+        app.logger.info(f"условия {conditions}")
+
+        if conditions:
+            query = query.where(sa.and_(*conditions))
+        query = query.order_by(User.full_name)
         return db.paginate(query, page=page, per_page=app.config['USERS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
@@ -110,10 +132,9 @@ def update(userDTO: UserDTO):
     try:
         record = get_by_id(userDTO.id)
         record.username = userDTO.username
-        record.full_name = userDTO.name
+        record.full_name = userDTO.full_name
         if userDTO.password is not None:
             record.password_hash = generate_password_hash(userDTO.password)
-        record.role = userDTO.role
         db.session.commit()
     except ValueError:
         db.session.rollback()
@@ -128,6 +149,19 @@ def delete(id: int) -> bool:
     try:
         user = get_by_id(id)
         db.session.delete(user)
+        db.session.commit()
+    except ValueError:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
+    
+def fire(id: int):
+    try:
+        record = get_by_id(id)
+        record.is_fired = not record.is_fired
         db.session.commit()
     except ValueError:
         db.session.rollback()

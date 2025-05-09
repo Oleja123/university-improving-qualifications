@@ -8,7 +8,6 @@ from flask_login import UserMixin
 
 ADMIN = 0
 TEACHER = 1
-FIRED = 2
 
 
 class User(UserMixin, db.Model):
@@ -18,13 +17,15 @@ class User(UserMixin, db.Model):
     full_name: so.Mapped[str] = so.mapped_column(
         sa.String(128))
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
-    role: so.Mapped[bool] = so.mapped_column(sa.Boolean, index=True)
+    role: so.Mapped[int] = so.mapped_column(sa.Integer, index=True)
+    is_fired: so.Mapped[bool] = so.mapped_column(sa.Boolean, index=True, default=False)
     notifications: so.WriteOnlyMapped['Notification'] = so.relationship(
         back_populates='user', passive_deletes=True)
     departments: so.WriteOnlyMapped['Department'] = so.relationship(
         secondary=teachers_departments, primaryjoin=(teachers_departments.c.teacher_id == id), back_populates='teachers', passive_deletes=True)
     courses: so.WriteOnlyMapped['TeacherCourse'] = so.relationship(
         back_populates='teacher', passive_deletes=True)
+    
 
     def __repr__(self):
         return f'User {self.full_name}'
