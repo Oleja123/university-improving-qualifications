@@ -2,19 +2,23 @@ from flask import flash, jsonify, redirect, render_template, url_for
 from app import app
 from flask_login import login_required
 
+from app.decorators.role_decorator import required_role
 from app.dto.faculty_dto import FacultyDTO
 from app.forms import EditFacultyForm
+from app.models import user
 from app.services import faculty_service
 
 
 @app.route('/faculties')
 @login_required
+@required_role(role=user.ADMIN)
 def faculties():
     return render_template('faculties/faculties.html', title='Факультеты', faculties=faculty_service.get_all())
 
 
 @app.route('/faculties/create', methods=['GET', 'POST'])
 @login_required
+@required_role(role=user.ADMIN)
 def create_faculty():
     form = EditFacultyForm()
     if form.validate_on_submit():
@@ -29,6 +33,7 @@ def create_faculty():
 
 @app.route('/faculties/edit/<faculty_id>', methods=['GET', 'POST'])
 @login_required
+@required_role(role=user.ADMIN)
 def edit_faculty(faculty_id):
     form = EditFacultyForm()
     if form.validate_on_submit():
@@ -44,6 +49,7 @@ def edit_faculty(faculty_id):
 
 @app.route('/faculties/delete/<faculty_id>', methods=['DELETE'])
 @login_required
+@required_role(role=user.ADMIN)
 def delete_faculty(faculty_id):
     try:
         faculty_service.delete(faculty_id)
