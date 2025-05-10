@@ -1,3 +1,4 @@
+import os
 import unittest
 from app import app, db
 from app.dto.department_dto import DepartmentDTO
@@ -9,6 +10,7 @@ from app.services import department_service, faculty_service, user_service, noti
 from werkzeug.security import generate_password_hash
 import sqlalchemy as sa
 from app.models.user import TEACHER, ADMIN
+os.environ['DATABASE_URL'] = 'sqlite://'
 
 
 class UserServiceTestCase(unittest.TestCase):

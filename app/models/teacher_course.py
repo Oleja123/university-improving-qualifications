@@ -19,7 +19,7 @@ class TeacherCourse(db.Model):
     date_approved: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime, nullable=True)
 
     def __repr__(self):
-        return f'Teacher Course {self.teacher.name}, {self.course.name}'
+        return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
 
     @classmethod
     def from_form(cls, form, faculty):
