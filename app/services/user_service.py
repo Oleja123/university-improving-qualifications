@@ -4,6 +4,8 @@ from app.models.department import Department
 from app.models.teacher_course import TeacherCourse
 from app.models.course import Course
 from app.dto.user_dto import UserDTO
+from app.services import department_service
+from app.models.user import TEACHER
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.notification import Notification
 import sqlalchemy as sa
@@ -97,27 +99,23 @@ def create(userDTO: UserDTO):
         )
         db.session.add(user)
         db.session.commit()
-    except ValueError as e:
-        db.session.rollback()
-        app.logger.error(e)
-        raise
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         app.logger.error(e)
-        raise ValueError(
-            f'Пользователь с именем {userDTO.name} уже существует')
+        raise ValueError(f'Пользователь с именем {userDTO.username} уже существует')
     except Exception as e:
         db.session.rollback()
         app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при создании пользователя')
 
 
-def check_password(user: User, password: str):
+def check_password(username: str, password: str):
     try:
-        user = get_by_username(user.username)
+        user = get_by_username(username)
         res = check_password_hash(user.password_hash, password)
         if not res:
             raise WrongPasswordError('Неверный пароль')
+        return True
     except WrongPasswordError as e:
         db.session.rollback()
         app.logger.error(e)
@@ -163,6 +161,38 @@ def fire(id: int):
         record = get_by_id(id)
         record.is_fired = not record.is_fired
         db.session.commit()
+    except ValueError:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
+    
+
+def add_to_department(user_id: int, department_id: int):
+    try:
+        user = get_by_id(user_id)
+        if user.role != TEACHER:
+            raise ValueError('Нельзя назначить сотрудника на кафедру')
+        department = department_service.get_by_id(department_id)
+        user.departments.add(department)
+    except ValueError:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
+
+
+def remove_from_department(user_id: int, department_id: int):
+    try:
+        user = get_by_id(user_id)
+        if user.role != TEACHER:
+            raise ValueError('Нельзя убрать сотрудника с кафедры')
+        department = department_service.get_by_id(department_id)
+        user.departments.delete(department)
     except ValueError:
         db.session.rollback()
         raise

@@ -31,7 +31,7 @@ def login():
     if form.validate_on_submit():
         try:
             user = user_service.get_by_username(form.username.data)
-            user_service.check_password(user, form.password.data)
+            user_service.check_password(user.username, form.password.data)
             login_user(user, remember=form.remember_me.data)
             next_page = request.args.get('next')
             if not next_page or urlsplit(next_page).netloc != '':
