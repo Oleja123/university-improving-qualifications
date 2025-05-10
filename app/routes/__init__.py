@@ -1,5 +1,5 @@
 from app import app
-from flask import flash, redirect, render_template, url_for, request
+from flask import flash, redirect, render_template, session, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from app.dto.department_dto import DepartmentDTO
 from app.dto.faculty_dto import FacultyDTO
@@ -33,6 +33,7 @@ def login():
             user = user_service.get_by_username(form.username.data)
             user_service.check_password(user.username, form.password.data)
             login_user(user, remember=form.remember_me.data)
+            session['user_role'] = user.role
             next_page = request.args.get('next')
             if not next_page or urlsplit(next_page).netloc != '':
                 next_page = url_for('index')

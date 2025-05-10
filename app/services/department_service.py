@@ -21,11 +21,21 @@ def get_all(faculties=None):
         raise Exception('Неизвестная ошибка')
 
 
-def get_all_paginated(page: int, faculties=None):
+def get_all_paginated(page: int, faculties=None, search_request=None):
     try:
         query = sa.select(Department)
+        conditions = []
         if faculties is not None:
-            query = query.where(Department.faculty_id.in_(faculties))
+            conditions.append(Department.faculty_id.in_(faculties))
+
+        if search_request is not None:
+            conditions.append(Department.name.ilike(f'%{search_request}%'))
+
+        app.logger.info(f"условия {conditions}")
+
+        if conditions:
+            query = query.where(sa.and_(*conditions))
+        
         query = query.order_by(Department.faculty_id)
         return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
     except Exception as e:

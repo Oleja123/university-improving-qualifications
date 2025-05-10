@@ -18,9 +18,9 @@
                             <option value="True"> Только заблокированные </option>
                         {% endif %}
                         {% if request.args.get('is_fired') == 'False' %}
-                            <option value="True" selected> Только активные </option>
+                            <option value="False" selected> Только активные </option>
                         {% else %}
-                            <option value="True"> Только активные </option>
+                            <option value="False"> Только активные </option>
                         {% endif %}
                     </select>
                 </div>

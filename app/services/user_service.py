@@ -177,6 +177,7 @@ def add_to_department(user_id: int, department_id: int):
             raise ValueError('Нельзя назначить сотрудника на кафедру')
         department = department_service.get_by_id(department_id)
         user.departments.add(department)
+        db.session.commit()
     except ValueError:
         db.session.rollback()
         raise
@@ -188,11 +189,13 @@ def add_to_department(user_id: int, department_id: int):
 
 def remove_from_department(user_id: int, department_id: int):
     try:
+        app.logger.info('Удаление преподавателя с кафедры')
         user = get_by_id(user_id)
         if user.role != TEACHER:
             raise ValueError('Нельзя убрать сотрудника с кафедры')
         department = department_service.get_by_id(department_id)
-        user.departments.delete(department)
+        user.departments.remove(department)
+        db.session.commit()
     except ValueError:
         db.session.rollback()
         raise
