@@ -5,6 +5,7 @@ from app.models import user
 from app.models.course import Course
 from app.services import user_service, course_service
 import sqlalchemy as sa
+import shutil
 import os
 
 from app.models.teacher_course import TeacherCourse
@@ -14,14 +15,21 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
-def upload_sertificate(user_id: int, course_id: int, file):
+def upload_file(user_id: int, course_id: int, file):
     try:
         if file.filename == '':
             raise ValueError('Нет выбранного файла')
         if not allowed_file(file.filename):
             raise ValueError('Некорректное расширение файла')
+        app.logger.info('Загрузка файла')
+        app.logger.info(file.filename)
         filename = secure_filename(file.filename)
+        app.logger.info(filename)
         user_path = os.path.join(app.config['UPLOAD_FOLDER'], user_id, course_id)
+        app.logger.info(user_path)
+        if os.path.exists(user_path):
+            shutil.rmtree(user_path)
+        app.logger.info('Создание папки')
         os.makedirs(user_path, exist_ok=True)
         filepath = os.path.join(user_path, filename)
         file.save(filepath)
@@ -29,7 +37,7 @@ def upload_sertificate(user_id: int, course_id: int, file):
         res.sertificate_path = filepath
         db.session.commit()
     except Exception as e:
-        app.logger.info('Ошибка при загрузке сертификата')
+        app.logger.info(e)
         raise
 
 

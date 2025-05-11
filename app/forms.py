@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import FileField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 from app.models import Faculty
 import sqlalchemy as sa
@@ -68,3 +68,7 @@ class EditUserForm(FlaskForm):
         self.username.data = model.username
 
     submit = SubmitField('Создать')
+
+class UploadForm(FlaskForm):
+    file = FileField('Выберите файл', validators=[DataRequired()])
+    submit = SubmitField('Загрузить')
