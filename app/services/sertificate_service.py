@@ -4,6 +4,7 @@ from flask import send_from_directory
 from app import app, db
 from werkzeug.utils import secure_filename
 from app.models import user
+from app.models.user import User
 from app.models.course import Course
 from app.services import user_service, course_service
 import sqlalchemy as sa
@@ -99,3 +100,71 @@ def get_user_courses(user_id: int, page: int, included=None, approved=None):
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
+
+def get_all_paginated(page: int, course_name=None, user_full_name=None, course_type_id=None, is_approved=None):
+    try:
+
+        if course_name and len(course_name) == 0:
+            course_name = None
+
+        if user_full_name and len(user_full_name) == 0:
+            user_full_name = None
+        
+        if is_approved is not None:
+            if is_approved == 'true':
+                is_approved = True
+            else:
+                is_approved = False
+
+        app.logger.info(f"{page}, {course_name}, {user_full_name}, {course_type_id}, {is_approved}")
+
+        query = sa.select(TeacherCourse, Course, User).join(Course).join(User)
+        conditions = []
+        if course_name is not None:
+            conditions.append(sa.func.lower(Course.name).like(f'%{course_name.lower()}%'))
+
+        if user_full_name is not None:
+            conditions.append(sa.func.lower(User.full_name).like(f'%{user_full_name.lower()}%'))
+
+        if course_type_id is not None:
+            conditions.append(Course.course_type_id == course_type_id)
+
+        if is_approved is not None:
+            if is_approved:
+                conditions.append(TeacherCourse.date_approved.is_not(None))
+            else:
+                conditions.append(TeacherCourse.date_approved.is_(None))
+
+        app.logger.info(f"условия {conditions}")
+
+        if conditions:
+            query = query.where(sa.and_(*conditions))
+        
+        query = query.order_by(Course.name)
+        return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
+
+
+def change_approved(user_id: int, course_id: int):
+    try:
+        app.logger.info('Я тут')
+        res = get(user_id, course_id)
+        if res.sertificate_path is None:
+            raise ValueError('Сертификат не прикреплен')
+        if res.date_approved:
+            res.date_approved = None
+        else:
+            res.date_approved = datetime.now()
+        db.session.commit()
+        return res
+    except ValueError as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')

@@ -6,7 +6,7 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 import logging
 from sqlalchemy.engine import Engine
-from sqlalchemy import event
+from sqlalchemy import create_engine, event
 
 
 app = Flask(__name__)
