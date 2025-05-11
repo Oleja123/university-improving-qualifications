@@ -12,7 +12,6 @@ from app.services import course_service, course_type_service, department_service
 
 @app.route('/courses')
 @login_required
-@required_role(role=user.ADMIN)
 def courses():
     page = request.args.get('page', 1, type=int)
     course_type = request.args.get('course_type_id', None, type=int)

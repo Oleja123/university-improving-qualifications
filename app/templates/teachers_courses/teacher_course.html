@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Курс преподавателя</h1>
+<form action="" method="post" novalidate>
+<p>
+    Преподаватель: {{ teacher_course.teacher.full_name }}
+</p>
+<p>
+    Курс: {{ teacher_course.course.name }}
+</p>
+{% if teacher_course.date_approved %}
+    <p>
+        Верификация: Дата верификации {{ teacher_course.date_approved }}
+    </p>
+{% else %}
+    <p>
+        Веификация: Не верифицирован
+    </p>
+{% endif %}
+</form>
+{% endblock %}

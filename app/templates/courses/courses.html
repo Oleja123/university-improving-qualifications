@@ -2,10 +2,12 @@
 {% block content %}
     <div class="container">
         <h1>Курсы</h1>
+        {% if current_user.role == 0 %}
         <a class="btn btn-primary my-3" href="{{ url_for('create_course') }}" role="button">
             Создать курс
         </a>
         <br>
+        {% endif %}
         <form method="get" action="{{ url_for('courses') }}" class="mb-1">
             <div class="row g-3">
                 <div class="col-md-4">
@@ -49,7 +51,9 @@
                     <th> Название </th>
                     <th> Тип курсов </th>
                     <th></th>
+                    {% if current_user.role == 0 %}
                     <th></th>
+                    {% endif %}
                     <th>Обязателен</th>
                 </tr>
             </thead>
@@ -59,6 +63,7 @@
                         <td></td>
                         <td>{{course.name}}</td>
                         <td>{{course.course_type.name}}</td>
+                        {% if current_user.role == 0 %}
                         <td>
                             <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_course', course_id=course.id) }}" role="button">Редактировать</a>
                         </td>
@@ -68,11 +73,24 @@
                                 Удалить
                             </button>
                         </td>
+                        {% else %}
                         <td>
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('teacher_course', user_id=current_user.id, course_id=course.id) }}" role="button">Открыть</a>
+                        </td>
+                        {% endif %}
+                        <td>
+                            {% if current_user.role == 0 %}
                             {% if course.is_included %}
                                 <input class="form-check-input" type="checkbox" data-item-id="{{ course.id }}" checked>
                             {% else %}
                                 <input class="form-check-input" type="checkbox" data-item-id="{{ course.id }}">
+                            {% endif %}
+                            {% else %}
+                            {% if course.is_included %}
+                                <input class="form-check-input" type="checkbox" data-item-id="{{ course.id }}" checked disabled>
+                            {% else %}
+                                <input class="form-check-input" type="checkbox" data-item-id="{{ course.id }}" disabled>
+                            {% endif %}
                             {% endif %}
                         </td>
                     </tr>
@@ -110,6 +128,7 @@
         </ul>
     </div>
     
+    {% if current_user.role == 0 %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -170,4 +189,5 @@
             });
         });
     </script>
+    {% endif %}
 {% endblock %}
