@@ -33,7 +33,7 @@
 </form>
 
 {% if teacher_course.sertificate_path %}
-    <a href="/download_file/{{ file }}"> Загрузить сертификат</a>
+    <a href="/download_file/{{ teacher_course.teacher_id }}/{{ teacher_course.course_id }}"> Скачать сертификат</a>
 {% else %}
     <p>
         Сертификат не загружен
