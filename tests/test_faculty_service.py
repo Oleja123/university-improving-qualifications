@@ -1,11 +1,12 @@
+import os
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 from sqlite3 import DataError
 from app.dto.faculty_dto import FacultyDTO
 from sqlalchemy.exc import IntegrityError
 from app.services import faculty_service
 from app import app, db
 import unittest
-import os
-os.environ['DATABASE_URL'] = 'sqlite://'
 
 
 class FacultyServiceCase(unittest.TestCase):

@@ -1,3 +1,6 @@
+import os
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 from unittest.mock import patch
 from app.dto.course_type_dto import CourseTypeDTO
 from sqlalchemy.exc import IntegrityError
@@ -5,8 +8,6 @@ from app.services import course_type_service
 from app import app, db
 import unittest
 from datetime import datetime
-import os
-os.environ['DATABASE_URL'] = 'sqlite://'
 
 
 class CourseTypeServiceCase(unittest.TestCase):

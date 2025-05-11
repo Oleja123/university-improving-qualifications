@@ -1,3 +1,6 @@
+import os
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 from datetime import datetime, timezone
 from sqlite3 import DataError
 from app.dto.notification_dto import NotificationDTO
@@ -7,9 +10,6 @@ from app.dto.user_dto import UserDTO
 from app.models import user
 from app import app, db
 import unittest
-import os
-os.environ['DATABASE_URL'] = 'sqlite://'
-
 
 class FacultyServiceCase(unittest.TestCase):
     def setUp(self):

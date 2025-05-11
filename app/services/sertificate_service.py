@@ -1,6 +1,7 @@
 from datetime import datetime
 from app import app, db
 from werkzeug.utils import secure_filename
+from app.models import user
 from app.models.course import Course
 from app.services import user_service, course_service
 import sqlalchemy as sa
@@ -37,6 +38,8 @@ def get(user_id: int, course_id: int):
         res = db.session.get(TeacherCourse, (user_id, course_id))
         if res is None:
             teacher = user_service.get_by_id(user_id)
+            if teacher.role != user.TEACHER:
+                raise ValueError('Курсы есть только у преподавателя')
             course = course_service.get_by_id(course_id)
             db.session.add(TeacherCourse(teacher=teacher, course=course))
             db.session.commit()
@@ -63,24 +66,21 @@ def approve_user_course(user_id: int, course_id: int):
         raise Exception('Неизвестная ошибка при подтверждении курса пользователя')
 
 
-def get_user_courses(user_id: int, page: int, included=None, course_types=None, approved=None):
+def get_user_courses(user_id: int, page: int, included=None, approved=None):
     try:
-        query = sa.select(Course).outerjoin(
-            Course.teachers_courses.of_type(TeacherCourse)
-        )
+        query = sa.select(TeacherCourse)
         conditions = []
-        conditions.append(sa.or_(TeacherCourse.teacher_id == None, TeacherCourse.teacher_id == user_id))
+        conditions.append(TeacherCourse.teacher_id == user_id)
         if included is not None:
-            conditions.append(Course.is_included == included)
-        if course_types is not None:
-            conditions.append(Course.course_type_id.in_(course_types))
+            conditions.append(TeacherCourse.course.is_included == included)
         if approved is not None:
-            conditions.append((TeacherCourse.date_approved != None) == approved)
+            if approved:
+                conditions.append(TeacherCourse.date_approved.is_not(None))
+            else:
+                conditions.append(TeacherCourse.date_approved.is_(None))
 
         if conditions:
-            query = query.where(sa.and_(*conditions))
-
-
+            query = query.where(*conditions)
             
         return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:

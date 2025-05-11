@@ -1,3 +1,6 @@
+import os
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 from sqlite3 import DataError
 from app.dto.course_dto import CourseDTO
 from app.dto.course_type_dto import CourseTypeDTO
@@ -5,11 +8,13 @@ from app.dto.faculty_dto import FacultyDTO
 from sqlalchemy.exc import IntegrityError
 from app.dto.user_dto import UserDTO
 from app.models import user
+from app.models.course import Course
+from app.models.teacher_course import TeacherCourse
 from app.services import course_service, course_type_service, faculty_service, sertificate_service, user_service
 from app import app, db
+import sqlalchemy as sa
 import unittest
-import os
-os.environ['DATABASE_URL'] = 'sqlite://'
+from sqlalchemy.orm import joinedload
 
 
 class SertificateServiceTestCase(unittest.TestCase):
@@ -39,14 +44,32 @@ class SertificateServiceTestCase(unittest.TestCase):
 
     def test_get_zero_approved(self):
         self.create_courses()
-        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1).items), 3)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1).items), 0)
 
     def test_get_approved(self):
         self.create_courses()
         sertificate_service.approve_user_course(self.user.id, 1)
-        app.logger.info(sertificate_service.get_user_courses(self.user.id, 1, approved=True).items)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=True).items), 1)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=False).items), 0)
+        sertificate_service.get(self.user.id, 2)
+        sertificate_service.get(self.user.id, 3)
         self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=True).items), 1)
         self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=False).items), 2)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1).items), 3)
+
+    def test_several_users(self):
+        self.create_courses()
+        user_service.create(UserDTO(username='test_user2', password='test_password', role=user.TEACHER, full_name='Tester2'))
+        user2 = user_service.get_by_username('test_user2')
+        sertificate_service.approve_user_course(self.user.id, 1)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=True).items), 1)
+        self.assertEqual(len(sertificate_service.get_user_courses(self.user.id, 1, approved=False).items), 0)
+        self.assertEqual(len(sertificate_service.get_user_courses(user2.id, 1).items), 0)
+        sertificate_service.approve_user_course(user2.id, 1)
+        sertificate_service.approve_user_course(user2.id, 2)
+        sertificate_service.get(user2.id, 3)
+        self.assertEqual(len(sertificate_service.get_user_courses(user2.id, 1, approved=True).items), 2)
+        self.assertEqual(len(sertificate_service.get_user_courses(user2.id, 1, approved=False).items), 1)
 
 
 if __name__ == '__main__':
