@@ -15,23 +15,23 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
+def make_path(user_id: int, course_id: int):
+    user_path = os.path.join(app.config['UPLOAD_FOLDER'], user_id, course_id)
+    project_root = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
+    user_path = os.path.abspath(os.path.join(project_root, user_path))
+    return user_path
+
 def upload_file(user_id: int, course_id: int, file):
     try:
         if file.filename == '':
             raise ValueError('Нет выбранного файла')
         if not allowed_file(file.filename):
             raise ValueError('Некорректное расширение файла')
-        app.logger.info('Загрузка файла')
-        app.logger.info(file.filename)
+
         filename = secure_filename(file.filename)
-        app.logger.info(filename)
-        user_path = os.path.join(app.config['UPLOAD_FOLDER'], user_id, course_id)
-        project_root = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
-        user_path = os.path.abspath(os.path.join(project_root, user_path))
-        app.logger.info(user_path)
-        # if os.path.exists(user_path):
-        #     shutil.rmtree(user_path)
-        app.logger.info('Создание папки')
+        user_path = make_path(user_id, course_id)
+        if os.path.exists(user_path):
+            shutil.rmtree(user_path)
         os.makedirs(user_path, exist_ok=True)
         filepath = os.path.join(user_path, filename)
         file.save(filepath)
