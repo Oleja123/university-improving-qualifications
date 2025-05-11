@@ -11,5 +11,5 @@ class Config:
     NOTIFICATIONS_PER_PAGE = 3
     USERS_PER_PAGE = 3
     COURSES_PER_PAGE = 3
-    SERTIFICATES_FOLDER = '/sertificates'
+    UPLOAD_FOLDER = 'sertificates'
     ALLOWED_EXTENSIONS = { 'pdf' }

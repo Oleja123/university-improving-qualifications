@@ -26,9 +26,11 @@ def upload_file(user_id: int, course_id: int, file):
         filename = secure_filename(file.filename)
         app.logger.info(filename)
         user_path = os.path.join(app.config['UPLOAD_FOLDER'], user_id, course_id)
+        project_root = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
+        user_path = os.path.abspath(os.path.join(project_root, user_path))
         app.logger.info(user_path)
-        if os.path.exists(user_path):
-            shutil.rmtree(user_path)
+        # if os.path.exists(user_path):
+        #     shutil.rmtree(user_path)
         app.logger.info('Создание папки')
         os.makedirs(user_path, exist_ok=True)
         filepath = os.path.join(user_path, filename)
