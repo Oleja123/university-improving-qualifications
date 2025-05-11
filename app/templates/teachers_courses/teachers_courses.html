@@ -16,6 +16,7 @@
             <tr>
                 <th> </th>
                 <th> Название курса </th>
+                <th> Тип курса </th>
                 <th> ФИО учителя </th>
                 <th> Имя пользователя </th>
                 <th></th>
@@ -28,8 +29,10 @@
                 <tr>
                     <td></td>
                     <td>{{teacher_course.course.name}}</td>
+                    <td>{{teacher_course.course.course_type.name}}</td>
                     <td>{{teacher_course.teacher.full_name}}</td>
                     <td>{{teacher_course.teacher.username}}</td>
+                    <td></td>
                     <td>
                         {% if teacher_course.sertificate_path %}
                         <a class="btn btn-sm btn-secondary" href="/download_file/{{ teacher_course.teacher_id }}/{{ teacher_course.course_id }}" role="button">Скачать сертификат</a>

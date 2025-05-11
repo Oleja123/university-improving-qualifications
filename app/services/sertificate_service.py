@@ -104,19 +104,21 @@ def get_user_courses(user_id: int, page: int, included=None, approved=None):
 def get_all_paginated(page: int, course_name=None, user_full_name=None, course_type_id=None, is_approved=None):
     try:
 
-        if course_name and len(course_name) == 0:
+        if course_name is not None and len(course_name) == 0:
             course_name = None
 
-        if user_full_name and len(user_full_name) == 0:
+        if user_full_name is not None and len(user_full_name) == 0:
             user_full_name = None
-        
+
         if is_approved is not None:
-            if is_approved == 'true':
+            if len(is_approved) == 0:
+                is_approved = None
+            elif is_approved == 'true':
                 is_approved = True
-            else:
+            elif is_approved == 'false':
                 is_approved = False
 
-        app.logger.info(f"{page}, {course_name}, {user_full_name}, {course_type_id}, {is_approved}")
+        app.logger.info(f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
 
         query = sa.select(TeacherCourse, Course, User).join(Course).join(User)
         conditions = []
