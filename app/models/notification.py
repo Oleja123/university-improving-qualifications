@@ -16,7 +16,7 @@ class Notification(db.Model):
     time_sent: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f'Notification {self.name}'
+        return f'Notification {self.message}'
 
     @classmethod
     def from_form(cls, form, faculty):

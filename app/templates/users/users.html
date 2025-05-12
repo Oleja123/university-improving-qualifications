@@ -55,6 +55,7 @@
                     <th> Роль</th>
                     <th></th>
                     <th></th>
+                    <th></th>
                     <th> Заблокирован</th>
                 </tr>
             </thead>
@@ -65,6 +66,12 @@
                         <td>{{user.full_name}}</td>
                         <td>{{user.username}}</td>
                         <td>{{ 'Сотрудник' if user.role == 0 else 'Преподаватель' }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm not-btn" 
+                                    data-item-id="{{ user.id }}">
+                                Отправить сообщение
+                            </button>
+                        </td>
                         <td>
                             <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_user', user_id=user.id) }}" role="button">Редактировать</a>
                         </td>
@@ -115,15 +122,44 @@
             {% endif %}
         </ul>
     </div>
+
+    <div class="modal fade" id="notificationModal", tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Отправить сообщение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="notificationForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Сообщение</label>
+                            <input type="text" class="form-control" id="message" name="message" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" id="sendNotification">Отправить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             let itemToDelete = null;
+            let userToSend = null;
             
             $('.delete-btn').click(function() {
                 itemToDelete = $(this).data('item-id');
                 $('#confirmModal').modal('show');
+            });
+
+            $('.not-btn').click(function() {
+                userToSend = $(this).data('item-id');
+                $('#notificationModal').modal('show');
             });
 
             const csrf_token = document.querySelector('meta[name="csrf-token"]').content;
@@ -170,6 +206,31 @@
                         },
                         complete: function() {
                             $('#confirmModal').modal('hide');
+                        }
+                    });
+                }
+            });
+
+            $('#notificationForm').on('submit', function(e) {
+                e.preventDefault();
+                if (userToSend) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/users/send_notification/' + userToSend,
+                        data: $(this).serialize(),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrf_token,
+                        },
+                        success: function(response) {
+                            $('#notificationModal').modal('hide');
+                            
+                            $('#notificationForm')[0].reset();
+                            
+                            alert('Сообщение успешно отправлено!');
+                        },
+                        error: function() {
+                            alert('Произошла ошибка при отправке.');
                         }
                     });
                 }

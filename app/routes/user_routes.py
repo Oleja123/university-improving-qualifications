@@ -3,11 +3,12 @@ from app import app
 from flask_login import login_required, current_user
 
 from app.decorators.role_decorator import required_role
+from app.dto.notification_dto import NotificationDTO
 from app.dto.user_dto import UserDTO
 from app.dto.department_dto import DepartmentDTO
 from app.forms import EditCourseForm, EditDepartmentForm, EditUserForm
 from app.models import user
-from app.services import user_service, course_type_service, department_service, faculty_service
+from app.services import notification_service, user_service, course_type_service, department_service, faculty_service
 
 
 @app.route('/users')
@@ -36,8 +37,8 @@ def create_admin():
         try:
             user_service.create(UserDTO.from_form(form, 0))
             return redirect(url_for('users'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(e)
 
     return render_template('users/edit_user.html', form=form)
 
@@ -50,8 +51,8 @@ def create_teacher():
         try:
             user_service.create(UserDTO.from_form(form, 1))
             return redirect(url_for('users'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(e)
 
     return render_template('users/edit_user.html', form=form)
 
@@ -64,8 +65,8 @@ def edit_user(user_id):
         try:
             user_service.update(UserDTO.from_form(form, id=user_id))
             return redirect(url_for('users'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(e)
     page = request.args.get('page', 1, type=int)
     search_request = request.args.get('department_name', '', type=int)
     user = user_service.get_by_id(user_id)
@@ -85,8 +86,8 @@ def delete_user(user_id):
             return
         user_service.delete(user_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        flash(e)
 
 
 @app.route('/users/fire/<user_id>', methods=['POST'])
@@ -99,8 +100,8 @@ def fire_user(user_id):
             return
         user_service.fire(user_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        flash(e)
 
 
 @app.route('/users/<user_id>/remove_from_department/<department_id>', methods=['DELETE'])
@@ -110,8 +111,8 @@ def remove_from_department(user_id, department_id):
     try:
         user_service.remove_from_department(user_id, department_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        flash(e)
 
 
 @app.route('/users/<user_id>/add_to_department/<department_id>', methods=['POST'])
@@ -121,5 +122,20 @@ def add_to_department(user_id, department_id):
     try:
         user_service.add_to_department(user_id, department_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        flash(e)
+
+
+@app.route('/users/send_notification/<user_id>', methods=['POST'])
+@login_required
+@required_role(role=user.ADMIN)
+def send_notification(user_id):
+    try:
+        msg = request.form.get('message')
+        app.logger.info(request.form)
+        app.logger.info(f"Пользователю {user_id} отправлено сообщение {msg}")
+        notification_service.send_message(NotificationDTO(user_id=user_id, message=msg))
+        return jsonify({'success': True })
+    except Exception as e:
+        app.logger.info(e)
+        flash(e)
