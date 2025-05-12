@@ -49,6 +49,15 @@ def read_message(id):
         app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
+def get_user_notifications_count(user_id):
+    try:
+        query = sa.select(sa.func.count()).where(sa.and_(Notification.has_read == False, Notification.user_id == user_id))
+        return db.session.scalar(query)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception('Неизвестная ошибка')
+    
 def delete(id):
     try:
         message = get_by_id(id)

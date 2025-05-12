@@ -61,6 +61,12 @@
                     <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Вход</a>
                   </li>
                   {% else %}
+                  <li class = "nav-item">
+                    <button type="button" class="btn btn-primary">
+                      Уведомления <span class="badge bg-secondary" id="notifications">0</span>
+                    </button> 
+                  </li>
+
                   <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Выход</a>
                   </li>
@@ -104,5 +110,32 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous">
         </script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        {% if not current_user.anonymous %}
+        <script>
+
+          function pollForUpdates() {                  
+              $.ajax({
+                  url: '/get_messages_count/' + '{{ current_user.id }}',
+                  method: 'GET',
+                  success: function(data) {
+                    $('#notifications').text(data.cnt);
+                    setTimeout(pollForUpdates, 120000);
+                  },
+                  error: function(xhr, status, error) {
+                      console.error('Polling error:', error);
+                      setTimeout(pollForUpdates, 180000);
+                  }
+              });
+          }
+
+          $(document).ready(function() {
+              pollForUpdates();
+          });
+
+        </script>
+        {% endif %}
     </body>
 </html>

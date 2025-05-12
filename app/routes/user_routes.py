@@ -25,7 +25,7 @@ def users():
     if is_fired is not None and is_fired == 'False':
         is_fired = False
     users = user_service.get_all_paginated(page, UserDTO(is_fired=is_fired, role=role))
-    return render_template('users/users.html', title='Курсы', users=users)
+    return render_template('users/users.html', title='Пользователи', users=users)
 
 
 @app.route('/users/create_admin', methods=['GET', 'POST'])
@@ -131,7 +131,9 @@ def add_to_department(user_id, department_id):
 @required_role(role=user.ADMIN)
 def send_notification(user_id):
     try:
-        msg = request.form['message']
+        data = request.get_json()
+        app.logger.info(data)
+        msg = data.get('message')
         app.logger.info(request.form)
         app.logger.info(f"Пользователю {user_id} отправлено сообщение {msg}")
         notification_service.send_message(NotificationDTO(user_id=user_id, message=msg))

@@ -51,3 +51,4 @@ def logout():
     return redirect(url_for('index'))
 
 import app.routes.faculty_routes, app.routes.department_routes, app.routes.course_type_routes, app.routes.course_routes, app.routes.user_routes, app.routes.qualification_routes
+import app.routes.notification_routes

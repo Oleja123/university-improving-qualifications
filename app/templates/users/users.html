@@ -217,7 +217,10 @@
                     $.ajax({
                         type: 'POST',
                         url: '/users/send_notification/' + userToSend,
-                        data: $(this).serialize(),
+                        data: JSON.stringify({
+                            message: $('#message').val(),
+                        }),
+
                         headers: {
                             "Content-Type": "application/json",
                             "X-CSRFToken": csrf_token,

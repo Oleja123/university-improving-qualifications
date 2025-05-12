@@ -48,6 +48,13 @@ class FacultyServiceCase(unittest.TestCase):
         self.assertTrue(created_notification.time_sent.date()
                         == datetime.now(timezone.utc).date())
 
+    def test_notification_count(self):
+        app.logger.info('Запуск тестирования количества уведомлений')
+        self.create_notifications()
+        self.assertEqual(notification_service.get_user_notifications_count(self.user.id), 3)
+        notification_service.read_message(1)
+        self.assertEqual(notification_service.get_user_notifications_count(self.user.id), 2)
+
     def test_read(self):
         app.logger.info('Запуск тестирования чтения уведомления')
         self.create_notifications()
