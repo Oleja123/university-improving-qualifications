@@ -131,7 +131,7 @@ def add_to_department(user_id, department_id):
 @required_role(role=user.ADMIN)
 def send_notification(user_id):
     try:
-        msg = request.form.get('message')
+        msg = request.form['message']
         app.logger.info(request.form)
         app.logger.info(f"Пользователю {user_id} отправлено сообщение {msg}")
         notification_service.send_message(NotificationDTO(user_id=user_id, message=msg))
