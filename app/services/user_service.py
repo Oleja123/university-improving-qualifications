@@ -227,7 +227,7 @@ def get_notifications(page: int, only_new, user: User):
         query = user.notifications.select()
         if only_new:
             query = query.where(Notification.has_read == False)
-        query = query.order_by(sa.desc(Notification.time_sent))
+        query = query.order_by(sa.asc(Notification.has_read), sa.desc(Notification.time_sent))
         return db.paginate(query, page=page, per_page=app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()

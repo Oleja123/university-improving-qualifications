@@ -62,9 +62,9 @@
                   </li>
                   {% else %}
                   <li class = "nav-item">
-                    <button type="button" class="btn btn-primary">
+                    <a href="{{ url_for('notifications', user_id=current_user.id) }}" class="btn btn-primary">
                       Уведомления <span class="badge bg-secondary" id="notifications">0</span>
-                    </button> 
+                    </a>
                   </li>
 
                   <li class="nav-item">
@@ -122,11 +122,11 @@
                   method: 'GET',
                   success: function(data) {
                     $('#notifications').text(data.cnt);
-                    setTimeout(pollForUpdates, 120000);
+                    setTimeout(pollForUpdates, 60000);
                   },
                   error: function(xhr, status, error) {
                       console.error('Polling error:', error);
-                      setTimeout(pollForUpdates, 180000);
+                      setTimeout(pollForUpdates, 120000);
                   }
               });
           }
