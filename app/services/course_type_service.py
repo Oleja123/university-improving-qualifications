@@ -106,3 +106,20 @@ def update_deadline(course_typeDTO: CourseTypeDTO):
         app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при удалении типа курсов')
 
+
+def set_deadline(course_typeDTO: CourseTypeDTO, deadline: datetime):
+    try:
+        record = None
+        if (course_typeDTO.id is not None):
+            record = get_by_id(course_typeDTO.id)
+        else:
+            record = get_by_name(course_typeDTO.name)
+        record.deadline = deadline
+        db.session.commit()
+    except ValueError:
+        raise
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(e)
+        raise Exception(f'Неизвестная ошибка при удалении типа курсов')
+
