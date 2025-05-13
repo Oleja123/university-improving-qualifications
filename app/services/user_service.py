@@ -237,7 +237,7 @@ def get_notifications(page: int, only_new, user: User):
 
 def get_courses(page: int, approved: bool, user: User):
     try:
-        query = user.courses.select().where(TeacherCourse.date_approved is None)
+        query = user.courses.select().where(TeacherCourse.date_approved.is_(None))
         if approved:
             query = query.where(TeacherCourse.date_approved is not None)
         query = query.order_by(Course.name)
