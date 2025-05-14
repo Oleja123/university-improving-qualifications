@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import FileField, StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import DateField, FileField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 from app.models import Faculty
 import sqlalchemy as sa
@@ -87,4 +87,16 @@ class TeachersCoursesForm(FlaskForm):
         self.is_approved.choices = []
         self.is_approved.choices.append(('', ''))
         self.is_approved.choices.append(('true', 'Принятые'))
-        self.is_approved.choices.append(('false', 'Непринятые'))               
+        self.is_approved.choices.append(('false', 'Непринятые'))
+
+
+class DateFormFaculty(FlaskForm):
+    date_from = DateField('Начальная дата отчета')
+    date_to = DateField('Конечная дата отчета')
+    faculty_id = SelectField('Факультет', validators=[DataRequired()], coerce=int)
+    submit = SubmitField('Сформировать отчет')
+
+    def __init__(self, *args, **kwargs):
+        super(DateFormFaculty, self).__init__(*args, **kwargs)
+        faculties = faculty_service.get_all()
+        self.faculty_id.choices = [(f.id, f.name) for f in faculties]

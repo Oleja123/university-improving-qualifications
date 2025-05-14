@@ -39,6 +39,7 @@ def create_admin():
             return redirect(url_for('users'))
         except Exception as e:
             flash(e)
+            return redirect(url_for('create_admin'))
 
     return render_template('users/edit_user.html', form=form)
 
