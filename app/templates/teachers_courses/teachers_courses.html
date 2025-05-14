@@ -58,7 +58,14 @@
 
     <ul class="pagination">
         {% if teachers_courses.has_prev %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', page=teachers_courses.prev_num, faculty_id=request.args.get('faculty_id')) }}">Предыдущая страница</a></li>
+         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', 
+            page=teachers_courses.prev_num, 
+            faculty_id=request.args.get('faculty_id'),
+            course_type_id=request.args.get('course_type_id'),
+            user_full_name=request.args.get('user_full_name'),
+            course_name=request.args.get('user_name'),
+            is_approved=request.args.get('is_approved')
+            ) }}">Предыдущая страница</a></li>
         {% else %}
          <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
         {% endif %}
@@ -66,16 +73,36 @@
           
         {% for page in teachers_courses.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
         {% if page == teachers_courses.page %}
-         <li class="page-item active"><a class="page-link" href="{{ url_for('teachers_courses', page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+         <li class="page-item active"><a class="page-link" href="{{ url_for('teachers_courses',
+            page=page, 
+            faculty_id=request.args.get('faculty_id'),
+            course_type_id=request.args.get('course_type_id'),
+            user_full_name=request.args.get('user_full_name'),
+            course_name=request.args.get('user_name'),
+            is_approved=request.args.get('is_approved')
+            ) }}">{{ page }}</a></li>
         {% elif page %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', 
+            page=page, 
+            faculty_id=request.args.get('faculty_id'),
+            course_type_id=request.args.get('course_type_id'),
+            user_full_name=request.args.get('user_full_name'),
+            course_name=request.args.get('user_name'),
+            is_approved=request.args.get('is_approved')
+            ) }}">{{ page }}</a></li>
         {% else %}
          <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
         {% endif %}
         {% endfor %}
         
         {% if teachers_courses.has_next %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', page=teachers_courses.next_num, faculty_id=request.args.get('faculty_id')) }}">Следующая</a></li>
+         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses',
+            page=teachers_courses.next_num,
+            faculty_id=request.args.get('faculty_id'),
+            course_type_id=request.args.get('course_type_id'),
+            user_full_name=request.args.get('user_full_name'),
+            course_name=request.args.get('user_name'),
+            is_approved=request.args.get('is_approved')) }}">Следующая</a></li>
         {% else %}
          <li class="page-item disabled"><span class="page-link">Следующая</span>
         {% endif %}

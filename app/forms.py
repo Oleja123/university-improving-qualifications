@@ -94,7 +94,8 @@ class DateFormFaculty(FlaskForm):
     date_from = DateField('Начальная дата отчета')
     date_to = DateField('Конечная дата отчета')
     faculty_id = SelectField('Факультет', validators=[DataRequired()], coerce=int)
-    submit = SubmitField('Сформировать отчет')
+    generate = SubmitField('Сформировать отчет')
+    download = SubmitField('Скачать отчет')
 
     def __init__(self, *args, **kwargs):
         super(DateFormFaculty, self).__init__(*args, **kwargs)

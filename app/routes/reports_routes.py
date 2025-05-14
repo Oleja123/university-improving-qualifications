@@ -1,4 +1,5 @@
-from flask import flash, redirect, render_template, request, url_for
+import io
+from flask import flash, redirect, render_template, request, send_file, url_for
 from flask_login import login_required
 from app import app
 from app.decorators.role_decorator import required_role
@@ -16,26 +17,21 @@ def faculty_report():
     if form.validate_on_submit():
         try:
             report = FacultyReport(form.faculty_id.data, form.date_from.data, form.date_to.data)
-            return render_template('reports/faculty_report.html', report=report, form=form)
+            if form.generate.data:
+                return render_template('reports/faculty_report.html', report=report, form=form)
+            if form.download.data:
+                pdf = PdfCreator()
+                pdf.create_table(report, [45, 45, 45, 45])
+                pdf_output = pdf.output(dest='S')
+                return send_file(
+                    io.BytesIO(pdf_output),
+                    mimetype='application/pdf',
+                    as_attachment=True,
+                    download_name='report.pdf'
+                )
         except Exception as e:
             app.logger.error(e)
-            flash('Ошибка при создании отчета')
+            flash('Ошибка при работе с отчетом')
             return redirect(url_for('faculty_report'))
     return render_template('reports/faculty_report.html', form=form)
-        
-
-@app.route('/reports/faculty/download', methods=['GET', 'POST'])
-@login_required
-@required_role(role=user.ADMIN)
-def download_report():
-    try:
-        date_from = request.args.get()
-        report = FacultyReport(form.faculty_id.data, form.date_from.data, form.date_to.data)
-        report = PdfCreator(report, )
-        return render_template('reports/faculty_report.html', report=report, form=form)
-    except Exception as e:
-        app.logger.error(e)
-        flash('Ошибка при создании отчета')
-        return redirect(url_for('faculty_report'))
-
         
