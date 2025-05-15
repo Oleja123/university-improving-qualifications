@@ -34,7 +34,7 @@ def get_all_paginated(page: int, faculties=None, search_request=None):
 
         if conditions:
             query = query.where(sa.and_(*conditions))
-        
+
         query = query.order_by(Department.faculty_id)
         return db.paginate(query, page=page, per_page=current_app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
     except Exception as e:
@@ -58,7 +58,8 @@ def get_by_id(id: int):
 
 def get_by_name(name: str):
     try:
-        res = db.session.execute(sa.select(Department).where(Department.name == name)).scalar_one_or_none()
+        res = db.session.execute(sa.select(Department).where(
+            Department.name == name)).scalar_one_or_none()
         if res is None:
             raise ValueError(f'Кафедра с именем {name} не существует')
         return res
@@ -84,11 +85,13 @@ def create(departmentDTO: DepartmentDTO):
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise ValueError(f'Кафедра с именем {departmentDTO.name} уже существует')
+        raise ValueError(
+            f'Кафедра с именем {departmentDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception(f'Ошибка при создании кафедры')
+
 
 def get_teachers(page: int, department: Department):
     try:
@@ -115,11 +118,12 @@ def update(departmentDTO: DepartmentDTO):
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception('Ошибка при обновлении кафедры')
-    
+
+
 def add_teacher(id: int, user: User):
     try:
         record = get_by_id(id)
-        if(user.role != user.TEACHER):
+        if (user.role != user.TEACHER):
             raise RoleError('На кафедру добавляется не преподаватель')
         record.teachers.add(user)
         db.session.commit()

@@ -13,7 +13,8 @@ def get_all():
         current_app.logger.error(e)
         raise Exception('Ошибка при получении факультетов')
 
-def get_by_id(id: int) :
+
+def get_by_id(id: int):
     try:
         res = db.session.get(Faculty, id)
         if res is None:
@@ -26,9 +27,11 @@ def get_by_id(id: int) :
         current_app.logger.error(e)
         raise Exception('Ошибка при получении факультета по id')
 
+
 def get_by_name(name: str):
     try:
-        res = db.session.execute(sa.select(Faculty).where(Faculty.name == name)).scalar_one_or_none()
+        res = db.session.execute(sa.select(Faculty).where(
+            Faculty.name == name)).scalar_one_or_none()
         if res is None:
             raise ValueError(f'Факультет с именем {name} не существует')
         return res
@@ -39,20 +42,22 @@ def get_by_name(name: str):
         current_app.logger.error(e)
         raise Exception(f'Ошибка при получении факультета по названию')
 
+
 def create(facultyDTO: FacultyDTO):
     try:
-        faculty = Faculty(name = facultyDTO.name)
+        faculty = Faculty(name=facultyDTO.name)
         db.session.add(faculty)
         db.session.commit()
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise ValueError(f'Факультет с именем {facultyDTO.name} уже существует')
+        raise ValueError(
+            f'Факультет с именем {facultyDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception(f'Ошибка при создании факультета')
-    
+
 
 def update(facultyDTO: FacultyDTO):
     try:
@@ -65,12 +70,13 @@ def update(facultyDTO: FacultyDTO):
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise ValueError(f'Факультет с именем {facultyDTO.name} уже существует')
+        raise ValueError(
+            f'Факультет с именем {facultyDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception(f'Ошибка при обновлении факультета')
-    
+
 
 def delete(id: int) -> bool:
     try:
@@ -84,6 +90,7 @@ def delete(id: int) -> bool:
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception(f'Ошибка при удалении факультета')
+
 
 def get_departments(facultyDTO: FacultyDTO):
     try:
@@ -99,5 +106,3 @@ def get_departments(facultyDTO: FacultyDTO):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception(f'Ошибка при получении кафедр факультета')
-
-
