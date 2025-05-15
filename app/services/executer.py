@@ -8,7 +8,7 @@ from app import db, app
 from app.models.course import Course
 from app.models.teacher_course import TeacherCourse
 from app.services import course_service, notification_service, user_service
-from app.models.user import TEACHER, ADMIN
+from app.models.user import TEACHER
 
 class Executer(IExecuter):
     def execute(self):

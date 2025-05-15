@@ -1,6 +1,5 @@
 from app import db, app
 from app.models.user import User
-from app.models.department import Department
 from app.models.teacher_course import TeacherCourse
 from app.models.course import Course
 from app.dto.user_dto import UserDTO
@@ -9,7 +8,6 @@ from app.models.user import TEACHER
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.notification import Notification
 import sqlalchemy as sa
-from app.models import user
 from app.exceptions.wrong_password_error import WrongPasswordError
 
 def get_all(userDTO: UserDTO):

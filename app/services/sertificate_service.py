@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from flask import send_from_directory
 from app import app, db
 from werkzeug.utils import secure_filename
 from app.models import user

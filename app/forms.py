@@ -1,8 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import DateField, FileField, StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
-from app.models import Faculty
-import sqlalchemy as sa
 from app.services import course_type_service, faculty_service
 
 class LoginForm(FlaskForm):

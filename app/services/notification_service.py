@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from app import db, app
 from app.models.notification import Notification
 from app.dto.notification_dto import NotificationDTO

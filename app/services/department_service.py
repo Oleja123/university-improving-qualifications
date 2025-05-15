@@ -4,8 +4,6 @@ from app.exceptions.role_error import RoleError
 from app.models.department import Department
 from app.models.user import User
 from app.services import faculty_service
-from app.dto.user_dto import UserDTO
-from app.models import user
 import sqlalchemy as sa
 
 

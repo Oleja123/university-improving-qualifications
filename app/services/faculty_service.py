@@ -2,7 +2,6 @@ from app import db, app
 from app.models.faculty import Faculty
 from app.dto.faculty_dto import FacultyDTO
 import sqlalchemy as sa
-import sqlalchemy.orm as so
 
 
 def get_all():
