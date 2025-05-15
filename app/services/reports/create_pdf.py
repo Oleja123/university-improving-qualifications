@@ -5,8 +5,8 @@ class PdfCreator(FPDF):
 
     def __init__(self):
         super().__init__()
-        self.add_font('DejaVu', '', '/home/oleg/university-improving-qualifications/app/services/reports/fonts/DejaVuSans.ttf', uni=True)
-        self.add_font('DejaVu', 'B', '/home/oleg/university-improving-qualifications/app/services/reports/fonts/DejaVuSans-Bold.ttf', uni=True)
+        self.add_font('DejaVu', '', 'app/static/fonts/DejaVuSans.ttf', uni=True)
+        self.add_font('DejaVu', 'B', 'app/static/fonts/DejaVuSans-Bold.ttf', uni=True)
 
     def add_row(self, row, col_widths):
 
