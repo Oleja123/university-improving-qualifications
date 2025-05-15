@@ -2,7 +2,6 @@ from functools import wraps
 
 from flask import abort, make_response, render_template, session
 from flask_login import current_user
-from app import app
 
 
 def required_role(role):

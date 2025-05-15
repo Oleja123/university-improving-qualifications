@@ -1,4 +1,5 @@
-from app import db, app
+from flask import current_app
+from app import db
 from app.dto.department_dto import DepartmentDTO
 from app.exceptions.role_error import RoleError
 from app.models.department import Department
@@ -15,7 +16,7 @@ def get_all(faculties=None):
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -29,16 +30,16 @@ def get_all_paginated(page: int, faculties=None, search_request=None):
         if search_request is not None:
             conditions.append(Department.name.ilike(f'%{search_request}%'))
 
-        app.logger.info(f"условия {conditions}")
+        current_app.logger.info(f"условия {conditions}")
 
         if conditions:
             query = query.where(sa.and_(*conditions))
         
         query = query.order_by(Department.faculty_id)
-        return db.paginate(query, page=page, per_page=app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['DEPARTMENTS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -50,11 +51,11 @@ def get_by_id(id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -66,11 +67,11 @@ def get_by_name(name: str):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка')
 
 
@@ -84,24 +85,24 @@ def create(departmentDTO: DepartmentDTO):
         db.session.commit()
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except sa.exc.IntegrityError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise ValueError(f'Кафедра с именем {departmentDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при создании кафедры')
 
 def get_teachers(page: int, department: Department):
     try:
         query = department.teachers.select()
-        return db.paginate(query, page=page, per_page=app.config['TEACHERS_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['TEACHERS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при получении преподавателей кафедры')
 
 
@@ -119,7 +120,7 @@ def update(departmentDTO: DepartmentDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка при обновлении кафедры')
     
 def add_teacher(id: int, user: User):
@@ -131,14 +132,14 @@ def add_teacher(id: int, user: User):
         db.session.commit()
     except RoleError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except ValueError as e:
         db.session.rollback()
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка при добавлении преподавателя на кафедру')
 
 
@@ -152,5 +153,5 @@ def delete(id: int) -> bool:
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка при удалении кафедры')

@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from app import app, db
+from flask import current_app
+
+from app import db
 from werkzeug.utils import secure_filename
 from app.models import user
 from app.models.user import User
@@ -14,11 +16,11 @@ from app.models.teacher_course import TeacherCourse
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 
 def make_path(user_id: int, course_id: int):
-    user_path = os.path.join(app.config['UPLOAD_FOLDER'], user_id, course_id)
+    user_path = os.path.join(current_app.config['UPLOAD_FOLDER'], user_id, course_id)
     project_root = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
     user_path = os.path.abspath(os.path.join(project_root, user_path))
     return user_path
@@ -41,7 +43,7 @@ def upload_file(user_id: int, course_id: int, file):
         res.sertificate_path = filepath
         db.session.commit()
     except Exception as e:
-        app.logger.info(e)
+        current_app.logger.info(e)
         raise
 
 def get(user_id: int, course_id: int):
@@ -55,13 +57,13 @@ def get(user_id: int, course_id: int):
             db.session.add(TeacherCourse(teacher=teacher, course=course))
             db.session.commit()
             res = db.session.get(TeacherCourse, (user_id, course_id))
-        app.logger.info(res)
+        current_app.logger.info(res)
         return res
     except ValueError as e:
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.info(e)
+        current_app.logger.info(e)
         raise Exception('Неизвестная ошибка при получении курса пользователя')
 
 
@@ -93,10 +95,10 @@ def get_user_courses(user_id: int, page: int, included=None, approved=None):
         if conditions:
             query = query.where(*conditions)
             
-        return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -117,7 +119,7 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
             elif is_approved == 'false':
                 is_approved = False
 
-        app.logger.info(f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
+        current_app.logger.info(f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
 
         query = sa.select(TeacherCourse, Course, User).join(Course).join(User)
         conditions = []
@@ -136,22 +138,22 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
             else:
                 conditions.append(TeacherCourse.date_approved.is_(None))
 
-        app.logger.info(f"условия {conditions}")
+        current_app.logger.info(f"условия {conditions}")
 
         if conditions:
             query = query.where(sa.and_(*conditions))
         
         query = query.order_by(Course.name)
-        return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
 def change_approved(user_id: int, course_id: int):
     try:
-        app.logger.info('Я тут')
+        current_app.logger.info('Я тут')
         res = get(user_id, course_id)
         if res.sertificate_path is None:
             raise ValueError('Сертификат не прикреплен')
@@ -163,9 +165,9 @@ def change_approved(user_id: int, course_id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')

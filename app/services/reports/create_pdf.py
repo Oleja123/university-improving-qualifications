@@ -1,5 +1,4 @@
 from fpdf import FPDF
-from app import app
 
 class PdfCreator(FPDF):
 

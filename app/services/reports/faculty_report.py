@@ -5,7 +5,6 @@ from app.models.teacher_course import TeacherCourse
 from app.models.user import User
 from app.services import faculty_service
 import sqlalchemy as sa
-from app import app
 from app import db
 
 

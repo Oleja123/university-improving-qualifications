@@ -1,5 +1,4 @@
 from flask import flash, jsonify, make_response, redirect, render_template, request, url_for
-from app import app
 from flask_login import login_required, current_user
 
 from app.decorators.role_decorator import required_role
@@ -133,12 +132,8 @@ def add_to_department(user_id, department_id):
 def send_notification(user_id):
     try:
         data = request.get_json()
-        app.logger.info(data)
         msg = data.get('message')
-        app.logger.info(request.form)
-        app.logger.info(f"Пользователю {user_id} отправлено сообщение {msg}")
         notification_service.send_message(NotificationDTO(user_id=user_id, message=msg))
         return jsonify({'success': True })
     except Exception as e:
-        app.logger.info(e)
         flash(e)

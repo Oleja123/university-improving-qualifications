@@ -1,12 +1,11 @@
 import os
-from flask import flash, jsonify, redirect, render_template, request, send_from_directory, url_for
+from flask import current_app, flash, jsonify, redirect, render_template, request, send_from_directory, url_for
 from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
 from app.main.forms import TeachersCoursesForm, UploadForm
 from app.models import user
 from app.services import sertificate_service
-from app import app
 from app.main import bp
 
 
@@ -26,10 +25,8 @@ def teacher_course(user_id, course_id):
                 sertificate_service.upload_file(user_id, course_id, file)
                 flash('Файл успешно загружен')
         except ValueError as e:
-            app.logger.info(e)
             flash(e)
         except Exception as e:
-            app.logger.info(e)
             flash('Ошибка при загрузке файла')
         finally:
             return redirect(url_for('main.teacher_course', user_id=user_id, course_id=course_id))
@@ -42,12 +39,12 @@ def teacher_course(user_id, course_id):
 def download_file(user_id, course_id):
     try:
         user_path = sertificate_service.make_path(user_id, course_id)
-        app.logger.info(user_path)
+        current_app.logger.info(user_path)
         file = os.listdir(user_path)[0]
-        app.logger.info(file)
+        current_app.logger.info(file)
         return send_from_directory(user_path, file, as_attachment=True)
     except Exception as e:
-        app.logger.info(e)
+        current_app.logger.info(e)
         raise
 
 

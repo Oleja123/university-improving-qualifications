@@ -4,7 +4,6 @@ from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
 from app.services import notification_service, user_service
-from app import app
 from app.main import bp
 
 
@@ -15,7 +14,6 @@ def get_messages_count(user_id):
         res = notification_service.get_user_notifications_count(user_id)
         return jsonify({'cnt': res})
     except Exception as e:
-        app.logger.info(e)
         flash('Ошибка при получении уведомления')
 
 

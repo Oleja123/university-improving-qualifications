@@ -1,4 +1,5 @@
-from app import db, app
+from flask import current_app
+from app import db
 from app.dto.course_dto import CourseDTO
 from app.models.course import Course
 from app.services import course_type_service
@@ -12,7 +13,7 @@ def get_all(included=None, course_type=None):
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -20,22 +21,22 @@ def get_all_paginated(page: int, included=None, course_types=None):
     try:
         query = sa.select(Course)
         conditions = []
-        app.logger.info(f"условия {included, course_types}")
+        current_app.logger.info(f"условия {included, course_types}")
         if included is not None:
             conditions.append(Course.is_included == included)
 
         if course_types is not None:
             conditions.append(Course.course_type_id.in_(course_types))
 
-        app.logger.info(f"условия {conditions}")
+        current_app.logger.info(f"условия {conditions}")
 
         if conditions:
             query = query.where(sa.and_(*conditions))
         query = query.order_by(Course.course_type_id)
-        return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -47,11 +48,11 @@ def get_by_id(id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
 def change_included(id: int):
@@ -62,11 +63,11 @@ def change_included(id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -78,11 +79,11 @@ def get_by_name(name: str):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка')
 
 
@@ -96,15 +97,15 @@ def create(courseDTO: CourseDTO):
         db.session.commit()
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except sa.exc.IntegrityError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise ValueError(f'Курс с именем {course.name} уже существует')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при создании курса')
 
 
@@ -122,7 +123,7 @@ def update(courseDTO: CourseDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка при обновлении курса')
 
 
@@ -136,5 +137,5 @@ def delete(id: int) -> bool:
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка при удалении курса')

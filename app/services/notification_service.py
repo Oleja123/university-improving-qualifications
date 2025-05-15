@@ -1,4 +1,5 @@
-from app import db, app
+from flask import current_app
+from app import db
 from app.models.notification import Notification
 from app.dto.notification_dto import NotificationDTO
 from app.services import user_service
@@ -13,11 +14,11 @@ def get_by_id(id: int) :
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 def send_message(notificationDTO: NotificationDTO):
@@ -31,7 +32,7 @@ def send_message(notificationDTO: NotificationDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -45,7 +46,7 @@ def read_message(id):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
 def get_user_notifications_count(user_id):
@@ -54,7 +55,7 @@ def get_user_notifications_count(user_id):
         return db.session.scalar(query)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
 def delete(id):
@@ -67,6 +68,6 @@ def delete(id):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 

@@ -9,13 +9,12 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import event
 
 
-app = Flask(__name__)
-app.config.from_object(Config)
-csrf = CSRFProtect(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-login = LoginManager(app)
-login.login_view = 'login'
+db = SQLAlchemy()
+migrate = Migrate()
+login = LoginManager()
+csrf = CSRFProtect()
+login.login_view = 'auth.login'
+login.login_message = ('Пожалуйста авторизуйтесь, чтобы просматривать данную страницу')
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -23,23 +22,32 @@ logging.basicConfig(
 )
 
 
-from app.errors import bp as errors_bp
-app.register_blueprint(errors_bp)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login.init_app(app)
+    csrf.init_app(app)
+
+    from app.errors import bp as errors_bp
+    app.register_blueprint(errors_bp)
 
 
-from app.auth import bp as auth_bp
-app.register_blueprint(auth_bp)
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
 
-from app.main import bp as main_bp
-app.register_blueprint(main_bp)
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
 
-
-if 'postgresql' not in app.config['SQLALCHEMY_DATABASE_URI']:
-    @event.listens_for(Engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-        
+    if 'postgresql' not in app.config['SQLALCHEMY_DATABASE_URI']:
+        @event.listens_for(Engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+    
+    return app
 
 from app import models

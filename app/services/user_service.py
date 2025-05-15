@@ -1,4 +1,5 @@
-from app import db, app
+from flask import current_app
+from app import db
 from app.models.user import User
 from app.models.teacher_course import TeacherCourse
 from app.models.course import Course
@@ -20,7 +21,7 @@ def get_all(userDTO: UserDTO):
         if userDTO.is_fired is not None:
             conditions.append(User.is_fired == userDTO.is_fired)
 
-        app.logger.info(f"условия {conditions}")
+        current_app.logger.info(f"условия {conditions}")
 
         if conditions:
             query = query.where(sa.and_(*conditions))
@@ -28,7 +29,7 @@ def get_all(userDTO: UserDTO):
         return db.session.execute(query).scalars().all()
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -42,15 +43,15 @@ def get_all_paginated(page: int, userDTO: UserDTO):
         if userDTO.is_fired is not None:
             conditions.append(User.is_fired == userDTO.is_fired)
 
-        app.logger.info(f"условия {conditions}")
+        current_app.logger.info(f"условия {conditions}")
 
         if conditions:
             query = query.where(sa.and_(*conditions))
         query = query.order_by(User.full_name)
-        return db.paginate(query, page=page, per_page=app.config['USERS_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['USERS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -62,11 +63,11 @@ def get_by_id(id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -79,11 +80,11 @@ def get_by_username(username: str):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка')
 
 
@@ -99,11 +100,11 @@ def create(userDTO: UserDTO):
         db.session.commit()
     except sa.exc.IntegrityError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise ValueError(f'Пользователь с именем {userDTO.username} уже существует')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при создании пользователя')
 
 
@@ -116,11 +117,11 @@ def check_password(username: str, password: str):
         return True
     except WrongPasswordError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -137,7 +138,7 @@ def update(userDTO: UserDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -151,7 +152,7 @@ def delete(id: int) -> bool:
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
 def fire(id: int):
@@ -164,7 +165,7 @@ def fire(id: int):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
     
 
@@ -181,13 +182,13 @@ def add_to_department(user_id: int, department_id: int):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
 def remove_from_department(user_id: int, department_id: int):
     try:
-        app.logger.info('Удаление преподавателя с кафедры')
+        current_app.logger.info('Удаление преподавателя с кафедры')
         user = get_by_id(user_id)
         if user.role != TEACHER:
             raise ValueError('Нельзя убрать сотрудника с кафедры')
@@ -199,7 +200,7 @@ def remove_from_department(user_id: int, department_id: int):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -216,7 +217,7 @@ def get_departments(userDTO: UserDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -226,10 +227,10 @@ def get_notifications(page: int, only_new, user: User):
         if only_new:
             query = query.where(Notification.has_read == False)
         query = query.order_by(sa.asc(Notification.has_read), sa.desc(Notification.time_sent))
-        return db.paginate(query, page=page, per_page=app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -239,8 +240,8 @@ def get_courses(page: int, approved: bool, user: User):
         if approved:
             query = query.where(TeacherCourse.date_approved is not None)
         query = query.order_by(Course.name)
-        return db.paginate(query, page=page, per_page=app.config['COURSES_PER_PAGE'], error_out=False)
+        return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')

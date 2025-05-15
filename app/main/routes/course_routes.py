@@ -1,5 +1,4 @@
 from flask import flash, jsonify, redirect, render_template, request, url_for
-from app import app
 from flask_login import login_required
 
 from app.decorators.role_decorator import required_role

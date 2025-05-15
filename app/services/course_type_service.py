@@ -1,4 +1,5 @@
-from app import db, app
+from flask import current_app
+from app import db
 from app.dto.course_type_dto import CourseTypeDTO
 from app.models.course_type import CourseType, add_years
 import sqlalchemy as sa
@@ -10,7 +11,7 @@ def get_all():
         return db.session.execute(sa.select(CourseType).order_by(CourseType.name)).scalars().all()
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -22,11 +23,11 @@ def get_by_id(id: int):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
 
 
@@ -38,11 +39,11 @@ def get_by_name(name: str):
         return res
     except ValueError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка')
 
 
@@ -53,11 +54,11 @@ def create(courseTypeDTO: CourseTypeDTO):
         db.session.commit()
     except sa.exc.IntegrityError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise ValueError(f'Тип курсов с именем {courseTypeDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при создании тпа курсов')
 
 def update(courseTypeDTO: CourseTypeDTO):
@@ -69,11 +70,11 @@ def update(courseTypeDTO: CourseTypeDTO):
         raise
     except sa.exc.IntegrityError as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise ValueError(f'Тип курсов с именем {courseTypeDTO.name} уже существует')
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при обновлении типа курсов')
 
 
@@ -86,7 +87,7 @@ def delete(id: int) -> bool:
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при удалении типа курсов')
 
 
@@ -103,7 +104,7 @@ def update_deadline(course_typeDTO: CourseTypeDTO):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при удалении типа курсов')
 
 
@@ -120,6 +121,6 @@ def set_deadline(course_typeDTO: CourseTypeDTO, deadline: datetime):
         raise
     except Exception as e:
         db.session.rollback()
-        app.logger.error(e)
+        current_app.logger.error(e)
         raise Exception(f'Неизвестная ошибка при удалении типа курсов')
 

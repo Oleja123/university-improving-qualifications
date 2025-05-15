@@ -6,7 +6,6 @@ from app.dto.course_type_dto import CourseTypeDTO
 from app.main.forms import EditCourseTypeForm
 from app.models import user
 from app.services import course_type_service
-from app import app
 from app.main import bp
 
 

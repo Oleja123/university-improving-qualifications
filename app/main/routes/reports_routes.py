@@ -1,7 +1,6 @@
 import io
 from flask import flash, redirect, render_template, request, send_file, url_for
 from flask_login import login_required
-from app import app
 from app.decorators.role_decorator import required_role
 from app.main.forms import ReportForm
 from app.models import user
@@ -36,7 +35,6 @@ def faculty_report():
                     download_name='report.pdf'
                 )
         except Exception as e:
-            app.logger.error(e)
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form, 
@@ -68,7 +66,6 @@ def course_type_report():
                     download_name='report.pdf'
                 )
         except Exception as e:
-            app.logger.error(e)
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form, 
