@@ -5,7 +5,7 @@ from flask_login import login_required
 from app.decorators.role_decorator import required_role
 from app.forms import TeachersCoursesForm, UploadForm
 from app.models import user
-from app.services import course_service, sertificate_service
+from app.services import sertificate_service
 from app import app
 
 

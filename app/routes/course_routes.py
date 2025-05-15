@@ -4,10 +4,9 @@ from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
 from app.dto.course_dto import CourseDTO
-from app.dto.department_dto import DepartmentDTO
-from app.forms import EditCourseForm, EditDepartmentForm
+from app.forms import EditCourseForm
 from app.models import user
-from app.services import course_service, course_type_service, department_service, faculty_service
+from app.services import course_service, course_type_service
 
 
 @app.route('/courses')

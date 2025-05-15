@@ -3,9 +3,7 @@ from flask import flash, jsonify, redirect, render_template, request, send_from_
 from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
-from app.forms import TeachersCoursesForm, UploadForm
-from app.models import user
-from app.services import course_service, notification_service, sertificate_service, user_service
+from app.services import notification_service, user_service
 from app import app
 
 
