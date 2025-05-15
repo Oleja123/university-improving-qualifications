@@ -28,7 +28,7 @@ def send_message(notificationDTO: NotificationDTO):
             message=notificationDTO.message, user=user, has_read=False)
         db.session.add(notification)
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
@@ -42,7 +42,7 @@ def read_message(id):
         notification = get_by_id(id)
         notification.has_read = True
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
@@ -66,7 +66,7 @@ def delete(id):
         message = get_by_id(id)
         db.session.delete(message)
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:

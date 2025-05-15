@@ -85,7 +85,7 @@ def delete(id: int) -> bool:
         course_type = get_by_id(id)
         db.session.delete(course_type)
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
@@ -103,7 +103,7 @@ def update_deadline(course_typeDTO: CourseTypeDTO):
             record = get_by_name(course_typeDTO.name)
         record.deadline = add_years(record.deadline, 3)
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
@@ -121,7 +121,7 @@ def set_deadline(course_typeDTO: CourseTypeDTO, deadline: datetime):
             record = get_by_name(course_typeDTO.name)
         record.deadline = deadline
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:

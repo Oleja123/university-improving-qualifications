@@ -1,4 +1,7 @@
 from flask import current_app
+import sqlalchemy as sa
+from app.exceptions.wrong_password_error import WrongPasswordError
+
 from app import db
 from app.models.user import User
 from app.models.teacher_course import TeacherCourse
@@ -8,8 +11,7 @@ from app.services import department_service
 from app.models.user import TEACHER
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.notification import Notification
-import sqlalchemy as sa
-from app.exceptions.wrong_password_error import WrongPasswordError
+
 
 def get_all(userDTO: UserDTO):
     try:
@@ -28,9 +30,8 @@ def get_all(userDTO: UserDTO):
         query = query.order_by(User.full_name)
         return db.session.execute(query).scalars().all()
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении пользователей')
 
 
 def get_all_paginated(page: int, userDTO: UserDTO):
@@ -50,9 +51,8 @@ def get_all_paginated(page: int, userDTO: UserDTO):
         query = query.order_by(User.full_name)
         return db.paginate(query, page=page, per_page=current_app.config['USERS_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении пользователей')
 
 
 def get_by_id(id: int):
@@ -62,13 +62,11 @@ def get_by_id(id: int):
             raise ValueError(f'Пользователь с id = {id} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении пользователя по id')
 
 
 def get_by_username(username: str):
@@ -79,13 +77,11 @@ def get_by_username(username: str):
             raise ValueError(f'Пользователь с именем {username} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка')
+        raise Exception(f'Ошибка при получении пользователя по имени пользователя')
 
 
 def create(userDTO: UserDTO):
@@ -105,7 +101,7 @@ def create(userDTO: UserDTO):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при создании пользователя')
+        raise Exception(f'Ошибка при создании пользователя')
 
 
 def check_password(username: str, password: str):
@@ -115,14 +111,15 @@ def check_password(username: str, password: str):
         if not res:
             raise WrongPasswordError('Неверный пароль')
         return True
+    except ValueError as e:
+        current_app.logger.error(e)
+        raise
     except WrongPasswordError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при проверке пароля')
 
 
 def update(userDTO: UserDTO):
@@ -133,13 +130,13 @@ def update(userDTO: UserDTO):
         if userDTO.password is not None:
             record.password_hash = generate_password_hash(userDTO.password)
         db.session.commit()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при обновлении пользователя')
 
 
 def delete(id: int) -> bool:
@@ -147,26 +144,26 @@ def delete(id: int) -> bool:
         user = get_by_id(id)
         db.session.delete(user)
         db.session.commit()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при удалении пользователя')
     
 def fire(id: int):
     try:
         record = get_by_id(id)
         record.is_fired = not record.is_fired
         db.session.commit()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при увольнении пользователя')
     
 
 def add_to_department(user_id: int, department_id: int):
@@ -177,13 +174,13 @@ def add_to_department(user_id: int, department_id: int):
         department = department_service.get_by_id(department_id)
         user.departments.add(department)
         db.session.commit()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при добавлении пользователя на кафедру')
 
 
 def remove_from_department(user_id: int, department_id: int):
@@ -195,13 +192,13 @@ def remove_from_department(user_id: int, department_id: int):
         department = department_service.get_by_id(department_id)
         user.departments.remove(department)
         db.session.commit()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при удалении пользователя с кафедры')
 
 
 def get_departments(userDTO: UserDTO):
@@ -212,13 +209,13 @@ def get_departments(userDTO: UserDTO):
         else:
             user = get_by_username(userDTO.name)
         return db.session.scalars(user.departments.select()).all()
-    except ValueError:
-        db.session.rollback()
+    except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении кафедр пользователя')
 
 
 def get_notifications(page: int, only_new, user: User):
@@ -229,9 +226,8 @@ def get_notifications(page: int, only_new, user: User):
         query = query.order_by(sa.asc(Notification.has_read), sa.desc(Notification.time_sent))
         return db.paginate(query, page=page, per_page=current_app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении сообщений пользователя')
 
 
 def get_courses(page: int, approved: bool, user: User):
@@ -242,6 +238,5 @@ def get_courses(page: int, approved: bool, user: User):
         query = query.order_by(Course.name)
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении курсов пользователя')

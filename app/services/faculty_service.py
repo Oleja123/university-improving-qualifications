@@ -64,7 +64,7 @@ def update(facultyDTO: FacultyDTO):
         record = get_by_id(facultyDTO.id)
         record.name = facultyDTO.name
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except sa.exc.IntegrityError as e:
@@ -83,7 +83,7 @@ def delete(id: int) -> bool:
         faculty = get_by_id(id)
         db.session.delete(faculty)
         db.session.commit()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
@@ -100,7 +100,7 @@ def get_departments(facultyDTO: FacultyDTO):
         else:
             faculty = get_by_name(facultyDTO.name)
         return db.session.scalars(faculty.departments.select()).all()
-    except ValueError:
+    except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
