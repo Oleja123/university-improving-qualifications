@@ -1,17 +1,17 @@
 from flask import current_app
+import sqlalchemy as sa
+
 from app import db
 from app.models.faculty import Faculty
 from app.dto.faculty_dto import FacultyDTO
-import sqlalchemy as sa
 
 
 def get_all():
     try:
         return db.session.execute(sa.select(Faculty).order_by(Faculty.name)).scalars().all()
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении факультетов')
 
 def get_by_id(id: int) :
     try:
@@ -20,13 +20,11 @@ def get_by_id(id: int) :
             raise ValueError(f'Факультет с id = {id} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении факультета по id')
 
 def get_by_name(name: str):
     try:
@@ -35,13 +33,11 @@ def get_by_name(name: str):
             raise ValueError(f'Факультет с именем {name} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка')
+        raise Exception(f'Ошибка при получении факультета по названию')
 
 def create(facultyDTO: FacultyDTO):
     try:
@@ -55,7 +51,7 @@ def create(facultyDTO: FacultyDTO):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при создании факультета')
+        raise Exception(f'Ошибка при создании факультета')
     
 
 def update(facultyDTO: FacultyDTO):
@@ -64,6 +60,7 @@ def update(facultyDTO: FacultyDTO):
         record.name = facultyDTO.name
         db.session.commit()
     except ValueError:
+        current_app.logger.error(e)
         raise
     except sa.exc.IntegrityError as e:
         db.session.rollback()
@@ -72,7 +69,7 @@ def update(facultyDTO: FacultyDTO):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при обновлении факультета')
+        raise Exception(f'Ошибка при обновлении факультета')
     
 
 def delete(id: int) -> bool:
@@ -81,11 +78,12 @@ def delete(id: int) -> bool:
         db.session.delete(faculty)
         db.session.commit()
     except ValueError:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при удалении факультета')
+        raise Exception(f'Ошибка при удалении факультета')
 
 def get_departments(facultyDTO: FacultyDTO):
     try:
@@ -96,10 +94,10 @@ def get_departments(facultyDTO: FacultyDTO):
             faculty = get_by_name(facultyDTO.name)
         return db.session.scalars(faculty.departments.select()).all()
     except ValueError:
+        current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при получении факультетов')
+        raise Exception(f'Ошибка при получении кафедр факультета')
 
 
