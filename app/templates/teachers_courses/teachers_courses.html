@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 <h1> Курсы преподавателей </h1>
-<form class = 'form' method="GET" action="{{ url_for('teachers_courses') }}">
+<form class = 'form' method="GET" action="{{ url_for('main.teachers_courses') }}">
     {{ form.course_name.label(class='form-label') }} {{ form.course_name(class='form-control') }}<br>
     {{ form.user_full_name.label(class='form-label') }} {{ form.user_full_name(class='form-control') }}<br>
     {{ form.course_type_id.label(class='form-label') }} {{ form.course_type_id(class='form-control') }}<br>
     {{ form.is_approved.label(class='form-label') }} {{ form.is_approved(class='form-control') }}<br>
     <div class="col-md-4 mb-3">
         <button type="submit" class="btn btn-primary">Фильтровать</button>
-        <a href="{{ url_for('teachers_courses') }}" class="btn btn-secondary">Сбросить</a>
+        <a href="{{ url_for('main.teachers_courses') }}" class="btn btn-secondary">Сбросить</a>
     </div>
 
     <table id="teachers-courses-table" class="table table-striped table-bordered" style="width:100%">
@@ -58,7 +58,7 @@
 
     <ul class="pagination">
         {% if teachers_courses.has_prev %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', 
+         <li class="page-item"><a class="page-link" href="{{ url_for('main.teachers_courses', 
             page=teachers_courses.prev_num, 
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
@@ -73,7 +73,7 @@
           
         {% for page in teachers_courses.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
         {% if page == teachers_courses.page %}
-         <li class="page-item active"><a class="page-link" href="{{ url_for('teachers_courses',
+         <li class="page-item active"><a class="page-link" href="{{ url_for('main.teachers_courses',
             page=page, 
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
@@ -82,7 +82,7 @@
             is_approved=request.args.get('is_approved')
             ) }}">{{ page }}</a></li>
         {% elif page %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses', 
+         <li class="page-item"><a class="page-link" href="{{ url_for('main.teachers_courses', 
             page=page, 
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
@@ -96,7 +96,7 @@
         {% endfor %}
         
         {% if teachers_courses.has_next %}
-         <li class="page-item"><a class="page-link" href="{{ url_for('teachers_courses',
+         <li class="page-item"><a class="page-link" href="{{ url_for('main.teachers_courses',
             page=teachers_courses.next_num,
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),

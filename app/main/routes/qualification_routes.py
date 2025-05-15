@@ -3,13 +3,14 @@ from flask import flash, jsonify, redirect, render_template, request, send_from_
 from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
-from app.forms import TeachersCoursesForm, UploadForm
+from app.main.forms import TeachersCoursesForm, UploadForm
 from app.models import user
 from app.services import sertificate_service
 from app import app
+from app.main import bp
 
 
-@app.route('/teacher_course/<user_id>/<course_id>', methods=['GET','POST'])
+@bp.route('/teacher_course/<user_id>/<course_id>', methods=['GET','POST'])
 @login_required
 @required_role(role=user.TEACHER)
 def teacher_course(user_id, course_id):
@@ -31,12 +32,12 @@ def teacher_course(user_id, course_id):
             app.logger.info(e)
             flash('Ошибка при загрузке файла')
         finally:
-            return redirect(url_for('teacher_course', user_id=user_id, course_id=course_id))
+            return redirect(url_for('main.teacher_course', user_id=user_id, course_id=course_id))
     return render_template('teachers_courses/teacher_course.html', title='Курсы преподавателя', teacher_course=teacher_course, form=form)
 
 
 
-@app.route('/download_file/<user_id>/<course_id>', methods=['GET','POST'])
+@bp.route('/download_file/<user_id>/<course_id>', methods=['GET','POST'])
 @login_required
 def download_file(user_id, course_id):
     try:
@@ -50,7 +51,7 @@ def download_file(user_id, course_id):
         raise
 
 
-@app.route('/teachers_courses', methods=['GET','POST'])
+@bp.route('/teachers_courses', methods=['GET','POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def teachers_courses():
@@ -69,7 +70,7 @@ def teachers_courses():
                                                                                   course_type_id=course_type_id,
                                                                                   is_approved=is_approved))
 
-@app.route('/teachers_courses/approve_course/<user_id>/<course_id>', methods=['POST'])
+@bp.route('/teachers_courses/approve_course/<user_id>/<course_id>', methods=['POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def approve_course(user_id, course_id):

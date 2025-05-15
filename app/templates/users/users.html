@@ -3,11 +3,11 @@
     <div class="container">
         <h1>Пользователи</h1>
         <div class="btn-group mb-3" role="group">
-            <a class="btn btn-primary" href="{{ url_for('create_admin') }}" role="button">Создать сотрудника</a>
-            <a class="btn btn-primary" href="{{ url_for('create_teacher') }}" role="button">Создать преподавателя</a>
+            <a class="btn btn-primary" href="{{ url_for('main.create_admin') }}" role="button">Создать сотрудника</a>
+            <a class="btn btn-primary" href="{{ url_for('main.create_teacher') }}" role="button">Создать преподавателя</a>
         </div>
         <br>
-        <form method="get" action="{{ url_for('users') }}" class="mb-1">
+        <form method="get" action="{{ url_for('main.users') }}" class="mb-1">
             <div class="row g-3">
                 <div class="col-md-4">
                     <select name = 'is_fired' class="form-select">
@@ -41,7 +41,7 @@
                 </div>
                 <div class="col-md-4">
                     <button type="submit" class="btn btn-primary">Фильтровать</button>
-                    <a href="{{ url_for('users') }}" class="btn btn-secondary">Сбросить</a>
+                    <a href="{{ url_for('main.users') }}" class="btn btn-secondary">Сбросить</a>
                 </div>
             </div>
         </form>
@@ -73,7 +73,7 @@
                             </button>
                         </td>
                         <td>
-                            <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_user', user_id=user.id) }}" role="button">Редактировать</a>
+                            <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_user', user_id=user.id) }}" role="button">Редактировать</a>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm delete-btn" 
@@ -95,7 +95,7 @@
 
         <ul class="pagination">
             {% if users.has_prev %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('users', page=users.prev_num, is_fired=request.args.get('is_fired'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=users.prev_num, is_fired=request.args.get('is_fired'),
                 role=request.args.get('role')) }}">Предыдущая страница</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
@@ -104,10 +104,10 @@
               
             {% for page in users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
             {% if page == users.page %}
-             <li class="page-item active"><a class="page-link" href="{{ url_for('users', page=page, is_fired=request.args.get('is_fired'),
+             <li class="page-item active"><a class="page-link" href="{{ url_for('main.users', page=page, is_fired=request.args.get('is_fired'),
                 role=request.args.get('role')) }}">{{ page }}</a></li>
             {% elif page %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('users', page=page, is_fired=request.args.get('is_fired'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=page, is_fired=request.args.get('is_fired'),
                 role=request.args.get('role')) }}">{{ page }}</a></li>
             {% else %}
              <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
@@ -115,7 +115,7 @@
             {% endfor %}
             
             {% if users.has_next %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('users', page=users.next_num, is_fired=request.args.get('is_fired'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=users.next_num, is_fired=request.args.get('is_fired'),
                 role=request.args.get('role')) }}">Следующая</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Следующая</span>

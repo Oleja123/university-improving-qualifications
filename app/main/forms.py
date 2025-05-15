@@ -1,13 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import DateField, FileField, StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import DateField, FileField, StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 from app.services import course_type_service, faculty_service
-
-class LoginForm(FlaskForm):
-    username = StringField('Имя', validators=[DataRequired()])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    remember_me = BooleanField('Запомнить меня')
-    submit = SubmitField('Вход')
 
 
 class EditFacultyForm(FlaskForm):

@@ -5,9 +5,10 @@ from flask_login import current_user, login_required
 from app.decorators.role_decorator import required_role
 from app.services import notification_service, user_service
 from app import app
+from app.main import bp
 
 
-@app.route('/get_messages_count/<user_id>')
+@bp.route('/get_messages_count/<user_id>')
 @login_required
 def get_messages_count(user_id):
     try:
@@ -18,7 +19,7 @@ def get_messages_count(user_id):
         flash('Ошибка при получении уведомления')
 
 
-@app.route('/notifications/<user_id>')
+@bp.route('/notifications/<user_id>')
 @login_required
 def notifications(user_id):
     page = request.args.get('page', 1, type=int)
@@ -26,7 +27,7 @@ def notifications(user_id):
     return render_template('notifications/notifications.html', title='Уведомления', notifications=notifications)
 
 
-@app.route('/notifications/delete/<notification_id>', methods=['DELETE'])
+@bp.route('/notifications/delete/<notification_id>', methods=['DELETE'])
 @login_required
 def delete_notification(notification_id):
     try:
@@ -35,7 +36,7 @@ def delete_notification(notification_id):
     except Exception as ex:
         flash(ex)
 
-@app.route('/notifications/read/<notification_id>', methods=['POST'])
+@bp.route('/notifications/read/<notification_id>', methods=['POST'])
 @login_required
 def read_notification(notification_id):
     try:

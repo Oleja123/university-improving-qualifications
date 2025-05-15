@@ -5,12 +5,13 @@ from flask_login import login_required, current_user
 from app.decorators.role_decorator import required_role
 from app.dto.notification_dto import NotificationDTO
 from app.dto.user_dto import UserDTO
-from app.forms import EditUserForm
+from app.main.forms import EditUserForm
 from app.models import user
 from app.services import notification_service, user_service, department_service
+from app.main import bp
 
 
-@app.route('/users')
+@bp.route('/users')
 @login_required
 @required_role(role=user.ADMIN)
 def users():
@@ -27,7 +28,7 @@ def users():
     return render_template('users/users.html', title='Пользователи', users=users)
 
 
-@app.route('/users/create_admin', methods=['GET', 'POST'])
+@bp.route('/users/create_admin', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def create_admin():
@@ -35,14 +36,14 @@ def create_admin():
     if form.validate_on_submit():
         try:
             user_service.create(UserDTO.from_form(form, 0))
-            return redirect(url_for('users'))
+            return redirect(url_for('main.users'))
         except Exception as e:
             flash(e)
-            return redirect(url_for('create_admin'))
+            return redirect(url_for('main.create_admin'))
 
     return render_template('users/edit_user.html', form=form)
 
-@app.route('/users/create_teacher', methods=['GET', 'POST'])
+@bp.route('/users/create_teacher', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def create_teacher():
@@ -50,13 +51,13 @@ def create_teacher():
     if form.validate_on_submit():
         try:
             user_service.create(UserDTO.from_form(form, 1))
-            return redirect(url_for('users'))
+            return redirect(url_for('main.users'))
         except Exception as e:
             flash(e)
 
     return render_template('users/edit_user.html', form=form)
 
-@app.route('/users/edit/<user_id>', methods=['GET', 'POST'])
+@bp.route('/users/edit/<user_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def edit_user(user_id):
@@ -64,7 +65,7 @@ def edit_user(user_id):
     if form.validate_on_submit():
         try:
             user_service.update(UserDTO.from_form(form, id=user_id))
-            return redirect(url_for('users'))
+            return redirect(url_for('main.users'))
         except Exception as e:
             flash(e)
     page = request.args.get('page', 1, type=int)
@@ -76,7 +77,7 @@ def edit_user(user_id):
                            departments=department_service.get_all_paginated(page=page, search_request=search_request))
 
 
-@app.route('/users/delete/<user_id>', methods=['DELETE'])
+@bp.route('/users/delete/<user_id>', methods=['DELETE'])
 @login_required
 @required_role(role=user.ADMIN)
 def delete_user(user_id):
@@ -90,7 +91,7 @@ def delete_user(user_id):
         flash(e)
 
 
-@app.route('/users/fire/<user_id>', methods=['POST'])
+@bp.route('/users/fire/<user_id>', methods=['POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def fire_user(user_id):
@@ -104,7 +105,7 @@ def fire_user(user_id):
         flash(e)
 
 
-@app.route('/users/<user_id>/remove_from_department/<department_id>', methods=['DELETE'])
+@bp.route('/users/<user_id>/remove_from_department/<department_id>', methods=['DELETE'])
 @login_required
 @required_role(role=user.ADMIN)
 def remove_from_department(user_id, department_id):
@@ -115,7 +116,7 @@ def remove_from_department(user_id, department_id):
         flash(e)
 
 
-@app.route('/users/<user_id>/add_to_department/<department_id>', methods=['POST'])
+@bp.route('/users/<user_id>/add_to_department/<department_id>', methods=['POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def add_to_department(user_id, department_id):
@@ -126,7 +127,7 @@ def add_to_department(user_id, department_id):
         flash(e)
 
 
-@app.route('/users/send_notification/<user_id>', methods=['POST'])
+@bp.route('/users/send_notification/<user_id>', methods=['POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def send_notification(user_id):

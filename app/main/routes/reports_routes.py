@@ -3,15 +3,16 @@ from flask import flash, redirect, render_template, request, send_file, url_for
 from flask_login import login_required
 from app import app
 from app.decorators.role_decorator import required_role
-from app.forms import ReportForm
+from app.main.forms import ReportForm
 from app.models import user
 from app.services import course_type_service, faculty_service
 from app.services.reports.course_type_report import CourseTypeReport
 from app.services.reports.create_pdf import PdfCreator
 from app.services.reports.faculty_report import FacultyReport
+from app.main import bp
 
 
-@app.route('/reports/faculty', methods=['GET', 'POST'])
+@bp.route('/reports/faculty', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def faculty_report():
@@ -37,13 +38,13 @@ def faculty_report():
         except Exception as e:
             app.logger.error(e)
             flash('Ошибка при работе с отчетом')
-            return redirect(url_for('faculty_report'))
+            return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form, 
                            page_title='Отчеты по факультетам',
                            report_title='Отчет по факультету')
 
 
-@app.route('/reports/course_type', methods=['GET', 'POST'])
+@bp.route('/reports/course_type', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def course_type_report():
@@ -69,7 +70,7 @@ def course_type_report():
         except Exception as e:
             app.logger.error(e)
             flash('Ошибка при работе с отчетом')
-            return redirect(url_for('faculty_report'))
+            return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form, 
                            page_title='Отчеты по типам курсов',
                            report_title='Отчет по типу курсов')

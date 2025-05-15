@@ -4,19 +4,20 @@ from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
 from app.dto.faculty_dto import FacultyDTO
-from app.forms import EditFacultyForm
+from app.main.forms import EditFacultyForm
 from app.models import user
 from app.services import faculty_service
+from app.main import bp
 
 
-@app.route('/faculties')
+@bp.route('/faculties')
 @login_required
 @required_role(role=user.ADMIN)
 def faculties():
     return render_template('faculties/faculties.html', title='Факультеты', faculties=faculty_service.get_all())
 
 
-@app.route('/faculties/create', methods=['GET', 'POST'])
+@bp.route('/faculties/create', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def create_faculty():
@@ -24,14 +25,14 @@ def create_faculty():
     if form.validate_on_submit():
         try:
             faculty_service.create(FacultyDTO.from_form(form))
-            return redirect(url_for('faculties'))
+            return redirect(url_for('main.faculties'))
         except Exception as ex:
             flash(ex)
 
     return render_template('faculties/edit_faculty.html', form=form)
 
 
-@app.route('/faculties/edit/<faculty_id>', methods=['GET', 'POST'])
+@bp.route('/faculties/edit/<faculty_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def edit_faculty(faculty_id):
@@ -39,7 +40,7 @@ def edit_faculty(faculty_id):
     if form.validate_on_submit():
         try:
             faculty_service.update(FacultyDTO.from_form(form, faculty_id))
-            return redirect(url_for('faculties'))
+            return redirect(url_for('main.faculties'))
         except Exception as ex:
             flash(ex)
 
@@ -47,7 +48,7 @@ def edit_faculty(faculty_id):
     return render_template('faculties/edit_faculty.html', form=form)
 
 
-@app.route('/faculties/delete/<faculty_id>', methods=['DELETE'])
+@bp.route('/faculties/delete/<faculty_id>', methods=['DELETE'])
 @login_required
 @required_role(role=user.ADMIN)
 def delete_faculty(faculty_id):

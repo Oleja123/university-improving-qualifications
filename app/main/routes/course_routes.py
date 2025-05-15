@@ -4,12 +4,13 @@ from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
 from app.dto.course_dto import CourseDTO
-from app.forms import EditCourseForm
+from app.main.forms import EditCourseForm
 from app.models import user
 from app.services import course_service, course_type_service
+from app.main import bp
 
 
-@app.route('/courses')
+@bp.route('/courses')
 @login_required
 def courses():
     page = request.args.get('page', 1, type=int)
@@ -28,7 +29,7 @@ def courses():
     return render_template('courses/courses.html', title='Курсы', courses=courses, course_types=course_types)
 
 
-@app.route('/courses/create', methods=['GET', 'POST'])
+@bp.route('/courses/create', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def create_course():
@@ -36,14 +37,14 @@ def create_course():
     if form.validate_on_submit():
         try:
             course_service.create(CourseDTO.from_form(form))
-            return redirect(url_for('courses'))
+            return redirect(url_for('main.courses'))
         except Exception as ex:
             flash(ex)
 
     return render_template('courses/edit_course.html', form=form)
 
 
-@app.route('/courses/edit/<course_id>', methods=['GET', 'POST'])
+@bp.route('/courses/edit/<course_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def edit_course(course_id):
@@ -51,7 +52,7 @@ def edit_course(course_id):
     if form.validate_on_submit():
         try:
             course_service.update(CourseDTO.from_form(form, course_id))
-            return redirect(url_for('courses'))
+            return redirect(url_for('main.courses'))
         except Exception as ex:
             flash(ex)
     course = course_service.get_by_id(course_id)
@@ -60,7 +61,7 @@ def edit_course(course_id):
     return render_template('courses/edit_course.html', form=form)
 
 
-@app.route('/courses/delete/<course_id>', methods=['DELETE'])
+@bp.route('/courses/delete/<course_id>', methods=['DELETE'])
 @login_required
 @required_role(role=user.ADMIN)
 def delete_course(course_id):
@@ -71,7 +72,7 @@ def delete_course(course_id):
         flash(ex)
 
 
-@app.route('/courses/include/<course_id>', methods=['POST'])
+@bp.route('/courses/include/<course_id>', methods=['POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def include_course(course_id):

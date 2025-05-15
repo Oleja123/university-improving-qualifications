@@ -3,12 +3,12 @@
     <div class="container">
         <h1>Курсы</h1>
         {% if current_user.role == 0 %}
-        <a class="btn btn-primary my-3" href="{{ url_for('create_course') }}" role="button">
+        <a class="btn btn-primary my-3" href="{{ url_for('main.create_course') }}" role="button">
             Создать курс
         </a>
         <br>
         {% endif %}
-        <form method="get" action="{{ url_for('courses') }}" class="mb-1">
+        <form method="get" action="{{ url_for('main.courses') }}" class="mb-1">
             <div class="row g-3">
                 <div class="col-md-4">
                     <select name = 'course_type_id' class="form-select">
@@ -39,7 +39,7 @@
                 </div>
                 <div class="col-md-4">
                     <button type="submit" class="btn btn-primary">Фильтровать</button>
-                    <a href="{{ url_for('courses') }}" class="btn btn-secondary">Сбросить</a>
+                    <a href="{{ url_for('main.courses') }}" class="btn btn-secondary">Сбросить</a>
                 </div>
             </div>
         </form>
@@ -65,7 +65,7 @@
                         <td>{{course.course_type.name}}</td>
                         {% if current_user.role == 0 %}
                         <td>
-                            <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_course', course_id=course.id) }}" role="button">Редактировать</a>
+                            <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_course', course_id=course.id) }}" role="button">Редактировать</a>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm delete-btn" 
@@ -75,7 +75,7 @@
                         </td>
                         {% else %}
                         <td>
-                            <a class="btn btn-sm btn-primary" href="{{ url_for('teacher_course', user_id=current_user.id, course_id=course.id) }}" role="button">Открыть</a>
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('main.teacher_course', user_id=current_user.id, course_id=course.id) }}" role="button">Открыть</a>
                         </td>
                         {% endif %}
                         <td>
@@ -100,7 +100,7 @@
 
         <ul class="pagination">
             {% if courses.has_prev %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('courses', page=courses.prev_num, course_type_id=request.args.get('course_type_id'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.courses', page=courses.prev_num, course_type_id=request.args.get('course_type_id'),
                 is_included=request.args.get('is_included')) }}">Предыдущая страница</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
@@ -109,10 +109,10 @@
               
             {% for page in courses.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
             {% if page == courses.page %}
-             <li class="page-item active"><a class="page-link" href="{{ url_for('courses', page=page, course_type_id=request.args.get('course_type_id'),
+             <li class="page-item active"><a class="page-link" href="{{ url_for('main.courses', page=page, course_type_id=request.args.get('course_type_id'),
                 is_included=request.args.get('is_included')) }}">{{ page }}</a></li>
             {% elif page %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('courses', page=page, course_type_id=request.args.get('course_type_id'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.courses', page=page, course_type_id=request.args.get('course_type_id'),
                 is_included=request.args.get('is_included')) }}">{{ page }}</a></li>
             {% else %}
              <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
@@ -120,7 +120,7 @@
             {% endfor %}
             
             {% if courses.has_next %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('courses', page=courses.next_num, course_type_id=request.args.get('course_type_id'),
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.courses', page=courses.next_num, course_type_id=request.args.get('course_type_id'),
                 is_included=request.args.get('is_included')) }}">Следующая</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Следующая</span>

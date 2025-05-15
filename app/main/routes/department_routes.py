@@ -4,12 +4,13 @@ from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
 from app.dto.department_dto import DepartmentDTO
-from app.forms import EditDepartmentForm
+from app.main.forms import EditDepartmentForm
 from app.models import user
 from app.services import department_service, faculty_service
+from app.main import bp
 
 
-@app.route('/departments')
+@bp.route('/departments')
 @login_required
 @required_role(role=user.ADMIN)
 def departments():
@@ -22,7 +23,7 @@ def departments():
     return render_template('departments/departments.html', title='Кафедры', departments=departments, faculties=faculties)
 
 
-@app.route('/departments/create', methods=['GET', 'POST'])
+@bp.route('/departments/create', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def create_department():
@@ -30,14 +31,14 @@ def create_department():
     if form.validate_on_submit():
         try:
             department_service.create(DepartmentDTO.from_form(form))
-            return redirect(url_for('departments'))
+            return redirect(url_for('main.departments'))
         except Exception as ex:
             flash(ex)
 
     return render_template('departments/edit_department.html', form=form)
 
 
-@app.route('/departments/edit/<department_id>', methods=['GET', 'POST'])
+@bp.route('/departments/edit/<department_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def edit_department(department_id):
@@ -45,7 +46,7 @@ def edit_department(department_id):
     if form.validate_on_submit():
         try:
             department = department_service.update(DepartmentDTO.from_form(form, department_id))
-            return redirect(url_for('departments'))
+            return redirect(url_for('main.departments'))
         except Exception as ex:
             flash(ex)
     department = department_service.get_by_id(department_id)
@@ -54,7 +55,7 @@ def edit_department(department_id):
     return render_template('departments/edit_department.html', form=form)
 
 
-@app.route('/departments/delete/<department_id>', methods=['DELETE'])
+@bp.route('/departments/delete/<department_id>', methods=['DELETE'])
 @login_required
 @required_role(role=user.ADMIN)
 def delete_department(department_id):

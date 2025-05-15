@@ -70,7 +70,7 @@
 
         <ul class="pagination">
             {% if departments.has_prev %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('edit_user', user_id=user.id, page=departments.prev_num, faculty_id=request.args.get('faculty_id')) }}">Предыдущая страница</a></li>
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.edit_user', user_id=user.id, page=departments.prev_num, faculty_id=request.args.get('faculty_id')) }}">Предыдущая страница</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
             {% endif %}
@@ -78,16 +78,16 @@
               
             {% for page in departments.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
             {% if page == departments.page %}
-             <li class="page-item active"><a class="page-link" href="{{ url_for('edit_user', user_id=user.id, page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+             <li class="page-item active"><a class="page-link" href="{{ url_for('main.edit_user', user_id=user.id, page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
             {% elif page %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('edit_user', user_id=user.id, page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.edit_user', user_id=user.id, page=page, faculty_id=request.args.get('faculty_id')) }}">{{ page }}</a></li>
             {% else %}
              <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
             {% endif %}
             {% endfor %}
             
             {% if departments.has_next %}
-             <li class="page-item"><a class="page-link" href="{{ url_for('edit_user', user_id=user.id, page=departments.next_num, faculty_id=request.args.get('faculty_id')) }}">Следующая</a></li>
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.edit_user', user_id=user.id, page=departments.next_num, faculty_id=request.args.get('faculty_id')) }}">Следующая</a></li>
             {% else %}
              <li class="page-item disabled"><span class="page-link">Следующая</span>
             {% endif %}

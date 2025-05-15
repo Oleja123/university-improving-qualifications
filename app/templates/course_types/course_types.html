@@ -2,10 +2,10 @@
 {% block content %}
     <div class="container">
         <h1>Типы курсов</h1>
-        <a class="btn btn-primary my-3" href="{{ url_for('create_course_type') }}" role="button">
+        <a class="btn btn-primary my-3" href="{{ url_for('main.create_course_type') }}" role="button">
             Создать тип курсов
         </a>
-        <a class="btn btn-primary my-3" href="{{ url_for('course_type_report') }}" role="button">
+        <a class="btn btn-primary my-3" href="{{ url_for('main.course_type_report') }}" role="button">
             Отчет по типу курсов
         </a>
         <br>
@@ -26,7 +26,7 @@
                         <td>{{course_type.name}}</td>
                         <td>{{ course_type.deadline }}</td>
                         <td>
-                            <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_course_type', course_type_id=course_type.id) }}" role="button">Редактировать</a>
+                            <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_course_type', course_type_id=course_type.id) }}" role="button">Редактировать</a>
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm delete-btn" 
