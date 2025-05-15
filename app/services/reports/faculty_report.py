@@ -12,9 +12,8 @@ from app import db
 class FacultyReport:
 
     def __init__(self, faculty_id, date_from:datetime = None, date_to:datetime = None):
-        app.logger.info(f"{faculty_id}, {date_from}, {date_to}")
         self.faculty = faculty_service.get_by_id(faculty_id)
-        self.faculty_name = self.faculty.name
+        self.filter_item_name = self.faculty.name
         self.table_header = ['ФИО преподавателя', 'Имя пользователя', 'Название курса', 'Дата подтверждения']
         query = (sa.select(
             User.full_name,

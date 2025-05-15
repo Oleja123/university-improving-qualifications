@@ -90,14 +90,15 @@ class TeachersCoursesForm(FlaskForm):
         self.is_approved.choices.append(('false', 'Непринятые'))
 
 
-class DateFormFaculty(FlaskForm):
+class ReportForm(FlaskForm):
     date_from = DateField('Начальная дата отчета')
     date_to = DateField('Конечная дата отчета')
-    faculty_id = SelectField('Факультет', validators=[DataRequired()], coerce=int)
+    filter_id = SelectField(validators=[DataRequired()], coerce=int)
     generate = SubmitField('Сформировать отчет')
     download = SubmitField('Скачать отчет')
 
-    def __init__(self, *args, **kwargs):
-        super(DateFormFaculty, self).__init__(*args, **kwargs)
-        faculties = faculty_service.get_all()
-        self.faculty_id.choices = [(f.id, f.name) for f in faculties]
+    def __init__(self, filter=None, filter_name=None, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.filter_id.choices = [(f.id, f.name) for f in filter]
+        if filter_name:
+            self.filter_id.label.data = filter_name

@@ -33,12 +33,12 @@ class PdfCreator(FPDF):
         for i in range(int(max(col_lines))):
             self.ln()
 
-    def create_table(self, report, col_widths):
+    def create_table(self, report, col_widths, report_name):
         self.add_page()
         self.set_font("DejaVu", size=16)
         self.set_font(style="B")
 
-        self.multi_cell(text=f"Отчёт по факультету: {report.faculty_name}", w=120, border=0, align='C')
+        self.multi_cell(text=f"{report_name}: {report.filter_item_name}", w=120, border=0, align='C')
         self.ln()
 
         self.set_font("DejaVu", size=10)
@@ -48,6 +48,7 @@ class PdfCreator(FPDF):
         self.set_font(style="")
         for row in report.rows:
             self.add_row(row, col_widths)
+        self.set_font(style="B")
         lst = ['' for i in range(len(col_widths))]
         lst[0] = 'Итоговое количество пройденных курсов'
         lst[-1] = report.result

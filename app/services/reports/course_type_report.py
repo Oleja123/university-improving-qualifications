@@ -13,7 +13,7 @@ class CourseTypeReport:
 
     def __init__(self, course_type_id, date_from:datetime = None, date_to:datetime = None):
         self.course_type = course_type_service.get_by_id(course_type_id)
-        self.course_type_name = self.course_type.name
+        self.filter_item_name = self.course_type.name
         self.table_header = ['ФИО преподавателя', 'Имя пользователя', 'Название курса', 'Дата подтверждения']
         query = (sa.select(
             User.full_name,
