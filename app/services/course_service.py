@@ -1,20 +1,20 @@
 from flask import current_app
+import sqlalchemy as sa
+
 from app import db
 from app.dto.course_dto import CourseDTO
 from app.models.course import Course
 from app.services import course_type_service
-import sqlalchemy as sa
 
 
 def get_all(included=None, course_type=None):
     try:
-        query = sa.select(Course).where(sa.and_(sa.or_(included is None, Course.is_included == included), 
+        query = sa.select(Course).where(sa.and_(sa.or_(included is None, Course.is_included == included),
                                                 sa.or_(course_type is None, Course.course_type_id == course_type))).order_by(Course.course_type_id)
         return db.session.execute(query).scalars().all()
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении курсов')
 
 
 def get_all_paginated(page: int, included=None, course_types=None):
@@ -35,9 +35,8 @@ def get_all_paginated(page: int, included=None, course_types=None):
         query = query.order_by(Course.course_type_id)
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении курсов')
 
 
 def get_by_id(id: int):
@@ -47,14 +46,13 @@ def get_by_id(id: int):
             raise ValueError(f'Курс с id = {id} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
-    
+        raise Exception('Ошибка при получении курса по id')
+
+
 def change_included(id: int):
     try:
         res = get_by_id(id)
@@ -62,29 +60,27 @@ def change_included(id: int):
         db.session.commit()
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при обновлении курса')
 
 
 def get_by_name(name: str):
     try:
-        res = db.session.execute(sa.select(Course).where(Course.name == name)).scalar_one_or_none()
+        res = db.session.execute(sa.select(Course).where(
+            Course.name == name)).scalar_one_or_none()
         if res is None:
             raise ValueError(f'Курс с именем {name} не существует')
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка')
+        raise Exception(f'Ошибка при получении курса по имени')
 
 
 def create(courseDTO: CourseDTO):
@@ -96,7 +92,6 @@ def create(courseDTO: CourseDTO):
         db.session.add(course)
         db.session.commit()
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except sa.exc.IntegrityError as e:
@@ -106,7 +101,7 @@ def create(courseDTO: CourseDTO):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception(f'Неизвестная ошибка при создании курса')
+        raise Exception(f'Ошибка при создании курса')
 
 
 def update(courseDTO: CourseDTO):
@@ -115,16 +110,17 @@ def update(courseDTO: CourseDTO):
         if courseDTO.name is not None:
             record.name = courseDTO.name
         if courseDTO.course_type_id is not None:
-            course_type = course_type_service.get_by_id(courseDTO.course_type_id)
+            course_type = course_type_service.get_by_id(
+                courseDTO.course_type_id)
             record.course_type = course_type
         db.session.commit()
     except ValueError as e:
-        db.session.rollback()
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка при обновлении курса')
+        raise Exception('Ошибка при обновлении курса')
 
 
 def delete(id: int) -> bool:
@@ -133,9 +129,9 @@ def delete(id: int) -> bool:
         db.session.delete(course)
         db.session.commit()
     except ValueError as e:
-        db.session.rollback()
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка при удалении курса')
+        raise Exception('Ошибка при удалении курса')
