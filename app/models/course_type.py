@@ -1,8 +1,10 @@
 from typing import Optional
+from datetime import datetime, timezone
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from app import db
-from datetime import datetime, timezone
 
 
 def add_years(start_date, years):

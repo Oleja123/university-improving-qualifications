@@ -1,7 +1,9 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from app import db
 from app.models.tables.teachers_departments import teachers_departments
+
 
 class Department(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)

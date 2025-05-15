@@ -1,7 +1,9 @@
+from datetime import datetime
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from app import db
-from datetime import datetime
 
 
 class Course(db.Model):
@@ -12,7 +14,8 @@ class Course(db.Model):
         sa.ForeignKey('course_type.id', ondelete='CASCADE'), index=True)
     course_type: so.Mapped['CourseType'] = so.relationship(
         back_populates='courses')
-    is_included: so.Mapped[bool] = so.mapped_column(sa.Boolean, index=True, default=False)
+    is_included: so.Mapped[bool] = so.mapped_column(
+        sa.Boolean, index=True, default=False)
     teachers_courses: so.WriteOnlyMapped['TeacherCourse'] = so.relationship(
         back_populates='course', passive_deletes=True)
 
@@ -20,5 +23,5 @@ class Course(db.Model):
         return f'Course {self.name}'
 
     @classmethod
-    def from_form(cls, form, type):
-        return cls(name=form.name.data, type=type)
+    def from_form(cls, form, course_type):
+        return cls(name=form.name.data, course_type=course_type)

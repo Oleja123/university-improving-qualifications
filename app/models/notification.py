@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from datetime import datetime, timezone
+
 from app import db
 
 
@@ -12,12 +14,13 @@ class Notification(db.Model):
         sa.ForeignKey('user.id', ondelete='CASCADE'), index=True)
     user: so.Mapped['User'] = so.relationship(
         back_populates='notifications')
-    has_read: so.Mapped[bool] = so.mapped_column(sa.Boolean)
-    time_sent: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    has_read: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False)
+    time_sent: so.Mapped[datetime] = so.mapped_column(
+        index=True, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'Notification {self.message}'
 
     @classmethod
-    def from_form(cls, form, faculty):
-        return cls(name=form.name.data, faculty=faculty)
+    def from_form(cls, form, user):
+        return cls(name=form.message.data, user=user)

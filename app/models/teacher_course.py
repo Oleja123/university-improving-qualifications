@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional
+
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+
 from app import db
 
 
@@ -16,11 +18,8 @@ class TeacherCourse(db.Model):
         back_populates='teachers_courses')
     sertificate_path: so.Mapped[Optional[str]] = so.mapped_column(
         sa.String(260), unique=True, nullable=True)
-    date_approved: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime, nullable=True)
+    date_approved: so.Mapped[Optional[datetime]
+                             ] = so.mapped_column(sa.DateTime, nullable=True)
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
-
-    @classmethod
-    def from_form(cls, form, faculty):
-        return cls(name=form.name.data, faculty=faculty)
