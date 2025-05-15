@@ -1,17 +1,16 @@
 from datetime import datetime
+import shutil
+import os
 
 from flask import current_app
+import sqlalchemy as sa
+from werkzeug.utils import secure_filename
 
 from app import db
-from werkzeug.utils import secure_filename
 from app.models import user
 from app.models.user import User
 from app.models.course import Course
 from app.services import user_service, course_service
-import sqlalchemy as sa
-import shutil
-import os
-
 from app.models.teacher_course import TeacherCourse
 
 
@@ -20,10 +19,13 @@ def allowed_file(filename):
 
 
 def make_path(user_id: int, course_id: int):
-    user_path = os.path.join(current_app.config['UPLOAD_FOLDER'], user_id, course_id)
-    project_root = os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..'))
+    user_path = os.path.join(
+        current_app.config['UPLOAD_FOLDER'], user_id, course_id)
+    project_root = os.path.abspath(os.path.join(
+        os.path.join(os.path.dirname(__file__), '..'), '..'))
     user_path = os.path.abspath(os.path.join(project_root, user_path))
     return user_path
+
 
 def upload_file(user_id: int, course_id: int, file):
     try:
@@ -43,8 +45,9 @@ def upload_file(user_id: int, course_id: int, file):
         res.sertificate_path = filepath
         db.session.commit()
     except Exception as e:
-        current_app.logger.info(e)
+        current_app.logger.error(e)
         raise
+
 
 def get(user_id: int, course_id: int):
     try:
@@ -60,11 +63,12 @@ def get(user_id: int, course_id: int):
         current_app.logger.info(res)
         return res
     except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        current_app.logger.info(e)
-        raise Exception('Неизвестная ошибка при получении курса пользователя')
+        current_app.logger.error(e)
+        raise Exception('Ошибка при получении курса пользователя')
 
 
 def approve_user_course(user_id: int, course_id: int):
@@ -73,10 +77,11 @@ def approve_user_course(user_id: int, course_id: int):
         res.date_approved = datetime.now()
         db.session.commit()
     except ValueError as e:
+        current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
-        raise Exception('Неизвестная ошибка при подтверждении курса пользователя')
+        raise Exception('Ошибка при подтверждении курса пользователя')
 
 
 def get_user_courses(user_id: int, page: int, included=None, approved=None):
@@ -94,12 +99,11 @@ def get_user_courses(user_id: int, page: int, included=None, approved=None):
 
         if conditions:
             query = query.where(*conditions)
-            
+
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении курсов пользователя')
 
 
 def get_all_paginated(page: int, course_name=None, user_full_name=None, course_type_id=None, is_approved=None):
@@ -119,15 +123,18 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
             elif is_approved == 'false':
                 is_approved = False
 
-        current_app.logger.info(f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
+        current_app.logger.info(
+            f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
 
         query = sa.select(TeacherCourse, Course, User).join(Course).join(User)
         conditions = []
         if course_name is not None:
-            conditions.append(sa.func.lower(Course.name).like(f'%{course_name.lower()}%'))
+            conditions.append(sa.func.lower(
+                Course.name).like(f'%{course_name.lower()}%'))
 
         if user_full_name is not None:
-            conditions.append(sa.func.lower(User.full_name).like(f'%{user_full_name.lower()}%'))
+            conditions.append(sa.func.lower(User.full_name).like(
+                f'%{user_full_name.lower()}%'))
 
         if course_type_id is not None:
             conditions.append(Course.course_type_id == course_type_id)
@@ -142,13 +149,12 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
 
         if conditions:
             query = query.where(sa.and_(*conditions))
-        
+
         query = query.order_by(Course.name)
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(e)
-        raise Exception('Неизвестная ошибка')
+        raise Exception('Ошибка при получении курсов')
 
 
 def change_approved(user_id: int, course_id: int):
@@ -164,7 +170,6 @@ def change_approved(user_id: int, course_id: int):
         db.session.commit()
         return res
     except ValueError as e:
-        db.session.rollback()
         current_app.logger.error(e)
         raise
     except Exception as e:
