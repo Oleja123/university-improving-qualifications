@@ -1,25 +1,21 @@
 import os
+
+from tests.test_config import TestConfig
 os.environ['DATABASE_URL'] = 'sqlite://'
 
-from sqlite3 import DataError
 from app.dto.course_dto import CourseDTO
 from app.dto.course_type_dto import CourseTypeDTO
-from app.dto.faculty_dto import FacultyDTO
-from sqlalchemy.exc import IntegrityError
 from app.dto.user_dto import UserDTO
 from app.models import user
-from app.models.course import Course
-from app.models.teacher_course import TeacherCourse
-from app.services import course_service, course_type_service, faculty_service, sertificate_service, user_service
-from app import app, db
-import sqlalchemy as sa
+from app.services import course_service, course_type_service, sertificate_service, user_service
+from app import create_app, db
 import unittest
-from sqlalchemy.orm import joinedload
 
 
 class SertificateServiceTestCase(unittest.TestCase):
     def setUp(self):
-        self.app_context = app.app_context()
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
         user_service.create(UserDTO(username='test_user', password='test_password', role=user.TEACHER, full_name='Tester'))

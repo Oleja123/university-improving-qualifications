@@ -1,18 +1,19 @@
 import os
+
+from tests.test_config import TestConfig
 os.environ['DATABASE_URL'] = 'sqlite://'
 
-from unittest.mock import patch
 from app.dto.course_type_dto import CourseTypeDTO
-from sqlalchemy.exc import IntegrityError
 from app.services import course_type_service
-from app import app, db
+from app import create_app, db
 import unittest
 from datetime import datetime
 
 
 class CourseTypeServiceCase(unittest.TestCase):
     def setUp(self):
-        self.app_context = app.app_context()
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
 
@@ -40,14 +41,14 @@ class CourseTypeServiceCase(unittest.TestCase):
             course_type_service.create(course_type)
 
     def test_create(self):
-        app.logger.info('Запуск теста создания типа курсов')
+        self.app.logger.info('Запуск теста создания типа курсов')
         course_typeDTO = CourseTypeDTO(name='Test Course Type')
         course_type_service.create(course_typeDTO)
         created = course_type_service.get_by_name(course_typeDTO.name)
         self.assertEqual(created.name, 'Test Course Type')
 
     def test_update(self):
-        app.logger.info('Запуск тестирования обновления типов курсов')
+        self.app.logger.info('Запуск тестирования обновления типов курсов')
         course_typeDTO = CourseTypeDTO(name='Test Course Type')
         course_type_service.create(course_typeDTO)
         created = course_type_service.get_by_name(course_typeDTO.name)
@@ -57,7 +58,7 @@ class CourseTypeServiceCase(unittest.TestCase):
         self.assertEqual(course_type.name, 'New name')
 
     def test_delete(self):
-        app.logger.info('Запуск тестирования удаления типа курсов')
+        self.app.logger.info('Запуск тестирования удаления типа курсов')
         course_typeDTO = CourseTypeDTO(name='Test Course Type')
         course_type_service.create(course_typeDTO)
         created = course_type_service.get_by_name(course_typeDTO.name)
@@ -67,12 +68,12 @@ class CourseTypeServiceCase(unittest.TestCase):
 
 
     def test_get_all(self):
-        app.logger.info('Запуск получения всех типов курсов')
+        self.app.logger.info('Запуск получения всех типов курсов')
         self.create_course_types()
         self.assertTrue(len(course_type_service.get_all()) == 3)
 
     def test_get_all_empty(self):
-        app.logger.info(
+        self.app.logger.info(
             'Запуск теста получения всех типов курсов из пустой БД')
         self.assertEqual(len(course_type_service.get_all()), 0)
 

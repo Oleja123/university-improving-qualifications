@@ -1,21 +1,22 @@
 import os
+
+from tests.test_config import TestConfig
 os.environ['DATABASE_URL'] = 'sqlite://'
 
 import unittest
-from app import app, db
+from app import create_app, db
 from app.dto.department_dto import DepartmentDTO
 from app.dto.faculty_dto import FacultyDTO
 from app.dto.notification_dto import NotificationDTO
 from app.dto.user_dto import UserDTO
 from app.exceptions.wrong_password_error import WrongPasswordError
 from app.services import department_service, faculty_service, user_service, notification_service
-from werkzeug.security import generate_password_hash
-import sqlalchemy as sa
 from app.models.user import TEACHER, ADMIN
 
 class UserServiceTestCase(unittest.TestCase):
     def setUp(self):
-        self.app_context = app.app_context()
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
 
@@ -37,7 +38,7 @@ class UserServiceTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_create(self):
-        app.logger.info('Запуск тестирования создания пользователя')
+        self.app.logger.info('Запуск тестирования создания пользователя')
         dto = UserDTO(**self.user_data)
         user_service.create(dto)
         user = user_service.get_by_username('testuser')
@@ -46,21 +47,21 @@ class UserServiceTestCase(unittest.TestCase):
             user.password_hash, 'secure123'))
 
     def test_create_duplicate_username(self):
-        app.logger.info(
+        self.app.logger.info(
             'Запуск тестирования создания пользователя с существующим именем')
         user_service.create(UserDTO(**self.user_data))
         with self.assertRaises(ValueError):
             user_service.create(UserDTO(**self.user_data))
 
     def test_check_password(self):
-        app.logger.info(
+        self.app.logger.info(
             'Запуск тестирования создания пользователя с существующим именем')
         user_service.create(UserDTO(**self.user_data))
         with self.assertRaises(WrongPasswordError):
             user_service.check_password('testuser', 'wrongpass')
 
     def test_update_user(self):
-        app.logger.info('Запуск тестирования обновления данных пользователя')
+        self.app.logger.info('Запуск тестирования обновления данных пользователя')
         user_service.create(UserDTO(**self.user_data))
         user = user_service.get_by_username('testuser')
 
@@ -79,7 +80,7 @@ class UserServiceTestCase(unittest.TestCase):
             'updateduser', 'newpassword'))
 
     def test_delete_user(self):
-        app.logger.info('Запуск тестирования удаления пользователя')
+        self.app.logger.info('Запуск тестирования удаления пользователя')
         user_service.create(UserDTO(**self.user_data))
         user = user_service.get_by_username('testuser')
         user_service.delete(user.id)
@@ -87,7 +88,7 @@ class UserServiceTestCase(unittest.TestCase):
             user_service.get_by_id(user.id)
 
     def test_get_notifications(self):
-        app.logger.info('Запуск теста получения уведомлений пользователя')
+        self.app.logger.info('Запуск теста получения уведомлений пользователя')
         user_service.create(UserDTO(**self.user_data))
         user = user_service.get_by_username('testuser')
         notification_service.send_message(
