@@ -80,7 +80,7 @@ def get_by_name(name: str):
         raise
     except Exception as e:
         current_app.logger.error(e)
-        raise Exception(f'Ошибка при получении курса по имени')
+        raise Exception(f'Ошибка при получении курса по названию')
 
 
 def create(courseDTO: CourseDTO):
