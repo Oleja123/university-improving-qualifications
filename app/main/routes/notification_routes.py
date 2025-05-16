@@ -1,5 +1,4 @@
-import os
-from flask import flash, jsonify, redirect, render_template, request, send_from_directory, url_for
+from flask import jsonify, render_template, request
 from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
@@ -14,7 +13,7 @@ def get_messages_count(user_id):
         res = notification_service.get_user_notifications_count(user_id)
         return jsonify({'cnt': res})
     except Exception as e:
-        flash('Ошибка при получении уведомления')
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/notifications/<user_id>')
@@ -32,7 +31,7 @@ def delete_notification(notification_id):
         notification_service.delete(notification_id)
         return jsonify({'success': True })
     except Exception as ex:
-        flash(ex)
+        return jsonify({"error": str(e)}), 500
 
 @bp.route('/notifications/read/<notification_id>', methods=['POST'])
 @login_required
@@ -41,4 +40,4 @@ def read_notification(notification_id):
         notification_service.read_message(notification_id)
         return jsonify({'success': True })
     except Exception as ex:
-        flash(ex)
+        return jsonify({"error": str(e)}), 500

@@ -25,8 +25,9 @@ def create_faculty():
         try:
             faculty_service.create(FacultyDTO.from_form(form))
             return redirect(url_for('main.faculties'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.create_faculty'))
 
     return render_template('faculties/edit_faculty.html', form=form)
 
@@ -40,8 +41,9 @@ def edit_faculty(faculty_id):
         try:
             faculty_service.update(FacultyDTO.from_form(form, faculty_id))
             return redirect(url_for('main.faculties'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.edit_faculty', faculty_id=faculty_id))
 
     form.from_model(faculty_service.get_by_id(faculty_id))
     return render_template('faculties/edit_faculty.html', form=form)
@@ -54,5 +56,5 @@ def delete_faculty(faculty_id):
     try:
         faculty_service.delete(faculty_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

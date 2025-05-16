@@ -25,7 +25,7 @@ def teacher_course(user_id, course_id):
                 sertificate_service.upload_file(user_id, course_id, file)
                 flash('Файл успешно загружен')
         except ValueError as e:
-            flash(e)
+            flash(str(e))
         except Exception as e:
             flash('Ошибка при загрузке файла')
         finally:
@@ -45,7 +45,7 @@ def download_file(user_id, course_id):
         return send_from_directory(user_path, file, as_attachment=True)
     except Exception as e:
         current_app.logger.info(e)
-        raise
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/teachers_courses', methods=['GET','POST'])
@@ -74,5 +74,5 @@ def approve_course(user_id, course_id):
     try:
         sertificate_service.change_approved(user_id, course_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

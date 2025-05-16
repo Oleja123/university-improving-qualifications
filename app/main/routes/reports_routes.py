@@ -1,5 +1,5 @@
 import io
-from flask import flash, redirect, render_template, request, send_file, url_for
+from flask import flash, redirect, render_template, send_file, url_for
 from flask_login import login_required
 from app.decorators.role_decorator import required_role
 from app.main.forms import ReportForm
@@ -67,7 +67,7 @@ def course_type_report():
                 )
         except Exception as e:
             flash('Ошибка при работе с отчетом')
-            return redirect(url_for('main.faculty_report'))
+            return redirect(url_for('main.course_type_report'))
     return render_template('reports/report.html', form=form, 
                            page_title='Отчеты по типам курсов',
                            report_title='Отчет по типу курсов')
