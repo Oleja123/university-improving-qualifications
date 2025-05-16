@@ -1,7 +1,9 @@
 from urllib.parse import urlsplit
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+
 from app.auth.forms import LoginForm
+from app.exceptions.wrong_password_error import WrongPasswordError
 from app.services import user_service
 from app import login
 from app.auth import bp
@@ -9,7 +11,7 @@ from app.auth import bp
 
 @login.user_loader
 def load_user(id):
-  return user_service.get_by_id(id)
+    return user_service.get_by_id(id)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -28,7 +30,7 @@ def login():
                 next_page = url_for('main.index')
             return redirect(url_for('main.index'))
         except Exception as e:
-            flash(e)
+            flash(str(e))
             return redirect(url_for('auth.login'))
     return render_template('auth/login.html', title='Вход', form=form)
 

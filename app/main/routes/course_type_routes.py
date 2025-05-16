@@ -25,8 +25,9 @@ def create_course_type():
         try:
             course_type_service.create(CourseTypeDTO.from_form(form))
             return redirect(url_for('main.course_types'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.create_course_type'))
 
     return render_template('course_types/edit_course_type.html', form=form)
 
@@ -40,8 +41,10 @@ def edit_course_type(course_type_id):
         try:
             course_type = course_type_service.update(CourseTypeDTO.from_form(form, course_type_id))
             return redirect(url_for('main.course_types'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.edit_course_type', course_type_id=course_type_id))
+        
     course_type = course_type_service.get_by_id(course_type_id)
     form.from_model(course_type)
 
@@ -55,5 +58,5 @@ def delete_course_type(course_type_id):
     try:
         course_type_service.delete(course_type_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

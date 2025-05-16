@@ -1,5 +1,6 @@
 from flask import current_app
 import sqlalchemy as sa
+from app.exceptions.fired_error import FiredError
 from app.exceptions.wrong_password_error import WrongPasswordError
 
 from app import db
@@ -110,11 +111,16 @@ def check_password(username: str, password: str):
         res = check_password_hash(user.password_hash, password)
         if not res:
             raise WrongPasswordError('Неверный пароль')
+        if user.is_fired:
+            raise FiredError('Пользователь заблокирован')
         return True
     except ValueError as e:
         current_app.logger.error(e)
         raise
     except WrongPasswordError as e:
+        current_app.logger.error(e)
+        raise
+    except FiredError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:

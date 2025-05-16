@@ -37,8 +37,9 @@ def create_course():
         try:
             course_service.create(CourseDTO.from_form(form))
             return redirect(url_for('main.courses'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.create_course'))
 
     return render_template('courses/edit_course.html', form=form)
 
@@ -52,8 +53,9 @@ def edit_course(course_id):
         try:
             course_service.update(CourseDTO.from_form(form, course_id))
             return redirect(url_for('main.courses'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.edit_course', course_id=course_id))
     course = course_service.get_by_id(course_id)
     form.from_model(course)
 
@@ -67,8 +69,8 @@ def delete_course(course_id):
     try:
         course_service.delete(course_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/courses/include/<course_id>', methods=['POST'])
@@ -78,5 +80,5 @@ def include_course(course_id):
     try:
         course_service.change_included(course_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

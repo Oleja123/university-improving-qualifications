@@ -31,8 +31,9 @@ def create_department():
         try:
             department_service.create(DepartmentDTO.from_form(form))
             return redirect(url_for('main.departments'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.create_department'))
 
     return render_template('departments/edit_department.html', form=form)
 
@@ -46,8 +47,10 @@ def edit_department(department_id):
         try:
             department = department_service.update(DepartmentDTO.from_form(form, department_id))
             return redirect(url_for('main.departments'))
-        except Exception as ex:
-            flash(ex)
+        except Exception as e:
+            flash(str(e))
+            return redirect(url_for('main.edit_department', department_id=department_id))
+        
     department = department_service.get_by_id(department_id)
     form.from_model(department)
 
@@ -61,5 +64,5 @@ def delete_department(department_id):
     try:
         department_service.delete(department_id)
         return jsonify({'success': True })
-    except Exception as ex:
-        flash(ex)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
