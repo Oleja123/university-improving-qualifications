@@ -39,12 +39,13 @@ def edit_course_type(course_type_id):
     form = EditCourseTypeForm()
     if form.validate_on_submit():
         try:
-            course_type = course_type_service.update(CourseTypeDTO.from_form(form, course_type_id))
+            course_type = course_type_service.update(
+                CourseTypeDTO.from_form(form, course_type_id))
             return redirect(url_for('main.course_types'))
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_course_type', course_type_id=course_type_id))
-        
+
     course_type = course_type_service.get_by_id(course_type_id)
     form.from_model(course_type)
 
@@ -57,6 +58,6 @@ def edit_course_type(course_type_id):
 def delete_course_type(course_type_id):
     try:
         course_type_service.delete(course_type_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

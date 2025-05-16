@@ -45,12 +45,13 @@ def edit_department(department_id):
     form = EditDepartmentForm()
     if form.validate_on_submit():
         try:
-            department = department_service.update(DepartmentDTO.from_form(form, department_id))
+            department = department_service.update(
+                DepartmentDTO.from_form(form, department_id))
             return redirect(url_for('main.departments'))
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_department', department_id=department_id))
-        
+
     department = department_service.get_by_id(department_id)
     form.from_model(department)
 
@@ -63,6 +64,6 @@ def edit_department(department_id):
 def delete_department(department_id):
     try:
         department_service.delete(department_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

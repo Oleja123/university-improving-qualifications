@@ -20,7 +20,8 @@ def get_messages_count(user_id):
 @login_required
 def notifications(user_id):
     page = request.args.get('page', 1, type=int)
-    notifications = user_service.get_notifications(page, only_new=False, user=current_user)
+    notifications = user_service.get_notifications(
+        page, only_new=False, user=current_user)
     return render_template('notifications/notifications.html', title='Уведомления', notifications=notifications)
 
 
@@ -29,15 +30,16 @@ def notifications(user_id):
 def delete_notification(notification_id):
     try:
         notification_service.delete(notification_id)
-        return jsonify({'success': True })
-    except Exception as ex:
+        return jsonify({'success': True})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @bp.route('/notifications/read/<notification_id>', methods=['POST'])
 @login_required
 def read_notification(notification_id):
     try:
         notification_service.read_message(notification_id)
-        return jsonify({'success': True })
-    except Exception as ex:
+        return jsonify({'success': True})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500

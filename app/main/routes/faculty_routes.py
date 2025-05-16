@@ -55,6 +55,6 @@ def edit_faculty(faculty_id):
 def delete_faculty(faculty_id):
     try:
         faculty_service.delete(faculty_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

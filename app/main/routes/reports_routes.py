@@ -19,14 +19,16 @@ def faculty_report():
                       filter_name='Факультет')
     if form.validate_on_submit():
         try:
-            report = FacultyReport(form.filter_id.data, form.date_from.data, form.date_to.data)
+            report = FacultyReport(form.filter_id.data,
+                                   form.date_from.data, form.date_to.data)
             if form.generate.data:
-                return render_template('reports/report.html', report=report, form=form, 
+                return render_template('reports/report.html', report=report, form=form,
                                        page_title='Отчеты по факультетам',
                                        report_title='Отчет по факультету')
             if form.download.data:
                 pdf = PdfCreator()
-                pdf.create_table(report, [45, 45, 45, 45], 'Отчет по факультету')
+                pdf.create_table(
+                    report, [45, 45, 45, 45], 'Отчет по факультету')
                 pdf_output = pdf.output(dest='S')
                 return send_file(
                     io.BytesIO(pdf_output),
@@ -37,7 +39,7 @@ def faculty_report():
         except Exception as e:
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.faculty_report'))
-    return render_template('reports/report.html', form=form, 
+    return render_template('reports/report.html', form=form,
                            page_title='Отчеты по факультетам',
                            report_title='Отчет по факультету')
 
@@ -50,14 +52,16 @@ def course_type_report():
                       filter_name='Тип курсов')
     if form.validate_on_submit():
         try:
-            report = CourseTypeReport(form.filter_id.data, form.date_from.data, form.date_to.data)
+            report = CourseTypeReport(
+                form.filter_id.data, form.date_from.data, form.date_to.data)
             if form.generate.data:
-                return render_template('reports/report.html', report=report, form=form, 
+                return render_template('reports/report.html', report=report, form=form,
                                        page_title='Отчеты по типам курсов',
                                        report_title='Отчет по типу курсов')
             if form.download.data:
                 pdf = PdfCreator()
-                pdf.create_table(report, [45, 45, 45, 45], 'Отчет по типу курсов')
+                pdf.create_table(
+                    report, [45, 45, 45, 45], 'Отчет по типу курсов')
                 pdf_output = pdf.output(dest='S')
                 return send_file(
                     io.BytesIO(pdf_output),
@@ -68,7 +72,6 @@ def course_type_report():
         except Exception as e:
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.course_type_report'))
-    return render_template('reports/report.html', form=form, 
+    return render_template('reports/report.html', form=form,
                            page_title='Отчеты по типам курсов',
                            report_title='Отчет по типу курсов')
-        

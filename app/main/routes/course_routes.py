@@ -16,7 +16,7 @@ def courses():
     course_type = request.args.get('course_type_id', None, type=int)
     is_included = request.args.get('is_included', None, type=str)
     if is_included == '':
-        is_included=None
+        is_included = None
     if is_included is not None and is_included == 'True':
         is_included = True
     if is_included is not None and is_included == 'False':
@@ -68,7 +68,7 @@ def edit_course(course_id):
 def delete_course(course_id):
     try:
         course_service.delete(course_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -79,6 +79,6 @@ def delete_course(course_id):
 def include_course(course_id):
     try:
         course_service.change_included(course_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -18,12 +18,13 @@ def users():
     role = request.args.get('role', None, type=int)
     is_fired = request.args.get('is_fired', None, type=str)
     if is_fired == '':
-        is_fired=None
+        is_fired = None
     if is_fired is not None and is_fired == 'True':
         is_fired = True
     if is_fired is not None and is_fired == 'False':
         is_fired = False
-    users = user_service.get_all_paginated(page, UserDTO(is_fired=is_fired, role=role))
+    users = user_service.get_all_paginated(
+        page, UserDTO(is_fired=is_fired, role=role))
     return render_template('users/users.html', title='Пользователи', users=users)
 
 
@@ -37,10 +38,11 @@ def create_admin():
             user_service.create(UserDTO.from_form(form, 0))
             return redirect(url_for('main.users'))
         except Exception as e:
-            flash(e)
+            flash(str(e))
             return redirect(url_for('main.create_admin'))
 
     return render_template('users/edit_user.html', form=form)
+
 
 @bp.route('/users/create_teacher', methods=['GET', 'POST'])
 @login_required
@@ -52,9 +54,11 @@ def create_teacher():
             user_service.create(UserDTO.from_form(form, 1))
             return redirect(url_for('main.users'))
         except Exception as e:
-            flash(e)
+            flash(str(e))
+            return redirect(url_for('main.create_teacher'))
 
     return render_template('users/edit_user.html', form=form)
+
 
 @bp.route('/users/edit/<user_id>', methods=['GET', 'POST'])
 @login_required
@@ -66,7 +70,8 @@ def edit_user(user_id):
             user_service.update(UserDTO.from_form(form, id=user_id))
             return redirect(url_for('main.users'))
         except Exception as e:
-            flash(e)
+            flash(str(e))
+            return redirect(url_for('main.edit_user', user_id=user_id))
     page = request.args.get('page', 1, type=int)
     search_request = request.args.get('department_name', '', type=int)
     user = user_service.get_by_id(user_id)
@@ -82,12 +87,11 @@ def edit_user(user_id):
 def delete_user(user_id):
     try:
         if current_user.get_id() == user_id:
-            flash('Нельзя удалить себя')
-            return
+            return jsonify({"error": 'Нельзя удалить себя'}), 500
         user_service.delete(user_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
-        flash(e)
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/users/fire/<user_id>', methods=['POST'])
@@ -96,12 +100,11 @@ def delete_user(user_id):
 def fire_user(user_id):
     try:
         if current_user.get_id() == user_id:
-            flash('Нельзя заблокировать себя')
-            return
+            return jsonify({"error": 'Нельзя заблокировать себя'}), 500
         user_service.fire(user_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
-        flash(e)
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/users/<user_id>/remove_from_department/<department_id>', methods=['DELETE'])
@@ -110,9 +113,9 @@ def fire_user(user_id):
 def remove_from_department(user_id, department_id):
     try:
         user_service.remove_from_department(user_id, department_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
-        flash(e)
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/users/<user_id>/add_to_department/<department_id>', methods=['POST'])
@@ -121,9 +124,9 @@ def remove_from_department(user_id, department_id):
 def add_to_department(user_id, department_id):
     try:
         user_service.add_to_department(user_id, department_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
-        flash(e)
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route('/users/send_notification/<user_id>', methods=['POST'])
@@ -133,7 +136,8 @@ def send_notification(user_id):
     try:
         data = request.get_json()
         msg = data.get('message')
-        notification_service.send_message(NotificationDTO(user_id=user_id, message=msg))
-        return jsonify({'success': True })
+        notification_service.send_message(
+            NotificationDTO(user_id=user_id, message=msg))
+        return jsonify({'success': True})
     except Exception as e:
-        flash(e)
+        return jsonify({"error": str(e)}), 500

@@ -9,11 +9,11 @@ from app.services import sertificate_service
 from app.main import bp
 
 
-@bp.route('/teacher_course/<user_id>/<course_id>', methods=['GET','POST'])
+@bp.route('/teacher_course/<user_id>/<course_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.TEACHER)
 def teacher_course(user_id, course_id):
-    teacher_course=sertificate_service.get(user_id, course_id)
+    teacher_course = sertificate_service.get(user_id, course_id)
     form = UploadForm()
     if teacher_course.date_approved:
         form.file.render_kw = {'disabled': True}
@@ -33,8 +33,7 @@ def teacher_course(user_id, course_id):
     return render_template('teachers_courses/teacher_course.html', title='Курсы преподавателя', teacher_course=teacher_course, form=form)
 
 
-
-@bp.route('/download_file/<user_id>/<course_id>', methods=['GET','POST'])
+@bp.route('/download_file/<user_id>/<course_id>', methods=['GET', 'POST'])
 @login_required
 def download_file(user_id, course_id):
     try:
@@ -48,7 +47,7 @@ def download_file(user_id, course_id):
         return jsonify({"error": str(e)}), 500
 
 
-@bp.route('/teachers_courses', methods=['GET','POST'])
+@bp.route('/teachers_courses', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.ADMIN)
 def teachers_courses():
@@ -59,13 +58,13 @@ def teachers_courses():
     course_type_id = request.args.get('course_type_id', None, type=int)
     is_approved = request.args.get('is_approved', None, type=str)
 
-
-    return render_template('teachers_courses/teachers_courses.html', 
-                           title='Курсы преподавателей', form=form, 
-                           teachers_courses=sertificate_service.get_all_paginated(page, course_name=course_name, 
-                                                                                  user_full_name=user_full_name, 
+    return render_template('teachers_courses/teachers_courses.html',
+                           title='Курсы преподавателей', form=form,
+                           teachers_courses=sertificate_service.get_all_paginated(page, course_name=course_name,
+                                                                                  user_full_name=user_full_name,
                                                                                   course_type_id=course_type_id,
                                                                                   is_approved=is_approved))
+
 
 @bp.route('/teachers_courses/approve_course/<user_id>/<course_id>', methods=['POST'])
 @login_required
@@ -73,6 +72,6 @@ def teachers_courses():
 def approve_course(user_id, course_id):
     try:
         sertificate_service.change_approved(user_id, course_id)
-        return jsonify({'success': True })
+        return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
