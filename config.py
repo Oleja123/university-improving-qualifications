@@ -19,7 +19,6 @@ class Config:
     UPLOAD_FOLDER = 'sertificates'
     ALLOWED_EXTENSIONS = {'pdf'}
     SESSION_TYPE = 'redis'
-    SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_HTTPONLY=True
     SESSION_REDIS = redis.Redis(
@@ -28,4 +27,3 @@ class Config:
         password=os.getenv('REDIS_PASSWORD'),
         db=0
     )
-    PERMANENT_SESSION_LIFETIME = timedelta(days=1)
