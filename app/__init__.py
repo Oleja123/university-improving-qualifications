@@ -1,10 +1,12 @@
+import logging
+
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_session import Session
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
-import logging
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 
@@ -30,6 +32,7 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     csrf.init_app(app)
+    Session(app)
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
