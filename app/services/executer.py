@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import current_app
 from app.dto.notification_dto import NotificationDTO
 from app.dto.user_dto import UserDTO
-from app.interfaces.iexecuter import IExecuter
+from app.interfaces.ireport_generator import IExecuter
 import sqlalchemy as sa
 from app import db, app
 
