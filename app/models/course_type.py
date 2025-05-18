@@ -22,7 +22,7 @@ class CourseType(db.Model):
     courses: so.WriteOnlyMapped['Course'] = so.relationship(
         back_populates='course_type', passive_deletes=True)
     deadline: so.Mapped[Optional[datetime]] = so.mapped_column(
-        index=True, default=lambda: add_years(datetime.now(timezone.utc), 3))
+        index=True, default=lambda: add_years(datetime.now(), 3))
 
     def __repr__(self):
         return f'Course Type {self.name}'
