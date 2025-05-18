@@ -2,6 +2,7 @@ from flask import jsonify, render_template, request
 from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
+from app.decorators.user_decorator import user_required
 from app.services import notification_service, user_service
 from app.main import bp
 
@@ -18,6 +19,7 @@ def get_messages_count(user_id):
 
 @bp.route('/notifications/<user_id>')
 @login_required
+@user_required
 def notifications(user_id):
     page = request.args.get('page', 1, type=int)
     notifications = user_service.get_notifications(
@@ -25,9 +27,10 @@ def notifications(user_id):
     return render_template('notifications/notifications.html', title='Уведомления', notifications=notifications)
 
 
-@bp.route('/notifications/delete/<notification_id>', methods=['DELETE'])
+@bp.route('/notifications/<user_id>/delete/<notification_id>', methods=['DELETE'])
 @login_required
-def delete_notification(notification_id):
+@user_required
+def delete_notification(user_id, notification_id):
     try:
         notification_service.delete(notification_id)
         return jsonify({'success': True})
@@ -35,9 +38,10 @@ def delete_notification(notification_id):
         return jsonify({"error": str(e)}), 500
 
 
-@bp.route('/notifications/read/<notification_id>', methods=['POST'])
+@bp.route('/notifications/<user_id>/read/<notification_id>', methods=['POST'])
 @login_required
-def read_notification(notification_id):
+@user_required
+def read_notification(user_id, notification_id):
     try:
         notification_service.read_message(notification_id)
         return jsonify({'success': True})

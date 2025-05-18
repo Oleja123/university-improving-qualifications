@@ -17,13 +17,21 @@ def get_all(included=None, course_type=None):
         raise Exception('Ошибка при получении курсов')
 
 
-def get_all_paginated(page: int, included=None, course_types=None):
+def get_all_paginated(page: int, is_included=None, course_types=None):
     try:
+        if is_included == '':
+            is_included = None
+        if is_included is not None and is_included == 'True':
+            is_included = True
+        if is_included is not None and is_included == 'False':
+            is_included = False
+        if course_types is not None and not isinstance(course_types, list):
+            course_types = [course_types]
         query = sa.select(Course)
         conditions = []
-        current_app.logger.info(f"условия {included, course_types}")
-        if included is not None:
-            conditions.append(Course.is_included == included)
+        current_app.logger.info(f"условия {is_included, course_types}")
+        if is_included is not None:
+            conditions.append(Course.is_included == is_included)
 
         if course_types is not None:
             conditions.append(Course.course_type_id.in_(course_types))

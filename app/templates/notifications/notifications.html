@@ -80,7 +80,7 @@
             $('#confirmDelete').click(function() {
                 if (itemToDelete) {
                     $.ajax({
-                        url: '/notifications/delete/' + itemToDelete,
+                        url: '/notifications/{{ current_user.id }}/delete/' + itemToDelete,
                         method: 'DELETE',
                         headers: {
                             "Content-Type": "application/json",
@@ -105,7 +105,7 @@
             $('.read-btn').click(function() {
                 itemToRead = $(this).data('item-id');
                 $.ajax({
-                        url: '/notifications/read/' + itemToRead,
+                        url: '/notifications/{{ current_user.id }}/read/' + itemToRead,
                         method: 'POST',
                         headers: {
                             "Content-Type": "application/json",

@@ -1,8 +1,9 @@
 import os
-from flask import current_app, flash, jsonify, redirect, render_template, request, send_from_directory, url_for
-from flask_login import login_required
+from flask import abort, current_app, flash, jsonify, redirect, render_template, request, send_from_directory, url_for
+from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
+from app.decorators.user_decorator import user_required
 from app.main.forms import TeachersCoursesForm, UploadForm
 from app.models import user
 from app.services import sertificate_service
@@ -12,7 +13,8 @@ from app.main import bp
 @bp.route('/teacher_course/<user_id>/<course_id>', methods=['GET', 'POST'])
 @login_required
 @required_role(role=user.TEACHER)
-def teacher_course(user_id, course_id):
+@user_required
+def teacher_course(user_id, course_id):        
     teacher_course = sertificate_service.get(user_id, course_id)
     form = UploadForm()
     if teacher_course.date_approved:
@@ -37,6 +39,8 @@ def teacher_course(user_id, course_id):
 @login_required
 def download_file(user_id, course_id):
     try:
+        if current_user.role != user.ADMIN and str(current_user.id) != str(user_id):
+            abort(403)
         user_path = sertificate_service.make_path(user_id, course_id)
         current_app.logger.info(user_path)
         file = os.listdir(user_path)[0]
