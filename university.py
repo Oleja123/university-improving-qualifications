@@ -9,4 +9,4 @@ app = create_app()
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'sa': sa, 'so': so, 'db': db, 'User': User }
+    return {'sa': sa, 'so': so, 'db': db, 'User': User, 'r': app.config['SESSION_REDIS'] }

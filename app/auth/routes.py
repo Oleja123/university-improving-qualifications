@@ -44,8 +44,12 @@ def logout():
     r = current_app.config['SESSION_REDIS']
     session_id = session.sid
     current_user_id = current_user.id
-    r.delete(f"session:{session_id}")
-    r.srem(f"user_session:{current_user_id}", session_id)
     
     logout_user()
+
+    session.clear()
+
+    r.delete(f"session:{session_id}")
+    r.srem(f"user_session:{current_user_id}", session_id)
+
     return redirect(url_for('main.index'))
