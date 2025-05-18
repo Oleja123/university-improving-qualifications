@@ -9,6 +9,7 @@ from app.main import bp
 
 @bp.route('/get_messages_count/<user_id>')
 @login_required
+@user_required
 def get_messages_count(user_id):
     try:
         res = notification_service.get_user_notifications_count(user_id)
