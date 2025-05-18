@@ -26,7 +26,7 @@ class Executer(IExecuter):
             to_ban = set()
             for user, course_type, course in combs:
                 res = sertificate_service.get(user.id, course.id)
-                if (res.date_approved is None and course_type.deadline < timing) or res.date_approved > course_type.deadline:
+                if (res.date_approved is None and course_type.deadline < timing) or (res.date_approved and res.date_approved > course_type.deadline):
                     to_ban.add(user.id)
                 elif not res.date_approved:
                     try:
