@@ -159,7 +159,6 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
 
 def change_approved(user_id: int, course_id: int):
     try:
-        current_app.logger.info('Я тут')
         res = get(user_id, course_id)
         if res.sertificate_path is None:
             raise ValueError('Сертификат не прикреплен')
