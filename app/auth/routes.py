@@ -31,7 +31,7 @@ def login():
             next_page = request.args.get('next')
             if not next_page or urlsplit(next_page).netloc != '':
                 next_page = url_for('main.index')
-            return redirect(url_for('main.index'))
+            return redirect(next_page)
         except Exception as e:
             flash(str(e))
             return redirect(url_for('auth.login'))

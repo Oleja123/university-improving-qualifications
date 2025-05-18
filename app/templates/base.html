@@ -110,7 +110,7 @@
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        {% if not current_user.anonymous %}
+        {% if current_user.is_authenticated %}
         <script>
 
           function pollForUpdates() {                  
