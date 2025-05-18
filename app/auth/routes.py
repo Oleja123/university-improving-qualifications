@@ -27,7 +27,8 @@ def login():
             session['user_role'] = user.role
             session['user_id'] = user.id
             r = current_app.config['SESSION_REDIS']
-            r.sadd(f"user_session:{user.id}", session.sid)
+            r.delete('session:' + session.sid)
+            session.sid = f'{user.id}:' + session.sid
             next_page = request.args.get('next')
             if not next_page or urlsplit(next_page).netloc != '':
                 next_page = url_for('main.index')
@@ -41,15 +42,7 @@ def login():
 @bp.route('/logout')
 @login_required
 def logout():
-    r = current_app.config['SESSION_REDIS']
-    session_id = session.sid
-    current_user_id = current_user.id
-    
     logout_user()
-
     session.clear()
-
-    r.delete(f"session:{session_id}")
-    r.srem(f"user_session:{current_user_id}", session_id)
 
     return redirect(url_for('main.index'))

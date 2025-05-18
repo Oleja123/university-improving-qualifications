@@ -246,3 +246,14 @@ def get_courses(page: int, approved: bool, user: User):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении курсов пользователя')
+    
+
+def close_user_session(user_id):
+    pattern = f'session:{user_id}:*'
+    
+    r = current_app.config['SESSION_REDIS']
+    keys = r.keys(pattern)
+    
+    if keys:
+        r.delete(*keys)
+    return len(keys)
