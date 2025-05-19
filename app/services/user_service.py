@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import secrets
 from flask import current_app
 import sqlalchemy as sa
 from app.exceptions.fired_error import FiredError
@@ -113,7 +115,7 @@ def check_password(username: str, password: str):
             raise WrongPasswordError('Неверный пароль')
         if user.is_fired:
             raise FiredError('Пользователь заблокирован')
-        return True
+        return user
     except ValueError as e:
         current_app.logger.error(e)
         raise
@@ -257,3 +259,47 @@ def close_user_session(user_id):
     if keys:
         r.delete(*keys)
     return len(keys)
+
+
+def get_token(user_id, expires_in=3600):
+    try:
+        now = datetime.now()
+        user = get_by_id(user_id)
+        if user.token and user.token_expiration > now + timedelta(seconds=60):
+            return user.token
+        user.token = secrets.token_hex(16)
+        user.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.commit()
+    except ValueError as e:
+        current_app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        raise Exception('Неизвестная ошибка')
+    
+
+def revoke_token(user_id):
+    try:
+        user = get_by_id(user_id)
+        user.token_expiration = datetime.now() - timedelta(seconds=1)
+        db.session.commit()
+    except ValueError as e:
+        current_app.logger.error(e)
+        raise
+    except Exception as e:
+        db.session.rollback()
+        raise Exception('Неизвестная ошибка')
+    
+
+def check_token(token):
+    try:
+        user = db.session.scalar(sa.select(User).where(User.token == token))
+        if user is None:
+            raise ValueError(f'Пользователь с  тоеном = {token} не существует')
+        return user
+    except ValueError as e:
+        current_app.logger.error(e)
+        raise
+    except Exception as e:
+        current_app.logger.error(e)
+        raise Exception('Ошибка при получении пользователя по токену')

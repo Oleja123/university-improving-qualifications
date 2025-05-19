@@ -3,7 +3,6 @@ from flask import current_app, flash, redirect, render_template, request, sessio
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.auth.forms import LoginForm
-from app.exceptions.wrong_password_error import WrongPasswordError
 from app.services import user_service
 from app import login
 from app.auth import bp

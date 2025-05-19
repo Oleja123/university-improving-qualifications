@@ -1,11 +1,10 @@
 import json
 
-from flask import Response
+from flask import Response, abort
 
 from app.api import bp
 from app import csrf
-from app.api.errors import bad_request, error_response
-from app.services import notification_service, user_service
+from app.services import notification_service
 
 
 @bp.route('/notifications/<int:id>', methods=['GET'])
@@ -17,9 +16,9 @@ def get_notification(id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
 
 @bp.route('/notifications/<int:id>/read', methods=['PUT'])
 @csrf.exempt
@@ -31,9 +30,9 @@ def read_notification(id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
     
 
 @bp.route('/notifications/<int:id>/delete', methods=['DELETE'])
@@ -43,6 +42,6 @@ def delete_notification(id):
         notification_service.delete(id)
         return '', 204
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)

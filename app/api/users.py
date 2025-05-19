@@ -1,9 +1,9 @@
 import json
 import os
 
-from flask import Response, abort, current_app, jsonify, request, send_from_directory
+from flask import Response, abort, current_app, request, send_from_directory
+
 from app.api import bp
-from app.api.errors import bad_request, error_response, handle_exception
 from app.exceptions.role_error import RoleError
 from app.services import course_service, sertificate_service, user_service
 from app.services.to_json_collecion import to_json_collection
@@ -18,9 +18,9 @@ def get_user(id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(403)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
 
 @bp.route('/users/<int:id>/notifications', methods=['GET'])
 def get_user_notifications(id):
@@ -37,9 +37,9 @@ def get_user_notifications(id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
 
 
 @bp.route('/users/<int:id>/courses', methods=['GET'])
@@ -57,9 +57,9 @@ def get_teacher_courses(id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
     
 
 @bp.route('/users/<int:teacher_id>/courses/<int:course_id>', methods=['GET'])
@@ -74,9 +74,9 @@ def get_teacher_course(teacher_id, course_id):
             mimetype='application/json; charset=utf-8'
         )
     except ValueError as e:
-        return bad_request(str(e))
+        abort(404)
     except Exception as e:
-        return error_response(500, str(e))
+        abort(500)
 
 
 @bp.route('/users/<int:teacher_id>/courses/<int:course_id>/download', methods=['GET'])
@@ -91,5 +91,4 @@ def download_teacher_course(teacher_id, course_id):
                                    as_attachment=True,
                                    mimetype='application/pdf')
     except Exception as e:
-        current_app.logger.info(e)
-        return jsonify({"error": str(e)}), 500
+        abort(500)

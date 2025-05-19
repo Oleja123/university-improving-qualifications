@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import current_app, render_template
 
 from app.errors import bp
 
@@ -10,6 +10,7 @@ def not_found_error(error):
 
 @bp.app_errorhandler(403)
 def forbidden_error(error):
+    current_app.logger.info('Я был тут')
     return render_template('errors/403.html'), 403
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from flask import url_for
@@ -29,6 +30,9 @@ class User(UserMixin, db.Model):
         secondary=teachers_departments, primaryjoin=(teachers_departments.c.teacher_id == id), back_populates='teachers', passive_deletes=True)
     courses: so.WriteOnlyMapped['TeacherCourse'] = so.relationship(
         back_populates='teacher', passive_deletes=True)
+    token: so.Mapped[Optional[str]] = so.mapped_column(
+        sa.String(32), index=True, unique=True)
+    token_expiration: so.Mapped[Optional[datetime]]
 
     def __repr__(self):
         return f'User {self.full_name}'
