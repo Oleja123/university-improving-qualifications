@@ -86,7 +86,10 @@ def download_teacher_course(teacher_id, course_id):
         current_app.logger.info(user_path)
         file = os.listdir(user_path)[0]
         current_app.logger.info(file)
-        return send_from_directory(user_path, file, as_attachment=True)
+        return send_from_directory(user_path, 
+                                   file, 
+                                   as_attachment=True,
+                                   mimetype='application/pdf')
     except Exception as e:
         current_app.logger.info(e)
         return jsonify({"error": str(e)}), 500
