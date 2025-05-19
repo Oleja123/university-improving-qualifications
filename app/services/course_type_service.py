@@ -97,11 +97,14 @@ def delete(id: int) -> bool:
 def update_deadline(course_typeDTO: CourseTypeDTO):
     try:
         record = None
+        current_app.logger.info(f'Я тут')
         if (course_typeDTO.id is not None):
             record = get_by_id(course_typeDTO.id)
         else:
             record = get_by_name(course_typeDTO.name)
+        current_app.logger.info(f'Текущий дедлайн типа курсов {record.name} = {record.deadline}')
         record.deadline = add_years(record.deadline, 3)
+        current_app.logger.info(f'Новый дедлайн типа курсов {record.name} = {record.deadline}')
         db.session.commit()
     except ValueError as e:
         current_app.logger.error(e)

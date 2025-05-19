@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import current_app
 
+from app.dto.course_type_dto import CourseTypeDTO
 from app.dto.notification_dto import NotificationDTO
 from app.interfaces.iexecuter import IExecuter
 import sqlalchemy as sa
@@ -10,7 +11,7 @@ from app.models.course import Course
 from app.models.course_type import CourseType
 from app.models.user import User, TEACHER
 from app import db
-from app.services import notification_service, sertificate_service, user_service
+from app.services import course_type_service, notification_service, sertificate_service, user_service
 
 
 class Executer(IExecuter):
@@ -45,6 +46,20 @@ class Executer(IExecuter):
                     current_app.logger.info(
                         'Не удалось закрыть сессии пользователя {user_id}')
             current_app.logger.info(f"Заблокированные пользователи: {to_ban}")
+
+            course_types = course_type_service.get_all()
+
+            for course_type in course_types:
+                try:
+                    if course_type.deadline < timing:
+                        course_type_service.update_deadline(
+                            CourseTypeDTO(id=course_type.id))
+                        current_app.logger.info(
+                            f'Дедлайн типа курсов {course_type.name} обновлен')
+                except Exception as e:
+                    current_app.logger.info(
+                        f'Ошибка при обновлении дедлайна типа курсов {course_type.name}')
+
         except Exception as e:
             current_app.logger.error(e)
             raise RuntimeError('Ошибка при выполненнии работы планировщика')
