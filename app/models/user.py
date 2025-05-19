@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
             '_links': {
                 'self': url_for('api.get_user', id=self.id),
                 'notifications': url_for('api.get_user_notifications', id=self.id),
-                'sertificate': url_for('api.get_user_sertificates', id=self.id),
+                'teacher_courses': url_for('api.get_teacher_courses', id=self.id),
             }
         }
         return data

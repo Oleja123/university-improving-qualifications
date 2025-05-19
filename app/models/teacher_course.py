@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from flask import url_for
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 
@@ -23,3 +24,15 @@ class TeacherCourse(db.Model):
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
+    
+    def to_dict(self):
+        data = {
+            'teacher_id': self.teacher_id, 
+            'course_id': self.course_id, 
+            'date_approved': (self.date_approved.isoformat() if self.date_approved else None),
+            'course_name': self.course.name,
+            '_links': {
+                'self': url_for('api.get_teacher_course', teacher_id=self.teacher_id, course_id=self.course_id),
+            }
+        }
+        return data
