@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from flask import url_for
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 
@@ -24,3 +25,16 @@ class Notification(db.Model):
     @classmethod
     def from_form(cls, form, user):
         return cls(name=form.message.data, user=user)
+
+    def to_dict(self):
+        data = {
+            'id': self.id, 
+            'message': self.message, 
+            'user_id': self.user_id,
+            'has_read': self.has_read,
+            'time_sent': self.time_sent.isoformat(),
+            '_links': {
+                'self': url_for('api.get_notification', id=self.id),
+            }
+        }
+        return data

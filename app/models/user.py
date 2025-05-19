@@ -1,5 +1,6 @@
 from typing import Optional
 
+from flask import url_for
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from flask_login import UserMixin
@@ -31,3 +32,17 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return f'User {self.full_name}'
+
+    def to_dict(self):
+        data = {
+            'id': self.id, 
+            'username': self.username, 
+            'full_name': self.full_name,
+            'role': ('ADMIN' if self.role == 0 else 'TEACHER'),
+            '_links': {
+                'self': url_for('api.get_user', id=self.id),
+                'notifications': url_for('api.get_user_notifications', id=self.id),
+                'sertificate': url_for('api.get_user_sertificates', id=self.id),
+            }
+        }
+        return data
