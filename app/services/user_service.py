@@ -270,6 +270,7 @@ def get_token(user_id, expires_in=3600):
         user.token = secrets.token_hex(16)
         user.token_expiration = now + timedelta(seconds=expires_in)
         db.session.commit()
+        return user.token
     except ValueError as e:
         current_app.logger.error(e)
         raise
@@ -294,7 +295,7 @@ def revoke_token(user_id):
 def check_token(token):
     try:
         user = db.session.scalar(sa.select(User).where(User.token == token))
-        if user is None:
+        if user is None or user.token_expiration < datetime.now():
             raise ValueError(f'Пользователь с  тоеном = {token} не существует')
         return user
     except ValueError as e:

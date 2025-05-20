@@ -44,9 +44,9 @@ class User(UserMixin, db.Model):
             'full_name': self.full_name,
             'role': ('ADMIN' if self.role == 0 else 'TEACHER'),
             '_links': {
-                'self': url_for('api.get_user', id=self.id),
-                'notifications': url_for('api.get_user_notifications', id=self.id),
-                'teacher_courses': url_for('api.get_teacher_courses', id=self.id),
+                'self': url_for('api.get_user', user_id=self.id),
+                'notifications': url_for('api.get_user_notifications', user_id=self.id),
+                'teacher_courses': url_for('api.get_teacher_courses', user_id=self.id),
             }
         }
         return data
