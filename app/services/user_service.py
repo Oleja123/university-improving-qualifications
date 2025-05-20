@@ -164,6 +164,8 @@ def fire(id: int):
     try:
         record = get_by_id(id)
         record.is_fired = not record.is_fired
+        if record.is_fired:
+            close_user_session(id)
         db.session.commit()
     except ValueError as e:
         current_app.logger.error(e)

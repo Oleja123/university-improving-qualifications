@@ -41,7 +41,6 @@ class Executer(IExecuter):
             for user_id in to_ban:
                 try:
                     user_service.fire(user_id)
-                    user_service.close_user_session(user_id)
                 except Exception as e:
                     current_app.logger.info(
                         'Не удалось закрыть сессии пользователя {user_id}')
