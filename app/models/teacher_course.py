@@ -31,6 +31,7 @@ class TeacherCourse(db.Model):
             'course_id': self.course_id, 
             'date_approved': (self.date_approved.isoformat() if self.date_approved else None),
             'course_name': self.course.name,
+            'sertificate_loaded': (self.sertificate_path is not None),
             '_links': {
                 'self': url_for('api.get_teacher_course', user_id=self.teacher_id, course_id=self.course_id),
             }
