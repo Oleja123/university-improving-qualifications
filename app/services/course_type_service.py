@@ -97,7 +97,6 @@ def delete(id: int) -> bool:
 def update_deadline(course_typeDTO: CourseTypeDTO):
     try:
         record = None
-        current_app.logger.info(f'Я тут')
         if (course_typeDTO.id is not None):
             record = get_by_id(course_typeDTO.id)
         else:

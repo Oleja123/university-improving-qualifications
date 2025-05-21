@@ -2,7 +2,6 @@ from flask import current_app, url_for
 
 
 def to_json_collection(resources, endpoint, **kwargs):
-    current_app.logger.info('Я тут')
     data = {
             'items': [item.to_dict() for item in resources.items],
             '_meta': {

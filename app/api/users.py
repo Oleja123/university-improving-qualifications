@@ -103,6 +103,8 @@ def get_teacher_course(user_id, course_id):
 def download_teacher_course(user_id, course_id):
     try:
         user_path = sertificate_service.make_path(str(user_id), str(course_id))
+        if not os.path.exists(user_path):
+            raise ValueError('Сертификат не загружен')
         current_app.logger.info(user_path)
         file = os.listdir(user_path)[0]
         current_app.logger.info(file)

@@ -135,7 +135,7 @@ def update(userDTO: UserDTO):
         record = get_by_id(userDTO.id)
         record.username = userDTO.username
         record.full_name = userDTO.full_name
-        if userDTO.password is not None:
+        if userDTO.password:
             record.password_hash = generate_password_hash(userDTO.password)
         db.session.commit()
     except ValueError as e:
