@@ -1,4 +1,6 @@
 import logging
+from logging.handlers import RotatingFileHandler
+import os
 
 from flask import Flask
 from config import Config
@@ -22,11 +24,6 @@ from app.services.scheduler import Scheduler
 
 login.login_view = 'auth.login'
 login.login_message = ('Пожалуйста авторизуйтесь, чтобы просматривать данную страницу')
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filename='app.log'
-)
 
 
 def create_app(config_class=Config):
@@ -60,6 +57,25 @@ def create_app(config_class=Config):
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
+
+    if not app.debug:
+        if app.config['LOG_TO_STDOUT'] == 'True':
+            stream_handler = logging.StreamHandler()
+            stream_handler.setLevel(logging.INFO)
+            app.logger.addHandler(stream_handler)
+        else:
+            if not os.path.exists('logs'):
+                os.mkdir('logs')
+            file_handler = RotatingFileHandler('logs/app.log',
+                                               maxBytes=10240, backupCount=10)
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s '
+                '[in %(pathname)s:%(lineno)d]'))
+            file_handler.setLevel(logging.INFO)
+            app.logger.addHandler(file_handler)
+
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('University startup')
     
     return app
 

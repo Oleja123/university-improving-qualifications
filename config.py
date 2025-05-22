@@ -18,6 +18,7 @@ class Config:
     COURSES_PER_PAGE = 3
     UPLOAD_FOLDER = 'sertificates'
     ALLOWED_EXTENSIONS = {'pdf'}
+    LOG_TO_STDOUT = os.getenv('LOG_TO_STDOUT')
     SESSION_TYPE = 'redis'
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_HTTPONLY=True
