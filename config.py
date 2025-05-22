@@ -23,8 +23,8 @@ class Config:
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_HTTPONLY=True
     SESSION_REDIS = redis.Redis(
-        host='localhost',
-        port=6379,
+        host=os.getenv('REDIS_HOSTNAME'),
+        port=os.getenv('REDIS_PORT'),
         password=os.getenv('REDIS_PASSWORD'),
         db=0
     )

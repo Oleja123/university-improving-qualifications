@@ -9,7 +9,7 @@ COPY migrations migrations
 COPY university.py config.py boot.sh ./
 RUN chmod a+x boot.sh
 
-ENV FLASK_APP university.py
+ENV FLASK_APP=university.py
 
 EXPOSE 5000
 ENTRYPOINT ["./boot.sh"]
