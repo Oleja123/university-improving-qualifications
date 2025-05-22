@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from app.models.course import Course
 from app.models.department import Department
 from app.models.teacher_course import TeacherCourse

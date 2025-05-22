@@ -1,7 +1,6 @@
 from datetime import datetime
-from app.models import course_type
+
 from app.models.course import Course
-from app.models.department import Department
 from app.models.teacher_course import TeacherCourse
 from app.models.user import User
 import sqlalchemy as sa

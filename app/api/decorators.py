@@ -4,7 +4,6 @@ from flask import abort
 
 from app.api.auth import token_auth
 from app.models.user import ADMIN
-from app.services import user_service
 
 
 def required_role(role):
