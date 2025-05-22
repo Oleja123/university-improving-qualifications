@@ -1,2 +1,0 @@
-class RoleError(Exception):
-    pass

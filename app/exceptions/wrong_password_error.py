@@ -1,2 +1,0 @@
-class WrongPasswordError(Exception):
-    pass
