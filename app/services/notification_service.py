@@ -53,9 +53,15 @@ def read_message(id):
 
 def get_user_notifications_count(user_id):
     try:
+        r = current_app.config['SESSION_REDIS']
+        cur_key = f"notifications:{user_id}"
+        if r.exists(cur_key):
+            return int(r.get(cur_key))
         query = sa.select(sa.func.count()).where(
             sa.and_(Notification.has_read == False, Notification.user_id == user_id))
-        return db.session.scalar(query)
+        res = db.session.scalar(query)
+        r.setex(cur_key, 120, res)
+        return res
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении количества сообщений')
