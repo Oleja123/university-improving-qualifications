@@ -26,13 +26,13 @@
             </thead>
                 <tbody>
                     {% for department in user_departments %}
-                        <tr id="user{{ user.id }}">
+                        <tr id="user_department{{ department.id }}">
                             <td></td>
                             <td>{{department.name}}</td>
                             <td>{{department.faculty.name}}</td>
                             <td>
                                 <button class="btn btn-danger btn-sm delete-btn" 
-                                        data-item-id="{{ user.id }}">
+                                        data-item-id="{{ department.id }}">
                                     Удалить
                                 </button>
                             </td>
