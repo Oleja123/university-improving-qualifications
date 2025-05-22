@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Типы курсов</h1>
+        <a class="btn btn-primary my-3" href="{{ url_for('main.create_course_type') }}" role="button">
+            Создать тип курсов
+        </a>
+        <a class="btn btn-primary my-3" href="{{ url_for('main.course_type_report') }}" role="button">
+            Отчет по типу курсов
+        </a>
+        <br>
+        <table id="course-types-table" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th> Название </th>
+                    <th> Дедлайн </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course_type in course_types %}
+                    <tr id="course-type-{{ course_type.id }}">
+                        <td></td>
+                        <td>{{course_type.name}}</td>
+                        <td>{{ course_type.deadline }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_course_type', course_type_id=course_type.id) }}" role="button">Редактировать</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-btn" 
+                                    data-item-id="{{ course_type.id }}">
+                                Удалить
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let itemToDelete = null;
+            
+            $('.delete-btn').click(function() {
+                itemToDelete = $(this).data('item-id');
+                $('#confirmModal').modal('show');
+            });
+
+            const csrf_token = document.querySelector('meta[name="csrf-token"]').content;
+            
+            $('#confirmDelete').click(function() {
+                if (itemToDelete) {
+                    $.ajax({
+                        url: '/course_types/delete/' + itemToDelete,
+                        method: 'DELETE',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrf_token,
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#course-type-' + itemToDelete).remove();
+                                alert('Тип курсов успешно удален');
+                            }
+                        },
+                        error: function() {
+                            alert('Ошибка при удалении');
+                        },
+                        complete: function() {
+                            $('#confirmModal').modal('hide');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

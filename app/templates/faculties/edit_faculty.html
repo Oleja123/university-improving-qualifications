@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h1>Факультет</h1>
+  <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+      {{ form.name.label(class="form-label") }}<br>
+      {{ form.name(size=128, class="form-control") }}
+    </p>
+    <p>{{ form.submit(class="btn btn-primary") }}</p>
+  </form>
+</div>
+{% endblock %}

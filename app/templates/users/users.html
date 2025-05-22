@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Пользователи</h1>
+        <div class="btn-group mb-3" role="group">
+            <a class="btn btn-primary" href="{{ url_for('main.create_admin') }}" role="button">Создать сотрудника</a>
+            <a class="btn btn-primary" href="{{ url_for('main.create_teacher') }}" role="button">Создать преподавателя</a>
+        </div>
+        <br>
+        <form method="get" action="{{ url_for('main.users') }}" class="mb-1">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select name = 'is_fired' class="form-select">
+                        <option value="" selected></option>
+                        {% if request.args.get('is_fired') == 'True' %}
+                            <option value="True" selected> Только заблокированные </option>
+                        {% else %}
+                            <option value="True"> Только заблокированные </option>
+                        {% endif %}
+                        {% if request.args.get('is_fired') == 'False' %}
+                            <option value="False" selected> Только активные </option>
+                        {% else %}
+                            <option value="False"> Только активные </option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name = 'role' class="form-select">
+                        <option value="" selected></option>
+                        {% if request.args.get('role') == '0' %}
+                            <option value=0 selected> Только сотрудники </option>
+                        {% else %}
+                            <option value=0> Только сотрудники </option>
+                        {% endif %}
+                        {% if request.args.get('role') == '1' %}
+                            <option value=1 selected> Только преподаватели </option>
+                        {% else %}
+                            <option value=1> Только преподаватели </option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Фильтровать</button>
+                    <a href="{{ url_for('main.users') }}" class="btn btn-secondary">Сбросить</a>
+                </div>
+            </div>
+        </form>
+        <br>
+        <table id="users" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th> Полное имя </th>
+                    <th> Имя пользователя </th>
+                    <th> Роль</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th> Заблокирован</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                    <tr id="user{{ user.id }}">
+                        <td></td>
+                        <td>{{user.full_name}}</td>
+                        <td>{{user.username}}</td>
+                        <td>{{ 'Сотрудник' if user.role == 0 else 'Преподаватель' }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm not-btn" 
+                                    data-item-id="{{ user.id }}">
+                                Отправить сообщение
+                            </button>
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_user', user_id=user.id) }}" role="button">Редактировать</a>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm delete-btn" 
+                                    data-item-id="{{ user.id }}">
+                                Удалить
+                            </button>
+                        </td>
+                        <td>
+                            {% if user.is_fired %}
+                                <input class="form-check-input" type="checkbox" data-item-id="{{ user.id }}" checked>
+                            {% else %}
+                                <input class="form-check-input" type="checkbox" data-item-id="{{ user.id }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <ul class="pagination">
+            {% if users.has_prev %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=users.prev_num, is_fired=request.args.get('is_fired'),
+                role=request.args.get('role')) }}">Предыдущая страница</a></li>
+            {% else %}
+             <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
+            {% endif %}
+             </li>
+              
+            {% for page in users.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+            {% if page == users.page %}
+             <li class="page-item active"><a class="page-link" href="{{ url_for('main.users', page=page, is_fired=request.args.get('is_fired'),
+                role=request.args.get('role')) }}">{{ page }}</a></li>
+            {% elif page %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=page, is_fired=request.args.get('is_fired'),
+                role=request.args.get('role')) }}">{{ page }}</a></li>
+            {% else %}
+             <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
+            {% endif %}
+            {% endfor %}
+            
+            {% if users.has_next %}
+             <li class="page-item"><a class="page-link" href="{{ url_for('main.users', page=users.next_num, is_fired=request.args.get('is_fired'),
+                role=request.args.get('role')) }}">Следующая</a></li>
+            {% else %}
+             <li class="page-item disabled"><span class="page-link">Следующая</span>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="modal fade" id="notificationModal", tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Отправить сообщение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="notificationForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Сообщение</label>
+                            <input type="text" class="form-control" id="message" name="message" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-primary" id="sendNotification">Отправить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let itemToDelete = null;
+            let userToSend = null;
+            
+            $('.delete-btn').click(function() {
+                itemToDelete = $(this).data('item-id');
+                $('#confirmModal').modal('show');
+            });
+
+            $('.not-btn').click(function() {
+                userToSend = $(this).data('item-id');
+                $('#notificationModal').modal('show');
+            });
+
+            const csrf_token = document.querySelector('meta[name="csrf-token"]').content;
+
+            $('.form-check-input').change(function() {
+                const checkbox = $(this);
+                const value = checkbox.is(':checked');
+                const id = checkbox.data('item-id');
+                
+                $.ajax({
+                    url: '/users/fire/' + id,
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrf_token,
+                    },
+                    success: function(response) {
+                        console.log("Успешно обновлено:", response);
+                    },
+                    error: function(xhr) {
+                        alert('Ошибка при блокировке');
+                        checkbox.prop('checked', !value);
+                    }
+                });
+            });
+            
+            $('#confirmDelete').click(function() {
+                if (itemToDelete) {
+                    $.ajax({
+                        url: '/users/delete/' + itemToDelete,
+                        method: 'DELETE',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrf_token,
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert('Пользователь успешно удален');
+                                window.location.reload()
+                            }
+                        },
+                        error: function() {
+                            alert('Ошибка при удалении');
+                        },
+                        complete: function() {
+                            $('#confirmModal').modal('hide');
+                        }
+                    });
+                }
+            });
+
+            $('#notificationForm').on('submit', function(e) {
+                e.preventDefault();
+                if (userToSend) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/users/send_notification/' + userToSend,
+                        data: JSON.stringify({
+                            message: $('#message').val(),
+                        }),
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrf_token,
+                        },
+                        success: function(response) {
+                            $('#notificationModal').modal('hide');
+                            
+                            $('#notificationForm')[0].reset();
+                            
+                            alert('Сообщение успешно отправлено!');
+                        },
+                        error: function() {
+                            alert('Произошла ошибка при отправке.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

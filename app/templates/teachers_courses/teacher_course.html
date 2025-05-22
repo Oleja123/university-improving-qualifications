@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Курс преподавателя</h1>
+<p>
+    Преподаватель: {{ teacher_course.teacher.full_name }}
+</p>
+<p>
+    Курс: {{ teacher_course.course.name }}
+</p>
+{% if teacher_course.date_approved %}
+    <p>
+        Верификация: Дата верификации {{ teacher_course.date_approved }}
+    </p>
+{% else %}
+    <p>
+        Верификация: Не верифицирован
+    </p>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.file(class="form-control w-25", accept='.pdf') }}
+        {% if form.file.errors %}
+            <div class="text-danger">
+                {% for error in form.file.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+
+{% if teacher_course.sertificate_path %}
+    <a href="/download_file/{{ teacher_course.teacher_id }}/{{ teacher_course.course_id }}"> Скачать сертификат</a>
+{% else %}
+    <p>
+        Сертификат не загружен
+    </p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,2 @@
+class RoleError(Exception):
+    pass
