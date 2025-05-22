@@ -1,0 +1,2 @@
+class FiredError(Exception):
+    pass
