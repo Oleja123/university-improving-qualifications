@@ -173,7 +173,7 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-
+/nginx/certs
 /sertificates
 /logs
 app.db

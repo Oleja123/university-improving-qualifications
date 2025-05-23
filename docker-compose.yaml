@@ -18,6 +18,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_HOSTNAME: ${REDIS_HOSTNAME}
       LOG_TO_STDOUT: ${LOG_TO_STDOUT}
+    volumes:
+      - backend_data:/sertificates
 
   db:
     image: postgres:latest
@@ -51,8 +53,21 @@ services:
       start_period: 10s
     volumes:
       - redis_data:/var/lib/redis/data
+
+  nginx:
+    container_name: university_nginx
+    image: nginx:1.21.1
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs/key.pem:/etc/nginx/certs/key.pem
+      - ./nginx/certs/cert.pem:/etc/nginx/certs/cert.pem
+    ports:
+      - "8080:80"
+      - "8443:443"
     
 
 volumes:
   postgres_data:
   redis_data:
+  backend_data:
