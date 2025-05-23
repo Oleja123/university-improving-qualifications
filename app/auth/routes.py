@@ -10,7 +10,10 @@ from app.auth import bp
 
 @login.user_loader
 def load_user(id):
-    return user_service.get_by_id(id)
+    try: 
+        return user_service.get_by_id(id)
+    except Exception as e:
+        current_app.logger.info(e)
 
 
 @bp.route('/login', methods=['GET', 'POST'])
