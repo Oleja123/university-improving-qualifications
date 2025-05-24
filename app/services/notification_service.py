@@ -7,6 +7,10 @@ from app.dto.notification_dto import NotificationDTO
 from app.services import user_service
 
 
+def notifications_key(user_id):
+    return f"notifications:{user_id}"
+
+
 def get_by_id(id: int):
     try:
         res = db.session.get(Notification, id)
@@ -28,6 +32,8 @@ def send_message(notificationDTO: NotificationDTO):
             message=notificationDTO.message, user=user, has_read=False)
         db.session.add(notification)
         db.session.commit()
+        r = current_app.config['SESSION_REDIS']
+        r.delete(notifications_key(user.id))
     except ValueError as e:
         current_app.logger.error(e)
         raise
@@ -42,6 +48,8 @@ def read_message(id):
         notification = get_by_id(id)
         notification.has_read = True
         db.session.commit()
+        r = current_app.config['SESSION_REDIS']
+        r.delete(notifications_key(notification.user_id))
     except ValueError as e:
         current_app.logger.error(e)
         raise
@@ -54,13 +62,13 @@ def read_message(id):
 def get_user_notifications_count(user_id):
     try:
         r = current_app.config['SESSION_REDIS']
-        cur_key = f"notifications:{user_id}"
+        cur_key = notifications_key(user_id)
         if r.exists(cur_key):
             return int(r.get(cur_key))
         query = sa.select(sa.func.count()).where(
             sa.and_(Notification.has_read == False, Notification.user_id == user_id))
         res = db.session.scalar(query)
-        r.setex(cur_key, 120, res)
+        r.setex(cur_key, 86400, res)
         return res
     except Exception as e:
         current_app.logger.error(e)
@@ -69,9 +77,11 @@ def get_user_notifications_count(user_id):
 
 def delete(id):
     try:
-        message = get_by_id(id)
-        db.session.delete(message)
+        notification = get_by_id(id)
+        db.session.delete(notification)
         db.session.commit()
+        r = current_app.config['SESSION_REDIS']
+        r.delete(notifications_key(notification.user_id))
     except ValueError as e:
         current_app.logger.error(e)
         raise
