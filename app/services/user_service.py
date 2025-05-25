@@ -341,7 +341,7 @@ def check_token(token):
     try:
         user = db.session.scalar(sa.select(User).where(User.token == token))
         if user is None or user.token_expiration < datetime.now():
-            raise ValueError(f'Пользователь с  тоеном = {token} не существует')
+            raise ValueError(f'Пользователь с  токеном = {token} не существует')
         return user
     except ValueError as e:
         current_app.logger.error(e)
