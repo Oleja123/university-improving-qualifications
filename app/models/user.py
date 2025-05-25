@@ -47,6 +47,7 @@ class User(UserMixin, db.Model):
                 'self': url_for('api.get_user', user_id=self.id),
                 'notifications': url_for('api.get_user_notifications', user_id=self.id),
                 'teacher_courses': url_for('api.get_teacher_courses', user_id=self.id),
+                'revoke_token': url_for('api.revoke_user_token', user_id=self.id),
             }
         }
         return data

@@ -47,6 +47,20 @@ def get_all_paginated(page: int, userDTO: UserDTO):
         if userDTO.is_fired is not None:
             conditions.append(User.is_fired == userDTO.is_fired)
 
+        if userDTO.full_name is not None and len(userDTO.full_name) == 0:
+            userDTO.full_name = None
+
+        if userDTO.username is not None and len(userDTO.username) == 0:
+            userDTO.username = None
+
+        if userDTO.full_name is not None:
+            conditions.append(sa.func.lower(User.full_name).like(
+                f'%{userDTO.full_name.lower()}%'))
+
+        if userDTO.username is not None:
+            conditions.append(sa.func.lower(User.username).like(
+                f'%{userDTO.username.lower()}%'))
+
         current_app.logger.info(f"условия {conditions}")
 
         if conditions:
@@ -84,7 +98,8 @@ def get_by_username(username: str):
         raise
     except Exception as e:
         current_app.logger.error(e)
-        raise Exception(f'Ошибка при получении пользователя по имени пользователя')
+        raise Exception(
+            f'Ошибка при получении пользователя по имени пользователя')
 
 
 def create(userDTO: UserDTO):
@@ -100,7 +115,8 @@ def create(userDTO: UserDTO):
     except sa.exc.IntegrityError as e:
         db.session.rollback()
         current_app.logger.error(e)
-        raise ValueError(f'Пользователь с именем {userDTO.username} уже существует')
+        raise ValueError(
+            f'Пользователь с именем {userDTO.username} уже существует')
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(e)
@@ -159,13 +175,14 @@ def delete(id: int) -> bool:
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception('Ошибка при удалении пользователя')
-    
+
+
 def fire(id: int):
     try:
         record = get_by_id(id)
         record.is_fired = not record.is_fired
         if record.is_fired:
-            close_user_session(id)
+            close_user_sessions(id)
         db.session.commit()
     except ValueError as e:
         current_app.logger.error(e)
@@ -174,7 +191,7 @@ def fire(id: int):
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception('Ошибка при увольнении пользователя')
-    
+
 
 def add_to_department(user_id: int, department_id: int):
     try:
@@ -233,7 +250,8 @@ def get_notifications(page: int, only_new, user: User):
         query = user.notifications.select()
         if only_new:
             query = query.where(Notification.has_read == False)
-        query = query.order_by(sa.asc(Notification.has_read), sa.desc(Notification.time_sent))
+        query = query.order_by(sa.asc(Notification.has_read),
+                               sa.desc(Notification.time_sent))
         return db.paginate(query, page=page, per_page=current_app.config['NOTIFICATIONS_PER_PAGE'], error_out=False)
     except Exception as e:
         current_app.logger.error(e)
@@ -250,17 +268,41 @@ def get_courses(page: int, approved: bool, user: User):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении курсов пользователя')
-    
 
-def close_user_session(user_id):
-    pattern = f'session:{user_id}:*'
-    
-    r = current_app.config['SESSION_REDIS']
-    keys = r.keys(pattern)
-    
-    if keys:
-        r.delete(*keys)
-    return len(keys)
+
+def get_users_sessions(user_id):
+    try:
+        pattern = f'session:{user_id}:*'
+
+        r = current_app.config['SESSION_REDIS']
+        keys = r.keys(pattern)
+
+        return keys
+    except Exception as e:
+        current_app.logger.info(e)
+        raise Exception('Неизвестная ошибка')
+
+
+def close_user_session(session_id):
+    try:
+        r = current_app.config['SESSION_REDIS']
+        r.delete(session_id)
+        return True
+    except Exception as e:
+        current_app.logger.info(e)
+        raise Exception('Неизвестная ошибка')
+
+
+def close_user_sessions(user_id):
+    try:
+        r = current_app.config['SESSION_REDIS']
+        keys = get_users_sessions(user_id)
+        if keys:
+            r.delete(*keys)
+        return len(keys)
+    except Exception as e:
+        current_app.logger.info(e)
+        raise Exception('Неизвестная ошибка')
 
 
 def get_token(user_id, expires_in=3600):
@@ -279,20 +321,21 @@ def get_token(user_id, expires_in=3600):
     except Exception as e:
         db.session.rollback()
         raise Exception('Неизвестная ошибка')
-    
+
 
 def revoke_token(user_id):
     try:
         user = get_by_id(user_id)
         user.token_expiration = datetime.now() - timedelta(seconds=1)
         db.session.commit()
+        return user
     except ValueError as e:
         current_app.logger.error(e)
         raise
     except Exception as e:
         db.session.rollback()
         raise Exception('Неизвестная ошибка')
-    
+
 
 def check_token(token):
     try:

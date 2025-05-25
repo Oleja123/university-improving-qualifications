@@ -28,3 +28,13 @@ def user_required(f):
             
         return f(*args, **kwargs)
     return decorated_function
+
+def only_admin(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        if not token_auth.current_user().role == ADMIN:
+            abort(403)
+            
+        return f(*args, **kwargs)
+    return decorated_function
