@@ -12,7 +12,9 @@ from app import csrf
 def get_token():
     try:
         token = user_service.get_token(basic_auth.current_user().id)
-        return {'token': token, 'id': basic_auth.current_user().id}
+        return {'token': token, 
+                'id': basic_auth.current_user().id, 
+                'role': 'TEACHER' if basic_auth.current_user().role else 'ADMIN'}
     except ValueError as e:
         abort(404)
     except Exception as e :
