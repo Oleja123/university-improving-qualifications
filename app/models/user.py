@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from flask import url_for
@@ -43,6 +43,7 @@ class User(UserMixin, db.Model):
             'username': self.username, 
             'full_name': self.full_name,
             'role': ('ADMIN' if self.role == 0 else 'TEACHER'),
+            'token_available': (self.token_expiration is not None and self.token_expiration > datetime.now() + timedelta(seconds=60)),
             '_links': {
                 'self': url_for('api.get_user', user_id=self.id),
                 'notifications': url_for('api.get_user_notifications', user_id=self.id),
