@@ -6,8 +6,14 @@
     <p>
         {{ form.name.label(class="form-label") }}<br>
         {{ form.name(size=128, class="form-control") }}<br>
+        {% for error in form.name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
         {{ form.course_type.label(class="form-label") }}<br>
         {{ form.course_type(class="form-control") }}
+        {% for error in form.course_type.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
     </p>
     <p>{{ form.submit(class="btn btn-primary") }}</p>
     </form>

@@ -6,10 +6,21 @@
     <p>
         {{ form.full_name.label(class="form-label") }}<br>
         {{ form.full_name(size=128, class="form-control") }}<br>
+        {% for error in form.full_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        <br>
+        {% endfor %}
         {{ form.username.label(class="form-label") }}<br>
         {{ form.username(size=128, class="form-control") }}<br>
+        {% for error in form.username.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        <br>
+        {% endfor %}
         {{ form.password.label(class="form-label") }}<br>
         {{ form.password(class="form-control") }}
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
     </p>
     <p>{{ form.submit(class="btn btn-primary") }}</p>
     </form>
