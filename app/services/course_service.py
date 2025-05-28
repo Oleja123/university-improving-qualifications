@@ -72,7 +72,7 @@ def get_all_paginated(page: int, is_included=None, course_types=None, deadline=N
 
         if conditions:
             query = query.where(sa.and_(*conditions))
-        query = query.order_by(Course.course_type_id)
+        query = query.order_by(Course.name)
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         current_app.logger.error(e)
