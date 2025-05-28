@@ -25,3 +25,12 @@ class Course(db.Model):
     @classmethod
     def from_form(cls, form, course_type):
         return cls(name=form.name.data, course_type=course_type)
+    
+    def to_dict(self):
+        data = {
+            'id': self.id, 
+            'name': self.name, 
+            'course_type_id': self.course_type_id,
+            'is_included': self.is_included
+        }
+        return data

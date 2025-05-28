@@ -1,9 +1,12 @@
+from datetime import datetime
 from flask import current_app
 import sqlalchemy as sa
 
 from app import db
 from app.dto.course_dto import CourseDTO
 from app.models.course import Course
+from app.models.course_type import CourseType
+from app.models.teacher_course import TeacherCourse
 from app.services import course_type_service
 
 
@@ -17,7 +20,33 @@ def get_all(included=None, course_type=None):
         raise Exception('Ошибка при получении курсов')
 
 
-def get_all_paginated(page: int, is_included=None, course_types=None):
+def get_closest_courses(user_id: int, page: int):
+    subquery = sa.select(TeacherCourse)\
+                .where(sa.and_(TeacherCourse.teacher_id==user_id))\
+                .subquery()
+    deadline_query = sa.select(sa.func.min(CourseType.deadline)).select_from(Course)\
+                        .join(Course.course_type)\
+                        .outerjoin(subquery, Course.id == subquery.c.course_id)\
+                        .where(sa.and_(
+                            subquery.c.sertificate_path.is_(None), 
+                            Course.is_included == True
+                            ))
+    deadline = db.session.scalar(deadline_query)
+    current_app.logger.info(deadline)
+    if deadline is None:
+        return (None, None)
+    select_query = sa.select(Course).select_from(Course)\
+                        .join(Course.course_type)\
+                        .outerjoin(subquery, 
+                                   Course.id == subquery.c.course_id)\
+                        .where(sa.and_(CourseType.deadline == deadline, 
+                                       subquery.c.sertificate_path.is_(None),
+                                       Course.is_included == True,
+                                       ))
+    return (db.paginate(select_query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False), deadline)
+
+
+def get_all_paginated(page: int, is_included=None, course_types=None, deadline=None):
     try:
         if is_included == '':
             is_included = None
@@ -35,6 +64,9 @@ def get_all_paginated(page: int, is_included=None, course_types=None):
 
         if course_types is not None:
             conditions.append(Course.course_type_id.in_(course_types))
+
+        if deadline is not None:
+            conditions.append(Course.course_type.deadline == deadline)
 
         current_app.logger.info(f"условия {conditions}")
 
