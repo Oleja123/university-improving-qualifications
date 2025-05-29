@@ -13,7 +13,9 @@ from app.main import bp
 @login_required
 @required_role(role=user.ADMIN)
 def course_types():
-    return render_template('course_types/course_types.html', title='Типы курсов', course_types=course_type_service.get_all())
+    return render_template('course_types/course_types.html', 
+                           title='Типы курсов', 
+                           course_types=course_type_service.get_all())
 
 
 @bp.route('/course_types/create', methods=['GET', 'POST'])
@@ -29,7 +31,9 @@ def create_course_type():
             flash(str(e))
             return redirect(url_for('main.create_course_type'))
 
-    return render_template('course_types/edit_course_type.html', form=form)
+    return render_template('course_types/edit_course_type.html', 
+                           title='Создать тип курсов', 
+                           form=form)
 
 
 @bp.route('/course_types/edit/<course_type_id>', methods=['GET', 'POST'])
@@ -49,7 +53,9 @@ def edit_course_type(course_type_id):
     course_type = course_type_service.get_by_id(course_type_id)
     form.from_model(course_type)
 
-    return render_template('course_types/edit_course_type.html', form=form)
+    return render_template('course_types/edit_course_type.html', 
+                           title='Редактировать тип курсов', 
+                           form=form)
 
 
 @bp.route('/course_types/delete/<course_type_id>', methods=['DELETE'])

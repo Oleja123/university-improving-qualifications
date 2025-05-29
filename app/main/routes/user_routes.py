@@ -25,7 +25,9 @@ def users():
         is_fired = False
     users = user_service.get_all_paginated(
         page, UserDTO(is_fired=is_fired, role=role))
-    return render_template('users/users.html', title='Пользователи', users=users)
+    return render_template('users/users.html', 
+                           title='Пользователи', 
+                           users=users)
 
 
 @bp.route('/users/create_admin', methods=['GET', 'POST'])
@@ -41,7 +43,9 @@ def create_admin():
             flash(str(e))
             return redirect(url_for('main.create_admin'))
 
-    return render_template('users/edit_user.html', form=form)
+    return render_template('users/edit_user.html', 
+                           title='Создать сотрудника', 
+                           form=form)
 
 
 @bp.route('/users/create_teacher', methods=['GET', 'POST'])
@@ -57,7 +61,9 @@ def create_teacher():
             flash(str(e))
             return redirect(url_for('main.create_teacher'))
 
-    return render_template('users/edit_user.html', form=form)
+    return render_template('users/edit_user.html', 
+                           title='Создать преподавателя', 
+                           form=form)
 
 
 @bp.route('/users/edit/<user_id>', methods=['GET', 'POST'])
@@ -77,7 +83,10 @@ def edit_user(user_id):
     user = user_service.get_by_id(user_id)
     form.from_model(user)
 
-    return render_template('users/edit_user.html', form=form, user=user, user_departments=user_service.get_departments(UserDTO(user_id)),
+    return render_template('users/edit_user.html', form=form, user=user,
+                           user_departments=user_service.get_departments(
+                               UserDTO(user_id)),
+                           title='Редактировать пользователя',
                            departments=department_service.get_all_paginated(page=page, search_request=search_request))
 
 

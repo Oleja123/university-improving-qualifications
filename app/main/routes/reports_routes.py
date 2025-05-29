@@ -24,6 +24,7 @@ def faculty_report():
             if form.generate.data:
                 return render_template('reports/report.html', report=report, form=form,
                                        page_title='Отчеты по факультетам',
+                                       title='Отчет по факультету',
                                        report_title='Отчет по факультету')
             if form.download.data:
                 pdf = PdfCreator()
@@ -41,6 +42,7 @@ def faculty_report():
             return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form,
                            page_title='Отчеты по факультетам',
+                           title='Отчет по факультету',
                            report_title='Отчет по факультету')
 
 
@@ -57,6 +59,7 @@ def course_type_report():
             if form.generate.data:
                 return render_template('reports/report.html', report=report, form=form,
                                        page_title='Отчеты по типам курсов',
+                                       title='Отчет по типу курсов',
                                        report_title='Отчет по типу курсов')
             if form.download.data:
                 pdf = PdfCreator()
@@ -74,4 +77,5 @@ def course_type_report():
             return redirect(url_for('main.course_type_report'))
     return render_template('reports/report.html', form=form,
                            page_title='Отчеты по типам курсов',
+                           title='Отчет по типу курсов',
                            report_title='Отчет по типу курсов')

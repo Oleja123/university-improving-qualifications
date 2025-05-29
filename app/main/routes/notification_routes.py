@@ -25,7 +25,9 @@ def notifications(user_id):
     page = request.args.get('page', 1, type=int)
     notifications = user_service.get_notifications(
         page, only_new=False, user=current_user)
-    return render_template('notifications/notifications.html', title='Уведомления', notifications=notifications)
+    return render_template('notifications/notifications.html', 
+                           title='Уведомления', 
+                           notifications=notifications)
 
 
 @bp.route('/notifications/<user_id>/delete/<notification_id>', methods=['DELETE'])

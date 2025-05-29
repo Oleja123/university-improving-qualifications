@@ -13,7 +13,9 @@ from app.main import bp
 @login_required
 @required_role(role=user.ADMIN)
 def faculties():
-    return render_template('faculties/faculties.html', title='Факультеты', faculties=faculty_service.get_all())
+    return render_template('faculties/faculties.html', 
+                           title='Факультеты', 
+                           faculties=faculty_service.get_all())
 
 
 @bp.route('/faculties/create', methods=['GET', 'POST'])
@@ -29,7 +31,9 @@ def create_faculty():
             flash(str(e))
             return redirect(url_for('main.create_faculty'))
 
-    return render_template('faculties/edit_faculty.html', form=form)
+    return render_template('faculties/edit_faculty.html', 
+                           title='Создать факультет', 
+                           form=form)
 
 
 @bp.route('/faculties/edit/<faculty_id>', methods=['GET', 'POST'])
@@ -46,7 +50,9 @@ def edit_faculty(faculty_id):
             return redirect(url_for('main.edit_faculty', faculty_id=faculty_id))
 
     form.from_model(faculty_service.get_by_id(faculty_id))
-    return render_template('faculties/edit_faculty.html', form=form)
+    return render_template('faculties/edit_faculty.html', 
+                           title='Редактировать факультет', 
+                           form=form)
 
 
 @bp.route('/faculties/delete/<faculty_id>', methods=['DELETE'])

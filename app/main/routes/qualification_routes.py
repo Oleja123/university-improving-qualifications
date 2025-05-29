@@ -32,7 +32,9 @@ def teacher_course(user_id, course_id):
             flash('Ошибка при загрузке файла')
         finally:
             return redirect(url_for('main.teacher_course', user_id=user_id, course_id=course_id))
-    return render_template('teachers_courses/teacher_course.html', title='Курсы преподавателя', teacher_course=teacher_course, form=form)
+    return render_template('teachers_courses/teacher_course.html', 
+                           title='Курсы преподавателя', 
+                           teacher_course=teacher_course, form=form)
 
 
 @bp.route('/download_file/<user_id>/<course_id>', methods=['GET', 'POST'])
@@ -63,7 +65,8 @@ def teachers_courses():
     is_approved = request.args.get('is_approved', None, type=str)
 
     return render_template('teachers_courses/teachers_courses.html',
-                           title='Курсы преподавателей', form=form,
+                           title='Курсы преподавателей', 
+                           form=form,
                            teachers_courses=sertificate_service.get_all_paginated(page, course_name=course_name,
                                                                                   user_full_name=user_full_name,
                                                                                   course_type_id=course_type_id,

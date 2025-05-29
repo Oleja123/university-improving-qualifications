@@ -19,7 +19,10 @@ def departments():
         faculty = [faculty]
     departments = department_service.get_all_paginated(page, faculty)
     faculties = faculty_service.get_all()
-    return render_template('departments/departments.html', title='Кафедры', departments=departments, faculties=faculties)
+    return render_template('departments/departments.html', 
+                           title='Кафедры', 
+                           departments=departments, 
+                           faculties=faculties)
 
 
 @bp.route('/departments/create', methods=['GET', 'POST'])
@@ -35,7 +38,9 @@ def create_department():
             flash(str(e))
             return redirect(url_for('main.create_department'))
 
-    return render_template('departments/edit_department.html', form=form)
+    return render_template('departments/edit_department.html', 
+                           title='Создать кафедру', 
+                           form=form)
 
 
 @bp.route('/departments/edit/<department_id>', methods=['GET', 'POST'])
@@ -55,7 +60,9 @@ def edit_department(department_id):
     department = department_service.get_by_id(department_id)
     form.from_model(department)
 
-    return render_template('departments/edit_department.html', form=form)
+    return render_template('departments/edit_department.html', 
+                           title='Редактировать кафедру', 
+                           form=form)
 
 
 @bp.route('/departments/delete/<department_id>', methods=['DELETE'])

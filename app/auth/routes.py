@@ -25,7 +25,7 @@ def login():
         try:
             user = user_service.get_by_username(form.username.data)
             user_service.check_password(user.username, form.password.data)
-            login_user(user, remember=form.remember_me.data)
+            login_user(user)
             session['user_role'] = user.role
             session['user_id'] = user.id
             r = current_app.config['SESSION_REDIS']

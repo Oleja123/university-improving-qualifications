@@ -17,7 +17,10 @@ def courses():
     is_included = request.args.get('is_included', None, type=str)
     courses = course_service.get_all_paginated(page, is_included, course_type)
     course_types = course_type_service.get_all()
-    return render_template('courses/courses.html', title='Курсы', courses=courses, course_types=course_types)
+    return render_template('courses/courses.html', 
+                           title='Курсы', 
+                           courses=courses, 
+                           course_types=course_types)
 
 
 @bp.route('/courses/create', methods=['GET', 'POST'])
@@ -33,7 +36,9 @@ def create_course():
             flash(str(e))
             return redirect(url_for('main.create_course'))
 
-    return render_template('courses/edit_course.html', form=form)
+    return render_template('courses/edit_course.html', 
+                           title='Создать курс', 
+                           form=form)
 
 
 @bp.route('/courses/edit/<course_id>', methods=['GET', 'POST'])
@@ -51,7 +56,9 @@ def edit_course(course_id):
     course = course_service.get_by_id(course_id)
     form.from_model(course)
 
-    return render_template('courses/edit_course.html', form=form)
+    return render_template('courses/edit_course.html', 
+                           title='Редактировать курс', 
+                           form=form)
 
 
 @bp.route('/courses/delete/<course_id>', methods=['DELETE'])
