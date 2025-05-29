@@ -6,7 +6,7 @@
     <p>
       {{ form.username.label(class="form-label") }}<br>
       {{ form.username(size=32, class="form-control") }}
-      {% for error in form.username.errors %}
+      {% for error in form.username.errors %}d
       <span style="color: red;">[{{ error }}]</span>
       {% endfor %}
     </p>
