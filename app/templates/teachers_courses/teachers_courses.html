@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1> Курсы преподавателей </h1>
+<a class="btn btn-primary mt-3 mb-3" aria-current="page" href="{{ url_for('main.qualification_list') }}">Составление списка</a>
 <form class = 'form' method="GET" action="{{ url_for('main.teachers_courses') }}">
     {{ form.course_name.label(class='form-label') }} {{ form.course_name(class='form-control') }}<br>
     {{ form.user_full_name.label(class='form-label') }} {{ form.user_full_name(class='form-control') }}<br>

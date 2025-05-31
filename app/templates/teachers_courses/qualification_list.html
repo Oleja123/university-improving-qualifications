@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h1> Составление списков прохождения квалификаций </h1>
+
+  <table id="qualification-table" class="table table-striped table-bordered mt-3" style="width:100%">
+    <thead>
+        <th> ФИО преподавателя </th>
+        <th> Имя пользователя </th>
+        <th> Тип курсов </th>
+        <th> Курс </th>
+        <th> Дата последнего прохождения </th>
+    </thead>
+    <tbody>
+        {% for el in list %}
+        <tr>
+          <td>{{ el[0] }}</td>
+          <td>{{ el[1] }}</td>
+          <td>{{ el[3] }}</td>
+          <td>{{ el[2] }}</td>
+          {% if el[4] %}
+          <td>{{ el[4] }}</td>
+          {% else %}
+          <td> Не пройден </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}

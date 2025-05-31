@@ -98,3 +98,18 @@ def teachers_courses():
                            teachers_courses=sertificate_service.get_all_paginated(page, course_name=course_name,
                                                                                   user_full_name=user_full_name,
                                                                                   course_type_id=course_type_id))
+
+
+@bp.route('/qualification_list', methods=['GET'])
+@login_required
+@required_role(role=user.ADMIN)
+def qualification_list():
+    try:
+        list = sertificate_service.get_qualification_list()
+        return render_template('teachers_courses/qualification_list.html',
+                           list=list,
+                           title='Составление списков')
+    except Exception as e:
+        current_app.logger.error(e)
+        flash('Ошибка при составлении списков прохождения квалификации')
+        return redirect(request.referrer or '/')

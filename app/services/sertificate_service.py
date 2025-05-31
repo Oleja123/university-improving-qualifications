@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import shutil
 import os
 
@@ -145,25 +145,16 @@ def update_teacher_course(user_id: int, course_id: int, date_completion: datetim
     
 
 def get_qualification_list():
-    cur_date = datetime.now().date
+    cur_date = datetime.now().strftime("%Y-%m-%d")
     try:
-        query = sa.select(User.full_name, 
-                          User.username,
-                          CourseType.name, 
-                          Course.name, 
-                          TeacherCourse.date_completion,
-                          )\
-                    .select_from(
-                        User, Course
-                    )\
-                    .join(Course.course_type)\
-                    .outerjoin(TeacherCourse, sa.and_(
-                          TeacherCourse.teacher_id == User.id,
-                          TeacherCourse.course_id == Course.id
-                        ))\
-                    .where(sa.or_(TeacherCourse.date_completion.is_(None),
-                                   (cur_date - TeacherCourse.date_completion).years >= 3))\
-                    .order_by(User.full_name.asc(), User.username.asc())
-        qualification_list = db.session.execute(query)
+        query = sa.text("SELECT public.user.full_name, public.user.username, course.name, course_type.name, teacher_course.date_completion "\
+        "FROM public.user CROSS JOIN course JOIN course_type ON course_type.id = course.course_type_id LEFT JOIN teacher_course ON "\
+        "teacher_course.teacher_id = public.user.id AND teacher_course.course_id = course.id WHERE public.user.role = :role AND " \
+        "(teacher_course.date_completion IS NULL OR EXTRACT(YEAR FROM AGE(:cur_date, teacher_course.date_completion )) >= 3) "\
+        "ORDER BY public.user.full_name, public.user.username;")
+
+        qualification_list = db.session.execute(query, {'cur_date': cur_date, 'role': user.TEACHER})
+        return qualification_list
     except Exception as e:
+        current_app.logger.info(e)
         raise Exception('Ошибка при создании списка прохождения квалификаций')

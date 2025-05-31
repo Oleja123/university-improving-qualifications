@@ -51,9 +51,8 @@ def create_app(config_class=Config):
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
-
     if not app.debug:
-        if app.config['LOG_TO_STDOUT'] == 'True':
+        if app.config['LOG_TO_STDOUT'] == True:
             stream_handler = logging.StreamHandler()
             stream_handler.setLevel(logging.INFO)
             app.logger.addHandler(stream_handler)
