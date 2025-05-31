@@ -19,8 +19,8 @@ class TeacherCourse(db.Model):
         back_populates='teachers_courses')
     sertificate_path: so.Mapped[Optional[str]] = so.mapped_column(
         sa.String(260), unique=True, nullable=True)
-    date_approved: so.Mapped[Optional[datetime]
-                             ] = so.mapped_column(sa.DateTime, nullable=True)
+    date_completion: so.Mapped[Optional[datetime]
+                             ] = so.mapped_column(sa.Date, nullable=True)
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
@@ -29,7 +29,7 @@ class TeacherCourse(db.Model):
         data = {
             'teacher_id': self.teacher_id, 
             'course_id': self.course_id, 
-            'date_approved': (self.date_approved.isoformat() if self.date_approved else None),
+            'date_completion': (self.date_completion.isoformat() if self.date_completion else None),
             'course_name': self.course.name,
             'sertificate_loaded': (self.sertificate_path is not None),
             '_links': {

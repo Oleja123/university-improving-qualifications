@@ -19,25 +19,25 @@ class FacultyReport:
             User.full_name,
             User.username, 
             Course.name, 
-            TeacherCourse.date_approved
+            TeacherCourse.date_completion
         )
         .join(User.courses)
         .join(User.departments)
         .join(TeacherCourse.course)
         .where(sa.and_(
             Department.faculty_id == faculty_id, 
-            TeacherCourse.date_approved.is_not(None),
+            TeacherCourse.date_completion.is_not(None),
             sa.or_(
                 date_from is None,
-                sa.func.date(TeacherCourse.date_approved) >= date_from
+                TeacherCourse.date_completion >= date_from
             ),
             sa.or_(
                 date_to is None,
-                sa.func.date(TeacherCourse.date_approved) <= date_to,
+                TeacherCourse.date_completion <= date_to,
             ),
             User.is_fired == False
             ))
         .distinct()
-        .order_by(sa.desc(TeacherCourse.date_approved)))
+        .order_by(sa.desc(TeacherCourse.date_completion)))
         self.rows = db.session.execute(query).all()
         self.result = len(self.rows)

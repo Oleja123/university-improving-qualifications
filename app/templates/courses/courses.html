@@ -23,21 +23,6 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <select name = 'is_included' class="form-select">
-                        <option value="" selected></option>
-                        {% if request.args.get('is_included') == 'True' %}
-                            <option value="True" selected> Только обязательные </option>
-                        {% else %}
-                            <option value="True"> Только обязательные </option>
-                        {% endif %}
-                        {% if request.args.get('is_included') == 'False' %}
-                            <option value="False" selected> Только необязательные </option>
-                        {% else %}
-                            <option value="False"> Только необязательные </option>
-                        {% endif %}
-                    </select>
-                </div>
-                <div class="col-md-4">
                     <button type="submit" class="btn btn-primary">Фильтровать</button>
                     <a href="{{ url_for('main.courses') }}" class="btn btn-secondary">Сбросить</a>
                 </div>

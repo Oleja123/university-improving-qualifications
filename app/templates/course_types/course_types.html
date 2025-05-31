@@ -14,7 +14,6 @@
                 <tr>
                     <th> </th>
                     <th> Название </th>
-                    <th> Дедлайн </th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -24,7 +23,6 @@
                     <tr id="course-type-{{ course_type.id }}">
                         <td></td>
                         <td>{{course_type.name}}</td>
-                        <td>{{ course_type.deadline }}</td>
                         <td>
                             <a class="btn btn-sm btn-secondary" href="{{ url_for('main.edit_course_type', course_type_id=course_type.id) }}" role="button">Редактировать</a>
                         </td>

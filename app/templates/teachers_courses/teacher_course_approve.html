@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+        <dl class="row mb-0">
+        <dt class="col-sm-3">Имя преподавателя:</dt>
+        <dd class="col-sm-9">{{ teacher_course.teacher.full_name }}</dd>
+
+        <dt class="col-sm-3">Название курса:</dt>
+        <dd class="col-sm-9">{{ teacher_course.course.name }}</dd>
+        </dl>
+    </div>
+  </div>
+  <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+      {{ form.date_completion.label(class="form-label") }}<br>
+      {{ form.date_completion }}
+      {% for error in form.date_completion.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+      {% endfor %}
+    </p>
+    <p>{{ form.submit(class="btn btn-primary") }}</p>
+  </form>
+</div>
+{% endblock %}

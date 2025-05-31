@@ -1,13 +1,12 @@
+from datetime import datetime
+import unittest
+from app import create_app, db
+from app.services import course_type_service
+from app.dto.course_type_dto import CourseTypeDTO
 import os
 
 from tests.test_config import TestConfig
 os.environ['DATABASE_URL'] = 'sqlite://'
-
-from app.dto.course_type_dto import CourseTypeDTO
-from app.services import course_type_service
-from app import create_app, db
-import unittest
-from datetime import datetime
 
 
 class CourseTypeServiceCase(unittest.TestCase):
@@ -21,15 +20,6 @@ class CourseTypeServiceCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
-
-    def test_add_years(self):
-        test_date = datetime(2023, 2, 15)
-        result = course_type_service.add_years(test_date, 2)
-        self.assertEqual(result, datetime(2025, 2, 15))
-        
-        leap_date = datetime(2020, 2, 29)
-        result = course_type_service.add_years(leap_date, 1)
-        self.assertEqual(result, datetime(2021, 2, 28))
 
     def create_course_types(self):
         test_course_types = [
@@ -66,7 +56,6 @@ class CourseTypeServiceCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             course_type = course_type_service.get_by_id(created.id)
 
-
     def test_get_all(self):
         self.app.logger.info('Запуск получения всех типов курсов')
         self.create_course_types()
@@ -76,15 +65,6 @@ class CourseTypeServiceCase(unittest.TestCase):
         self.app.logger.info(
             'Запуск теста получения всех типов курсов из пустой БД')
         self.assertEqual(len(course_type_service.get_all()), 0)
-
-    def test_date(self):
-        fixed_time = datetime.now()
-
-        dto = CourseTypeDTO(name="Computer Science")
-        course_type_service.create(dto)
-
-        created = course_type_service.get_by_name("Computer Science")
-        self.assertEqual(datetime.date(created.deadline), datetime.date(course_type_service.add_years(fixed_time, 3)))
 
 
 if __name__ == '__main__':

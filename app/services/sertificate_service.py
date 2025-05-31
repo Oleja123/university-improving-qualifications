@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from app import db
 from app.models import user
+from app.models.course_type import CourseType
 from app.models.user import User
 from app.models.course import Course
 from app.services import user_service, course_service
@@ -43,6 +44,7 @@ def upload_file(user_id: int, course_id: int, file):
         file.save(filepath)
         res = get(user_id, course_id)
         res.sertificate_path = filepath
+        res.date_completion = None
         db.session.commit()
     except Exception as e:
         current_app.logger.error(e)
@@ -71,31 +73,13 @@ def get(user_id: int, course_id: int):
         raise Exception('Ошибка при получении курса пользователя')
 
 
-def approve_user_course(user_id: int, course_id: int):
-    try:
-        res = get(user_id, course_id)
-        res.date_approved = datetime.now()
-        db.session.commit()
-    except ValueError as e:
-        current_app.logger.error(e)
-        raise
-    except Exception as e:
-        db.session.rollback()
-        raise Exception('Ошибка при подтверждении курса пользователя')
-
-
-def get_user_courses(user_id: int, page: int, included=None, approved=None):
+def get_user_courses(user_id: int, page: int, included=None):
     try:
         query = sa.select(TeacherCourse)
         conditions = []
         conditions.append(TeacherCourse.teacher_id == user_id)
         if included is not None:
             conditions.append(TeacherCourse.course.is_included == included)
-        if approved is not None:
-            if approved:
-                conditions.append(TeacherCourse.date_approved.is_not(None))
-            else:
-                conditions.append(TeacherCourse.date_approved.is_(None))
 
         if conditions:
             query = query.where(*conditions)
@@ -106,7 +90,7 @@ def get_user_courses(user_id: int, page: int, included=None, approved=None):
         raise Exception('Ошибка при получении курсов пользователя')
 
 
-def get_all_paginated(page: int, course_name=None, user_full_name=None, course_type_id=None, is_approved=None):
+def get_all_paginated(page: int, course_name=None, user_full_name=None, course_type_id=None):
     try:
 
         if course_name is not None and len(course_name) == 0:
@@ -115,16 +99,8 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         if user_full_name is not None and len(user_full_name) == 0:
             user_full_name = None
 
-        if is_approved is not None:
-            if len(is_approved) == 0:
-                is_approved = None
-            elif is_approved == 'true':
-                is_approved = True
-            elif is_approved == 'false':
-                is_approved = False
-
         current_app.logger.info(
-            f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}, is_approved = {is_approved}")
+            f"page = {page}, course = {course_name}, user = {user_full_name}, course_type = {course_type_id}")
 
         query = sa.select(TeacherCourse, Course, User).join(Course).join(User)
         conditions = []
@@ -139,12 +115,6 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         if course_type_id is not None:
             conditions.append(Course.course_type_id == course_type_id)
 
-        if is_approved is not None:
-            if is_approved:
-                conditions.append(TeacherCourse.date_approved.is_not(None))
-            else:
-                conditions.append(TeacherCourse.date_approved.is_(None))
-
         current_app.logger.info(f"условия {conditions}")
 
         if conditions:
@@ -157,15 +127,12 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         raise Exception('Ошибка при получении курсов')
 
 
-def change_approved(user_id: int, course_id: int):
+def update_teacher_course(user_id: int, course_id: int, date_completion: datetime):
     try:
         res = get(user_id, course_id)
         if res.sertificate_path is None:
             raise ValueError('Сертификат не прикреплен')
-        if res.date_approved:
-            res.date_approved = None
-        else:
-            res.date_approved = datetime.now()
+        res.date_completion = date_completion
         db.session.commit()
         return res
     except ValueError as e:
@@ -175,3 +142,28 @@ def change_approved(user_id: int, course_id: int):
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
+    
+
+def get_qualification_list():
+    cur_date = datetime.now().date
+    try:
+        query = sa.select(User.full_name, 
+                          User.username,
+                          CourseType.name, 
+                          Course.name, 
+                          TeacherCourse.date_completion,
+                          )\
+                    .select_from(
+                        User, Course
+                    )\
+                    .join(Course.course_type)\
+                    .outerjoin(TeacherCourse, sa.and_(
+                          TeacherCourse.teacher_id == User.id,
+                          TeacherCourse.course_id == Course.id
+                        ))\
+                    .where(sa.or_(TeacherCourse.date_completion.is_(None),
+                                   (cur_date - TeacherCourse.date_completion).years >= 3))\
+                    .order_by(User.full_name.asc(), User.username.asc())
+        qualification_list = db.session.execute(query)
+    except Exception as e:
+        raise Exception('Ошибка при создании списка прохождения квалификаций')

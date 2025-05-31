@@ -18,9 +18,6 @@ migrate = Migrate()
 login = LoginManager()
 csrf = CSRFProtect()
 
-from app.services.executer_service import Executer
-from app.services.scheduler import Scheduler
-
 
 login.login_view = 'auth.login'
 login.login_message = ('Пожалуйста авторизуйтесь, чтобы просматривать данную страницу')
@@ -35,9 +32,6 @@ def create_app(config_class=Config):
     login.init_app(app)
     csrf.init_app(app)
     Session(app)
-    scheduler = Scheduler(app)
-    scheduler.set_executer(Executer())
-    scheduler.init_work()
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

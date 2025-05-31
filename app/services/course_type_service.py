@@ -5,7 +5,7 @@ from flask import current_app
 
 from app import db
 from app.dto.course_type_dto import CourseTypeDTO
-from app.models.course_type import CourseType, add_years
+from app.models.course_type import CourseType
 
 
 def get_all():
@@ -84,44 +84,6 @@ def delete(id: int) -> bool:
     try:
         course_type = get_by_id(id)
         db.session.delete(course_type)
-        db.session.commit()
-    except ValueError as e:
-        current_app.logger.error(e)
-        raise
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(e)
-        raise Exception(f'Ошибка при удалении типа курсов')
-
-
-def update_deadline(course_typeDTO: CourseTypeDTO):
-    try:
-        record = None
-        if (course_typeDTO.id is not None):
-            record = get_by_id(course_typeDTO.id)
-        else:
-            record = get_by_name(course_typeDTO.name)
-        current_app.logger.info(f'Текущий дедлайн типа курсов {record.name} = {record.deadline}')
-        record.deadline = add_years(record.deadline, 3)
-        current_app.logger.info(f'Новый дедлайн типа курсов {record.name} = {record.deadline}')
-        db.session.commit()
-    except ValueError as e:
-        current_app.logger.error(e)
-        raise
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(e)
-        raise Exception(f'Ошибка при удалении типа курсов')
-
-
-def set_deadline(course_typeDTO: CourseTypeDTO, deadline: datetime):
-    try:
-        record = None
-        if (course_typeDTO.id is not None):
-            record = get_by_id(course_typeDTO.id)
-        else:
-            record = get_by_name(course_typeDTO.name)
-        record.deadline = deadline
         db.session.commit()
     except ValueError as e:
         current_app.logger.error(e)

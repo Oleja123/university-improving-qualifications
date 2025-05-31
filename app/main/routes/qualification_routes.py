@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 
 from app.decorators.role_decorator import required_role
 from app.decorators.user_decorator import user_required
-from app.main.forms import TeachersCoursesForm, UploadForm
+from app.main.forms import TeacherCourseForm, TeachersCoursesForm, UploadForm
 from app.models import user
 from app.services import sertificate_service
 from app.main import bp
@@ -17,9 +17,6 @@ from app.main import bp
 def teacher_course(user_id, course_id):        
     teacher_course = sertificate_service.get(user_id, course_id)
     form = UploadForm()
-    if teacher_course.date_approved:
-        form.file.render_kw = {'disabled': True}
-        form.submit.render_kw = {'disabled': True}
     if form.validate_on_submit():
         file = form.file.data
         try:
@@ -34,6 +31,38 @@ def teacher_course(user_id, course_id):
             return redirect(url_for('main.teacher_course', user_id=user_id, course_id=course_id))
     return render_template('teachers_courses/teacher_course.html', 
                            title='Курсы преподавателя', 
+                           teacher_course=teacher_course, form=form)
+
+
+@bp.route('/teacher_course/<user_id>/<course_id>/completion', methods=['GET', 'POST'])
+@login_required
+@required_role(role=user.ADMIN)
+def teacher_course_completion(user_id, course_id):
+    try:
+        teacher_course = sertificate_service.get(user_id, course_id)
+    except ValueError as e:
+        abort(403)
+    except Exception as e:
+        abort(500)
+
+    form = TeacherCourseForm()
+    if not teacher_course.sertificate_path:
+        abort(403)
+
+    if form.validate_on_submit():
+        date = form.date_completion
+        try:
+            sertificate_service.update_teacher_course(user_id, course_id, date.data)
+            flash('Дата прохождения успешно обновлена')
+            return redirect(url_for('main.teachers_courses'))
+        except ValueError as e:
+            flash(str(e))
+            return redirect(url_for('main.teacher_course_completion', user_id=user_id, course_id=course_id))
+        except Exception as e:
+            flash('Ошибка при обновлении курса преподавателя')
+            return redirect(url_for('main.teacher_course_completion', user_id=user_id, course_id=course_id))
+    return render_template('teachers_courses/teacher_course_approve.html', 
+                           title='Курс преподавателя', 
                            teacher_course=teacher_course, form=form)
 
 
@@ -62,23 +91,10 @@ def teachers_courses():
     course_name = request.args.get('course_name', None, type=str)
     user_full_name = request.args.get('user_full_name', None, type=str)
     course_type_id = request.args.get('course_type_id', None, type=int)
-    is_approved = request.args.get('is_approved', None, type=str)
 
     return render_template('teachers_courses/teachers_courses.html',
                            title='Курсы преподавателей', 
                            form=form,
                            teachers_courses=sertificate_service.get_all_paginated(page, course_name=course_name,
                                                                                   user_full_name=user_full_name,
-                                                                                  course_type_id=course_type_id,
-                                                                                  is_approved=is_approved))
-
-
-@bp.route('/teachers_courses/approve_course/<user_id>/<course_id>', methods=['POST'])
-@login_required
-@required_role(role=user.ADMIN)
-def approve_course(user_id, course_id):
-    try:
-        sertificate_service.change_approved(user_id, course_id)
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+                                                                                  course_type_id=course_type_id))

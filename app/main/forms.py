@@ -69,17 +69,17 @@ class TeachersCoursesForm(FlaskForm):
     course_name = StringField('Название курса', validators=[Optional()])
     user_full_name = StringField('Имя преподавателя', validators=[Optional()])
     course_type_id = SelectField('Тип курсов')
-    is_approved = SelectField('Приняты')
 
     def __init__(self, *args, **kwargs):
         super(TeachersCoursesForm, self).__init__(*args, **kwargs)
         course_types = course_type_service.get_all()
         self.course_type_id.choices = [(t.id, t.name) for t in course_types]
         self.course_type_id.choices.insert(0, ('', ''))
-        self.is_approved.choices = []
-        self.is_approved.choices.append(('', ''))
-        self.is_approved.choices.append(('true', 'Принятые'))
-        self.is_approved.choices.append(('false', 'Непринятые'))
+
+
+class TeacherCourseForm(FlaskForm):
+    date_completion = DateField('Дата прохождения', format='%Y-%m-%d', validators=[DataRequired()])
+    submit = SubmitField('Отправить')
 
 
 class ReportForm(FlaskForm):
