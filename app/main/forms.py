@@ -53,7 +53,7 @@ class EditUserForm(FlaskForm):
     full_name = StringField('Полное имя', validators=[DataRequired()])
     username = StringField('Имя пользователя', validators=[DataRequired(),
                                                            Length(min=6, message='Имя пользователя должно содержать минимум 6 символов')])
-    password = StringField('Пароль', validators=[DataRequired(), Length(min=6, message='Пароль должен содержать минимум 6 символов')])
+    password = StringField('Пароль', validators=[Optional(), Length(min=6, message='Пароль должен содержать минимум 6 символов')])
 
     def from_model(self, model):
         self.full_name.data = model.full_name

@@ -7,13 +7,13 @@
 <p>
     Курс: {{ teacher_course.course.name }}
 </p>
-{% if teacher_course.date_approved %}
+{% if teacher_course.date_completion %}
     <p>
-        Верификация: Дата верификации {{ teacher_course.date_approved }}
+        Дата прохождения: {{ teacher_course.date_completion }}
     </p>
 {% else %}
     <p>
-        Верификация: Не верифицирован
+        Дата прохождения: не проставлена
     </p>
 {% endif %}
 

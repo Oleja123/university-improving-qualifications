@@ -14,8 +14,6 @@ class Course(db.Model):
         sa.ForeignKey('course_type.id', ondelete='CASCADE'), index=True)
     course_type: so.Mapped['CourseType'] = so.relationship(
         back_populates='courses')
-    is_included: so.Mapped[bool] = so.mapped_column(
-        sa.Boolean, index=True, default=False)
     teachers_courses: so.WriteOnlyMapped['TeacherCourse'] = so.relationship(
         back_populates='course', passive_deletes=True)
 
@@ -30,7 +28,6 @@ class Course(db.Model):
         data = {
             'id': self.id, 
             'name': self.name, 
-            'course_type_id': self.course_type_id,
-            'is_included': self.is_included
+            'course_type_id': self.course_type_id
         }
         return data

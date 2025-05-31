@@ -21,6 +21,8 @@ class TeacherCourse(db.Model):
         sa.String(260), unique=True, nullable=True)
     date_completion: so.Mapped[Optional[datetime]
                              ] = so.mapped_column(sa.Date, nullable=True)
+    document_number: so.Mapped[Optional[str]] = so.mapped_column(
+        sa.String(260), nullable=True)
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
@@ -31,6 +33,7 @@ class TeacherCourse(db.Model):
             'course_id': self.course_id, 
             'date_completion': (self.date_completion.isoformat() if self.date_completion else None),
             'course_name': self.course.name,
+            'document_number': self.document_number,
             'sertificate_loaded': (self.sertificate_path is not None),
             '_links': {
                 'self': url_for('api.get_teacher_course', user_id=self.teacher_id, course_id=self.course_id),
