@@ -45,6 +45,7 @@ def upload_file(user_id: int, course_id: int, file):
         res = get(user_id, course_id)
         res.sertificate_path = filepath
         res.date_completion = None
+        res.confirming_document = None
         db.session.commit()
     except Exception as e:
         current_app.logger.error(e)
@@ -127,12 +128,17 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         raise Exception('Ошибка при получении курсов')
 
 
-def update_teacher_course(user_id: int, course_id: int, date_completion: datetime):
+def update_teacher_course(user_id: int, course_id: int, date_completion: datetime, confirming_document: str = None):
     try:
+        if confirming_document:
+            confirming_document = confirming_document.strip()
+            if len(confirming_document) == 0:
+                confirming_document = None
         res = get(user_id, course_id)
         if res.sertificate_path is None:
             raise ValueError('Сертификат не прикреплен')
         res.date_completion = date_completion
+        res.confirming_document = confirming_document
         db.session.commit()
         return res
     except ValueError as e:
@@ -147,7 +153,7 @@ def update_teacher_course(user_id: int, course_id: int, date_completion: datetim
 def get_qualification_list():
     cur_date = datetime.now().strftime("%Y-%m-%d")
     try:
-        query = sa.text("SELECT public.user.full_name, public.user.username, course.name, course_type.name, teacher_course.date_completion "\
+        query = sa.text("SELECT public.user.full_name, public.user.username, course.name, course_type.name, teacher_course.date_completion, teacher_course.confirming_document "\
         "FROM public.user CROSS JOIN course JOIN course_type ON course_type.id = course.course_type_id LEFT JOIN teacher_course ON "\
         "teacher_course.teacher_id = public.user.id AND teacher_course.course_id = course.id WHERE public.user.role = :role AND " \
         "(teacher_course.date_completion IS NULL OR EXTRACT(YEAR FROM AGE(:cur_date, teacher_course.date_completion )) >= 3) "\

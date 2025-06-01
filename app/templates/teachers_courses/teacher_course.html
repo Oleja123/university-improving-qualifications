@@ -17,6 +17,16 @@
     </p>
 {% endif %}
 
+{% if teacher_course.confirming_document %}
+    <p>
+        № подтверждающего документа: {{ teacher_course.confirming_document }}
+    </p>
+{% else %}
+    <p>
+        № подтверждающего документа: не выставлен
+    </p>
+{% endif %}
+
 <form method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     <div class="mb-3">

@@ -22,6 +22,7 @@
                 <th></th>
                 <th> Редактировать </th>
                 <th> Дата прохождения </th>
+                <th> № подтверждающего документа </th>
             </tr>
         </thead>
         <tbody>
@@ -46,6 +47,11 @@
                     <td>
                         {% if teacher_course.date_completion %}
                             {{teacher_course.date_completion}}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if teacher_course.confirming_document %}
+                            {{teacher_course.confirming_document}}
                         {% endif %}
                     </td>
                 </tr>

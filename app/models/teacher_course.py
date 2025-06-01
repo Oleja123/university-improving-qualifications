@@ -21,6 +21,9 @@ class TeacherCourse(db.Model):
         sa.String(260), unique=True, nullable=True)
     date_completion: so.Mapped[Optional[datetime]
                              ] = so.mapped_column(sa.Date, nullable=True)
+    confirming_document: so.Mapped[Optional[str]] = so.mapped_column(
+        sa.String(64), index=True, nullable=True
+    )
     document_number: so.Mapped[Optional[str]] = so.mapped_column(
         sa.String(260), nullable=True)
 
@@ -35,6 +38,7 @@ class TeacherCourse(db.Model):
             'course_name': self.course.name,
             'document_number': self.document_number,
             'sertificate_loaded': (self.sertificate_path is not None),
+            'confirming_document': self.confirming_document,
             '_links': {
                 'self': url_for('api.get_teacher_course', user_id=self.teacher_id, course_id=self.course_id),
             }

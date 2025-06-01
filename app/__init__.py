@@ -3,7 +3,6 @@ from logging.handlers import RotatingFileHandler
 import os
 
 from flask import Flask
-from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_session import Session
@@ -11,6 +10,8 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
+
+from config import Config
 
 
 db = SQLAlchemy()
@@ -51,6 +52,7 @@ def create_app(config_class=Config):
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
+
     if not app.debug:
         if app.config['LOG_TO_STDOUT'] == True:
             stream_handler = logging.StreamHandler()

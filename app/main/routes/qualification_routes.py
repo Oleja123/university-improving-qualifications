@@ -51,16 +51,23 @@ def teacher_course_completion(user_id, course_id):
 
     if form.validate_on_submit():
         date = form.date_completion
+        confirming_document = form.confirming_document
         try:
-            sertificate_service.update_teacher_course(user_id, course_id, date.data)
+            sertificate_service.update_teacher_course(user_id, course_id, date.data, confirming_document.data)
             flash('Дата прохождения успешно обновлена')
             return redirect(url_for('main.teachers_courses'))
         except ValueError as e:
             flash(str(e))
+            current_app.logger.error(e)
             return redirect(url_for('main.teacher_course_completion', user_id=user_id, course_id=course_id))
         except Exception as e:
             flash('Ошибка при обновлении курса преподавателя')
+            current_app.logger.error(e)
             return redirect(url_for('main.teacher_course_completion', user_id=user_id, course_id=course_id))
+
+    teacher_course = sertificate_service.get(user_id, course_id)
+    form.from_model(teacher_course)
+        
     return render_template('teachers_courses/teacher_course_approve.html', 
                            title='Курс преподавателя', 
                            teacher_course=teacher_course, form=form)

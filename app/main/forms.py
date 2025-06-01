@@ -79,7 +79,12 @@ class TeachersCoursesForm(FlaskForm):
 
 class TeacherCourseForm(FlaskForm):
     date_completion = DateField('Дата прохождения', format='%Y-%m-%d', validators=[DataRequired()])
+    confirming_document = StringField('№ Подтверждающего документа', validators=[Optional()])
     submit = SubmitField('Отправить')
+
+    def from_model(self, model):
+        self.date_completion.data = model.date_completion
+        self.confirming_document.data = model.confirming_document
 
 
 class ReportForm(FlaskForm):

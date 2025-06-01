@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-  <div class="card">
+  <div class="card mb-3">
     <div class="card-body">
         <dl class="row mb-0">
         <dt class="col-sm-3">Имя преподавателя:</dt>
@@ -18,6 +18,11 @@
       {{ form.date_completion.label(class="form-label") }}<br>
       {{ form.date_completion }}
       {% for error in form.date_completion.errors %}
+      <span style="color: red;">[{{ error }}]</span>
+      {% endfor %} <br>
+      {{ form.confirming_document.label(class="form-label") }} <br>
+      {{ form.confirming_document }}
+      {% for error in form.confirming_document.errors %}
       <span style="color: red;">[{{ error }}]</span>
       {% endfor %}
     </p>
