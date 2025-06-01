@@ -34,12 +34,19 @@
         {% for row in report.rows %}
         <tr>
             {% for item in row %}
+            {% if item %}
             <td> {{ item }} </td>
+            {% else %}
+            <td> Отустствует </td>
+            {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}
     </tbody>
-    <caption class="caption-bottom fs-4 fw-bold p-2 bg-light border rounded-bottom">Итоговое количество пройденных курсов: {{ report.result }} </caption>
+    <caption class="caption-bottom fs-4 fw-bold p-2 bg-light border rounded-bottom">
+        Итоговое количество пройденных курсов: {{ report.result }} <br>
+        {{ report.percent_target }}: {{ report.percent }}
+    </caption>
   </table>
   {% endif %}
 </div>

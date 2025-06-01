@@ -121,7 +121,7 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         if conditions:
             query = query.where(sa.and_(*conditions))
 
-        query = query.order_by(Course.name)
+        query = query.order_by(Course.name, User.full_name, User.username)
         return db.paginate(query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False)
     except Exception as e:
         current_app.logger.error(e)
@@ -130,7 +130,7 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
 
 def update_teacher_course(user_id: int, course_id: int, date_completion: datetime, confirming_document: str = None):
     try:
-        if confirming_document:
+        if confirming_document is not None: 
             confirming_document = confirming_document.strip()
             if len(confirming_document) == 0:
                 confirming_document = None

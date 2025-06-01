@@ -1,5 +1,5 @@
 import io
-from flask import flash, redirect, render_template, send_file, url_for
+from flask import current_app, flash, redirect, render_template, send_file, url_for
 from flask_login import login_required
 from app.decorators.role_decorator import required_role
 from app.main.forms import ReportForm
@@ -29,7 +29,7 @@ def faculty_report():
             if form.download.data:
                 pdf = PdfCreator()
                 pdf.create_table(
-                    report, [45, 45, 45, 45], 'Отчет по факультету')
+                    report, [36, 36, 36, 36, 36], 'Отчет по факультету')
                 pdf_output = pdf.output(dest='S')
                 return send_file(
                     io.BytesIO(pdf_output),
@@ -38,6 +38,7 @@ def faculty_report():
                     download_name='report.pdf'
                 )
         except Exception as e:
+            current_app.logger.error(e)
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.faculty_report'))
     return render_template('reports/report.html', form=form,
@@ -64,7 +65,7 @@ def course_type_report():
             if form.download.data:
                 pdf = PdfCreator()
                 pdf.create_table(
-                    report, [45, 45, 45, 45], 'Отчет по типу курсов')
+                    report, [36, 36, 36, 36, 36], 'Отчет по типу курсов')
                 pdf_output = pdf.output(dest='S')
                 return send_file(
                     io.BytesIO(pdf_output),
@@ -73,6 +74,7 @@ def course_type_report():
                     download_name='report.pdf'
                 )
         except Exception as e:
+            current_app.logger.error(e)
             flash('Ошибка при работе с отчетом')
             return redirect(url_for('main.course_type_report'))
     return render_template('reports/report.html', form=form,
