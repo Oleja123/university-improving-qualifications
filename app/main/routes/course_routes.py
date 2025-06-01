@@ -14,8 +14,7 @@ from app.main import bp
 def courses():
     page = request.args.get('page', 1, type=int)
     course_type = request.args.get('course_type_id', None, type=int)
-    is_included = request.args.get('is_included', None, type=str)
-    courses = course_service.get_all_paginated(page, is_included, course_type)
+    courses = course_service.get_all_paginated(page, course_type)
     course_types = course_type_service.get_all()
     return render_template('courses/courses.html', 
                            title='Курсы', 

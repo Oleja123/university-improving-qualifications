@@ -10,37 +10,17 @@ from app.models.teacher_course import TeacherCourse
 from app.services import course_type_service
 
 
-def get_all(included=None, course_type=None):
+def get_all_paginated(page: int, course_types=None):
     try:
-        query = sa.select(Course).where(sa.and_(sa.or_(included is None, Course.is_included == included),
-                                                sa.or_(course_type is None, Course.course_type_id == course_type))).order_by(Course.course_type_id)
-        return db.session.execute(query).scalars().all()
-    except Exception as e:
-        current_app.logger.error(e)
-        raise Exception('Ошибка при получении курсов')
-
-
-def get_all_paginated(page: int, is_included=None, course_types=None, deadline=None):
-    try:
-        if is_included == '':
-            is_included = None
-        if is_included is not None and is_included == 'True':
-            is_included = True
-        if is_included is not None and is_included == 'False':
-            is_included = False
         if course_types is not None and not isinstance(course_types, list):
             course_types = [course_types]
         query = sa.select(Course)
         conditions = []
-        current_app.logger.info(f"условия {is_included, course_types}")
-        if is_included is not None:
-            conditions.append(Course.is_included == is_included)
+        current_app.logger.info(f"условия { course_types }")
 
         if course_types is not None:
             conditions.append(Course.course_type_id.in_(course_types))
 
-        if deadline is not None:
-            conditions.append(Course.course_type.deadline == deadline)
 
         current_app.logger.info(f"условия {conditions}")
 
@@ -65,21 +45,6 @@ def get_by_id(id: int):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении курса по id')
-
-
-def change_included(id: int):
-    try:
-        res = get_by_id(id)
-        res.is_included = not res.is_included
-        db.session.commit()
-        return res
-    except ValueError as e:
-        current_app.logger.error(e)
-        raise
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(e)
-        raise Exception('Ошибка при обновлении курса')
 
 
 def get_by_name(name: str):

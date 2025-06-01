@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Создание списка прохождения квалификации для преподавателя</h1>
+    <form action="" method="post" novalidate>
+    <p>
+        ФИО преподавателя: {{ user.full_name }}
+        <br>
+        Имя пользователя: {{ user.username }}
+    </p>
+    </form>
+
+    <table id="courses-table" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th> </th>
+                <th> Название </th>
+                <th> Тип курсов </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses.items %}
+                <tr id="course{{ course.id }}">
+                    <td></td>
+                    <td>{{course.name}}</td>
+                    <td>{{course.course_type.name}}</td>
+                    <td><button onclick="addCourse({{ course.id }}, '{{ course.name }}', '{{ course.course_type.name }}')"
+                        class="btn btn-sm btn-primary">Добавить</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <ul class="pagination">
+        {% if courses.has_prev %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('main.create_user_qualifications', user_id=user.id, page=courses.prev_num
+            ) }}">Предыдущая страница</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
+        {% endif %}
+            </li>
+            
+        {% for page in courses.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+        {% if page == courses.page %}
+            <li class="page-item active"><a class="page-link" href="{{ url_for('main.create_user_qualifications', user_id=user.id, page=page) }}">{{ page }}</a></li>
+        {% elif page %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('main.create_user_qualifications', user_id=user.id, page=page) }}">{{ page }}</a></li>
+        {% else %}
+            <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
+        {% endif %}
+        {% endfor %}
+        
+        {% if courses.has_next %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('main.create_user_qualifications', user_id=user.id, page=courses.next_num) }}">Следующая</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">Следующая</span>
+        {% endif %}
+    </ul>
+
+    <div id="warning" class="warning"></div>
+
+    <form id="selected-form" method="POST" action="/users/{{ user.id }}/qualifications/download">
+        <table id="selected-table" class="table table-striped table-bordered" style="width:100%">
+            <tr>
+                <th></th>
+                <th>Название</th>
+                <th>Тип курсов</th>
+                <th></th>
+            </tr>
+        </table>
+        <div class="mb-3">
+            <label for="date_from" class="form-label">Дата начала</label>
+            <input type="date" class="form-control" id="date_from" name="date_from" required>
+        </div>
+        <div class="mb-3">
+            <label for="date_to" class="form-label">Дата конца</label>
+            <input type="date" class="form-control" id="date_to" name="date_ti" required>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Создать">
+    </form>
+
+</div>
+
+<script>
+  const STORAGE_KEY = "selectedItems";
+  let selectedItems = {};
+
+  function loadSelectedFromStorage() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      selectedItems = JSON.parse(data);
+      for (const [id, val] of Object.entries(selectedItems)) {
+        insertRow(id, val[0], val[1]);
+      }
+    }
+  }
+
+  function saveSelectedToStorage() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedItems));
+  }
+
+  function addCourse(id, name, course_type_name) {
+    const warning = document.getElementById("warning");
+    warning.textContent = "";
+
+    if (selectedItems[id]) {
+      warning.textContent = `Курс "${name}" уже добавлен!`;
+      return;
+    }
+
+    selectedItems[id] = [name, course_type_name];
+    insertRow(id, name, course_type_name);
+    saveSelectedToStorage();
+  }
+
+  function insertRow(id, name, course_type_name) {
+    const table = document.getElementById("selected-table");
+    const row = table.insertRow();
+    row.setAttribute("course-id", id);
+    row.innerHTML = `
+      <td></td>
+      <td>${name}</td>
+      <td>${course_type_name}</td>
+      <td><button type="button" onclick="removeCourse(this, ${id})" class="btn btn-sm btn-danger">Удалить</button></td>
+    `;
+
+    const form = document.getElementById("selected-form");
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "selected";
+    input.value = id;
+    input.setAttribute("course-id", id);
+    form.appendChild(input);
+  }
+
+  function removeCourse(button, id) {
+    delete selectedItems[id];
+    button.closest("tr").remove();
+    document.querySelector(`input[course-id="${id}"]`)?.remove();
+    saveSelectedToStorage();
+  }
+
+  document.getElementById("selected-form").addEventListener("submit", function (e) {
+    e.preventDefault(); 
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: "POST",
+      body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+      selectedItems = {};
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    })
+    .catch(err => alert("Ошибка: " + err));
+  });
+
+  window.addEventListener("DOMContentLoaded", loadSelectedFromStorage);
+</script>
+
+{% endblock %}

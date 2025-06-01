@@ -1,5 +1,10 @@
 from datetime import date
+
+import sqlalchemy as sa
+
+from app.models.course import Course
 from app.services import user_service
+from app import db
 from app.services.reports.pdf_draw_row import PdfDrawRow
 
 
@@ -8,7 +13,7 @@ class DirectionCreator(PdfDrawRow):
     def __init__(self, teacher, courses, date_from, date_to):
         super().__init__()
         self.teacher = teacher
-        self.courses = courses
+        self.courses = db.session.scalars(sa.select(Course).where(Course.id.in_(courses))).all()
         self.period = {f"С {date_from} по {date_to}"}
 
     def create_latest_course_info(self, latest_course):

@@ -56,6 +56,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                     <th> Заблокирован</th>
                 </tr>
             </thead>
@@ -80,6 +81,11 @@
                                     data-item-id="{{ user.id }}">
                                 Удалить
                             </button>
+                        </td>
+                        <td>
+                            {% if user.role == 1 %}
+                                <a class="btn btn-sm btn-secondary" href="{{ url_for('main.create_user_qualifications', user_id=user.id) }}" role="button">Создать квалификацию</a>
+                            {% endif %}
                         </td>
                         <td>
                             {% if user.is_fired %}
