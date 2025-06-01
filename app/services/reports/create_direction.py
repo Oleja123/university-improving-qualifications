@@ -1,0 +1,57 @@
+from datetime import date
+from app.services import user_service
+from app.services.reports.pdf_draw_row import PdfDrawRow
+
+
+class DirectionCreator(PdfDrawRow):
+
+    def __init__(self, teacher, courses, date_from, date_to):
+        super().__init__()
+        self.teacher = teacher
+        self.courses = courses
+        self.period = {f"С {date_from} по {date_to}"}
+
+    def create_latest_course_info(self, latest_course):
+        return f"Тип курса: {latest_course.course.course_type.name}" +\
+            f"Название курса: {latest_course.course.name}" +\
+            f"Дата прохождения курса: {latest_course.date_completion.isoformat()}" +\
+            f"№ подтверждающего документа: {latest_course.confirming_document}"
+
+    def create_courses_info(self):
+        res = ""
+        for course in self.courses:
+            res += f"{course.name}\n"
+        return res
+
+    def create_table(self):
+        self.add_page()
+        self.set_font("DejaVu", size=16)
+        self.set_font(style="B")
+
+        self.multi_cell(
+            text=f"Справка представление", w=120, border=0, align='C')
+        self.ln()
+
+        self.set_font("DejaVu", size=10)
+        self.set_font(style="B")
+        self.draw_row(['Информация о слушателе'], [180])
+        self.set_font(style="")
+        self.draw_row(['ФИО', self.teacher.full_name], [90, 90])
+        latest_course = user_service.get_latest_course(self.teacher.id)
+        if latest_course is None:
+            self.draw_row(['Последнее повышение квалификации:', 'Не проходилось'],
+                          [90, 90])
+        else:
+            self.draw_row(['Последнее повышение квалификации:', self.create_latest_course_info(latest_course)],
+                          [90, 90])
+        self.set_font(style="B")
+        self.draw_row(['Информация о программе повышения квалификации'], [180])
+        self.set_font(style="")
+        self.draw_row(['Период прохождения повышения квалификации:', self.period],
+                      [90, 90])
+        self.draw_row(['Подпись преподавателя', ''],
+                      [90, 90])
+        self.draw_row(['Подпись сотрудника', ''],
+                      [90, 90])
+        self.draw_row(['Дата', ''],
+                      date.today().isoformat())

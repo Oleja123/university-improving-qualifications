@@ -1,1 +1,1 @@
-from app.services.reports import course_type_report, create_pdf, faculty_report
+from app.services.reports import course_type_report, create_report, faculty_report

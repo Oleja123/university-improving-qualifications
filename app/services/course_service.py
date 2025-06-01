@@ -20,32 +20,6 @@ def get_all(included=None, course_type=None):
         raise Exception('Ошибка при получении курсов')
 
 
-def get_closest_courses(user_id: int, page: int):
-    subquery = sa.select(TeacherCourse)\
-                .where(sa.and_(TeacherCourse.teacher_id==user_id))\
-                .subquery()
-    deadline_query = sa.select(sa.func.min(CourseType.deadline)).select_from(Course)\
-                        .join(Course.course_type)\
-                        .outerjoin(subquery, Course.id == subquery.c.course_id)\
-                        .where(sa.and_(
-                            subquery.c.sertificate_path.is_(None), 
-                            Course.is_included == True
-                            ))
-    deadline = db.session.scalar(deadline_query)
-    current_app.logger.info(deadline)
-    if deadline is None:
-        return (None, None)
-    select_query = sa.select(Course).select_from(Course)\
-                        .join(Course.course_type)\
-                        .outerjoin(subquery, 
-                                   Course.id == subquery.c.course_id)\
-                        .where(sa.and_(CourseType.deadline == deadline, 
-                                       subquery.c.sertificate_path.is_(None),
-                                       Course.is_included == True,
-                                       ))
-    return (db.paginate(select_query, page=page, per_page=current_app.config['COURSES_PER_PAGE'], error_out=False), deadline)
-
-
 def get_all_paginated(page: int, is_included=None, course_types=None, deadline=None):
     try:
         if is_included == '':

@@ -152,35 +152,6 @@ def get_user_notifications(user_id):
         abort(500)
 
 
-@bp.route('/users/<int:user_id>/courses/closest', methods=['GET'])
-@token_auth.login_required
-@user_required
-def get_teacher_closest_courses(user_id):
-    try:
-        page = request.args.get('page', 1, type=int)
-        res = course_service.get_closest_courses(page=page, user_id=user_id)
-        deadline = res[1]
-        if res[0] is None:
-            raise ValueError('Ближайшие курсы отсутствуют')
-        res = to_json_collection(res[0],
-                                 'api.get_teacher_closest_courses', user_id=user_id)
-        res['deadline'] = deadline.isoformat()
-        current_app.logger.info(res)
-        return Response(
-            json.dumps(
-                res,
-                ensure_ascii=False
-            ),
-            mimetype='application/json; charset=utf-8'
-        )
-    except ValueError as e:
-        current_app.logger.error(e)
-        abort(404)
-    except Exception as e:
-        current_app.logger.error(e)
-        abort(500)
-
-
 @bp.route('/users/<int:user_id>/courses', methods=['GET'])
 @token_auth.login_required
 @user_required

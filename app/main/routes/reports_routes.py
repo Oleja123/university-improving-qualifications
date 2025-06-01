@@ -6,7 +6,7 @@ from app.main.forms import ReportForm
 from app.models import user
 from app.services import course_type_service, faculty_service
 from app.services.reports.course_type_report import CourseTypeReport
-from app.services.reports.create_pdf import ReportCreator
+from app.services.reports.create_report import ReportCreator
 from app.services.reports.faculty_report import FacultyReport
 from app.main import bp
 

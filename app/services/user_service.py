@@ -349,3 +349,19 @@ def check_token(token):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении пользователя по токену')
+    
+
+def get_latest_course(user_id):
+    try:
+        user = get_by_id(user_id)
+        res = sa.select(user.courses).order_by(TeacherCourse.date_completion.desc())
+        res = db.session.scalars(res).first()
+        if res is None or res.date_completion is None:
+            return None
+        return res
+    except ValueError as e:
+        current_app.logger.error(e)
+        raise
+    except Exception as e:
+        current_app.logger.error(e)
+        raise Exception('Ошибка при получении последнего курса пользователя')
