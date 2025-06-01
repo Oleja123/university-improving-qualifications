@@ -6,7 +6,7 @@ from app.main.forms import ReportForm
 from app.models import user
 from app.services import course_type_service, faculty_service
 from app.services.reports.course_type_report import CourseTypeReport
-from app.services.reports.create_pdf import PdfCreator
+from app.services.reports.create_pdf import ReportCreator
 from app.services.reports.faculty_report import FacultyReport
 from app.main import bp
 
@@ -27,7 +27,7 @@ def faculty_report():
                                        title='Отчет по факультету',
                                        report_title='Отчет по факультету')
             if form.download.data:
-                pdf = PdfCreator()
+                pdf = ReportCreator()
                 pdf.create_table(
                     report, [36, 36, 36, 36, 36], 'Отчет по факультету')
                 pdf_output = pdf.output(dest='S')
@@ -63,7 +63,7 @@ def course_type_report():
                                        title='Отчет по типу курсов',
                                        report_title='Отчет по типу курсов')
             if form.download.data:
-                pdf = PdfCreator()
+                pdf = ReportCreator()
                 pdf.create_table(
                     report, [36, 36, 36, 36, 36], 'Отчет по типу курсов')
                 pdf_output = pdf.output(dest='S')
