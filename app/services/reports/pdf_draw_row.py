@@ -11,7 +11,7 @@ class PdfDrawRow(FPDF):
         self.add_font('DejaVu', 'B', 'app/static/fonts/DejaVuSans-Bold.ttf', uni=True)
 
     def _to_str(self, text):
-        if not text:
+        if text is None:
             return 'Отсутствует'
         elif isinstance(text, date):
             return text.isoformat()

@@ -51,34 +51,46 @@ def create_user_qualifications(user_id):
         abort(500)
 
 
+
 @bp.route("/users/<user_id>/qualifications/download", methods=["POST"])
 @login_required
 @required_role(role=user.ADMIN)
 def download_user_qualifications(user_id):
     try:
-        current_app.logger.info('Я ТУТ')
         teacher = user_service.get_by_id(user_id)
         courses = request.form.getlist("selected")
-        date_from = request.form.get("date_start")
-        date_to = request.form.get("date_end")
-        if date_from is None or date_to is None:
-            raise ValueError('Даты должны быть заполнены')
-        pdf = DirectionCreator(teacher, courses, date_from, date_to)
+        date_from = request.form.get("date_from")
+        date_to = request.form.get("date_to")
+
+        if not courses:
+            raise ValueError("Не выбраны курсы")
+
+        if not date_from or not date_to:
+            raise ValueError("Даты начала и окончания обязательны")
+
+        pdf = DirectionCreator(teacher, courses, date_from, date_to, current_user)
         pdf.create_table()
-        pdf_output = pdf.output(dest='S')
+        pdf_output = pdf.output(dest="S")
+        current_app.logger.info('ВКИД')
         return send_file(
             io.BytesIO(pdf_output),
-            mimetype='application/pdf',
+            mimetype="application/pdf",
             as_attachment=True,
-            download_name='direction.pdf'
-            )
+            download_name="direction.pdf"
+        )
+
     except ValueError as e:
-        current_app.logger.error(e)
-        flash(e)
+        current_app.logger.warning(f"Validation error: {e}")
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": False, "error": str(e)}), 400
+        flash(str(e))
         return redirect(request.referrer or '/')
+
     except Exception as e:
-        current_app.logger.error(e)
-        flash('Ошибка при создании направления')
+        current_app.logger.exception("Ошибка при создании направления")
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"success": False, "error": "Внутренняя ошибка сервера"}), 500
+        flash("Ошибка при создании направления")
         return redirect(request.referrer or '/')
 
 

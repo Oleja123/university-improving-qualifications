@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Создание списка прохождения квалификации для преподавателя</h1>
-    <form action="" method="post" novalidate>
     <p>
         ФИО преподавателя: {{ user.full_name }}
         <br>
         Имя пользователя: {{ user.username }}
     </p>
-    </form>
 
     <table id="courses-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
@@ -74,7 +72,7 @@
         </div>
         <div class="mb-3">
             <label for="date_to" class="form-label">Дата конца</label>
-            <input type="date" class="form-control" id="date_to" name="date_ti" required>
+            <input type="date" class="form-control" id="date_to" name="date_to" required>
         </div>
         <input type="submit" class="btn btn-primary" value="Создать">
     </form>
@@ -92,6 +90,14 @@
       for (const [id, val] of Object.entries(selectedItems)) {
         insertRow(id, val[0], val[1]);
       }
+    }
+    const date_from = localStorage.getItem('date_from');
+    if (date_from) {
+      document.getElementById("date_from").value = date_from
+    }
+    const date_to = localStorage.getItem('date_to');
+    if (date_from) {
+      document.getElementById("date_to").value = date_to
     }
   }
 
@@ -141,21 +147,60 @@
   }
 
   document.getElementById("selected-form").addEventListener("submit", function (e) {
-    e.preventDefault(); 
+    e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
+    const csrf_token = document.querySelector('meta[name="csrf-token"]').content;
 
     fetch(form.action, {
       method: "POST",
       body: formData,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": csrf_token,
+      }
     })
-    .then(res => res.json())
-    .then(data => {
+    .then(res => {
+      if (res.ok && res.headers.get("Content-Type").includes("application/pdf")) {
+        return res.blob();
+      } else {
+        return res.json().then(data => {
+          throw new Error(data.error || "Неизвестная ошибка");
+        });
+      }
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "direction.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
       selectedItems = {};
       localStorage.removeItem(STORAGE_KEY);
-      location.reload();
+      localStorage.removeItem('date_from')
+      localStorage.removeItem('date_to')
+      window.location.reload()
     })
-    .catch(err => alert("Ошибка: " + err));
+    .catch(err => {
+      document.getElementById("warning").textContent = err.message;
+    });
+
+  });
+
+  document.getElementById("date_from").addEventListener("change", function () {
+    const date = this.value
+    console.log(date)
+    localStorage.setItem('date_from', date);
+  });
+
+  document.getElementById("date_to").addEventListener("change", function () {
+    const date = this.value
+    console.log(date)
+    localStorage.setItem('date_to', date);
   });
 
   window.addEventListener("DOMContentLoaded", loadSelectedFromStorage);
