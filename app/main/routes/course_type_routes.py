@@ -49,9 +49,15 @@ def edit_course_type(course_type_id):
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_course_type', course_type_id=course_type_id))
-
-    course_type = course_type_service.get_by_id(course_type_id)
-    form.from_model(course_type)
+    try:
+        course_type = course_type_service.get_by_id(course_type_id)
+        form.from_model(course_type)
+    except ValueError as e:
+        flash(e)
+        return redirect(url_for('main.course_types'))
+    except Exception as e:
+        flash('Ошибка при редактировании типа курса')
+        return redirect(url_for('main.course_types'))
 
     return render_template('course_types/edit_course_type.html', 
                            title='Редактировать тип курсов', 

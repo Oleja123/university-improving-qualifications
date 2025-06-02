@@ -64,9 +64,15 @@ def teacher_course_completion(user_id, course_id):
             flash('Ошибка при обновлении курса преподавателя')
             current_app.logger.error(e)
             return redirect(url_for('main.teacher_course_completion', user_id=user_id, course_id=course_id))
-
-    teacher_course = sertificate_service.get(user_id, course_id)
-    form.from_model(teacher_course)
+    try:
+        teacher_course = sertificate_service.get(user_id, course_id)
+        form.from_model(teacher_course)
+    except ValueError as e:
+        flash(e)
+        return redirect(request.referrer or url_for('main.teachers_courses'))
+    except Exception as e:
+        flash('Ошибка при редактировании курса преподавателя')
+        return redirect(request.referrer or url_for('main.teachers_courses'))
         
     return render_template('teachers_courses/teacher_course_approve.html', 
                            title='Курс преподавателя', 

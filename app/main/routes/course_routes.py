@@ -52,8 +52,15 @@ def edit_course(course_id):
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_course', course_id=course_id))
-    course = course_service.get_by_id(course_id)
-    form.from_model(course)
+    try:
+        course = course_service.get_by_id(course_id)
+        form.from_model(course)
+    except ValueError as e:
+        flash(e)
+        return redirect(request.referrer or url_for('main.courses'))
+    except Exception as e:
+        flash('Ошибка при редактировании курса')
+        return redirect(request.referrer or url_for('main.courses'))
 
     return render_template('courses/edit_course.html', 
                            title='Редактировать курс', 
@@ -66,17 +73,6 @@ def edit_course(course_id):
 def delete_course(course_id):
     try:
         course_service.delete(course_id)
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@bp.route('/courses/include/<course_id>', methods=['POST'])
-@login_required
-@required_role(role=user.ADMIN)
-def include_course(course_id):
-    try:
-        course_service.change_included(course_id)
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

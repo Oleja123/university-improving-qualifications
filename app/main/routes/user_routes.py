@@ -143,10 +143,18 @@ def edit_user(user_id):
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_user', user_id=user_id))
-    page = request.args.get('page', 1, type=int)
-    search_request = request.args.get('department_name', '', type=int)
-    user = user_service.get_by_id(user_id)
-    form.from_model(user)
+    try:
+        page = request.args.get('page', 1, type=int)
+        search_request = request.args.get('department_name', '', type=int)
+        user = user_service.get_by_id(user_id)
+        form.from_model(user)
+    except ValueError as e:
+        flash(e)
+        return redirect(request.referrer or url_for('main.faculties'))
+    except Exception as e:
+        flash('Ошибка при редактировании пользователя')
+        return redirect(request.referrer or url_for('main.faculties'))
+        
 
     return render_template('users/edit_user.html', form=form, user=user,
                            user_departments=user_service.get_departments(

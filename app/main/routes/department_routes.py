@@ -56,9 +56,15 @@ def edit_department(department_id):
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_department', department_id=department_id))
-
-    department = department_service.get_by_id(department_id)
-    form.from_model(department)
+    try:
+        department = department_service.get_by_id(department_id)
+        form.from_model(department)
+    except ValueError as e:
+        flash(e)
+        return redirect(request.referrer or url_for('main.departments'))
+    except Exception as e:
+        flash('Ошибка при редактировании кафедры')
+        return redirect(request.referrer or url_for('main.departments'))
 
     return render_template('departments/edit_department.html', 
                            title='Редактировать кафедру', 

@@ -1,4 +1,4 @@
-from flask import flash, jsonify, redirect, render_template, url_for
+from flask import flash, jsonify, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from app.decorators.role_decorator import required_role
@@ -48,8 +48,15 @@ def edit_faculty(faculty_id):
         except Exception as e:
             flash(str(e))
             return redirect(url_for('main.edit_faculty', faculty_id=faculty_id))
-
-    form.from_model(faculty_service.get_by_id(faculty_id))
+    try:
+        form.from_model(faculty_service.get_by_id(faculty_id))
+    except ValueError as e:
+        flash(e)
+        return redirect(request.referrer or url_for('main.faculties'))
+    except Exception as e:
+        flash('Ошибка при редактировании факультета')
+        return redirect(request.referrer or url_for('main.faculties'))
+    
     return render_template('faculties/edit_faculty.html', 
                            title='Редактировать факультет', 
                            form=form)
