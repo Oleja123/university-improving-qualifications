@@ -13,7 +13,8 @@ class DirectionCreator(PdfDrawRow):
     def __init__(self, teacher, courses, date_from, date_to, admin):
         super().__init__()
         self.teacher = teacher
-        self.courses = db.session.scalars(sa.select(Course).where(Course.id.in_(courses))).all()
+        self.courses = db.session.scalars(
+            sa.select(Course).where(Course.id.in_(courses))).all()
         self.period = f"С {date_from} по {date_to}"
         self.admin = admin
 
@@ -53,7 +54,8 @@ class DirectionCreator(PdfDrawRow):
         self.set_font(style="B")
         self.draw_row(['Информация о программе повышения квалификации'], [180])
         self.set_font(style="")
-        self.draw_row(['Наименования программ', self.create_courses_info()], [90, 90])
+        self.draw_row(['Наименования программ',
+                      self.create_courses_info()], [90, 90])
         self.draw_row(['Период прохождения повышения квалификации:', self.period],
                       [90, 90])
         self.draw_row(['Подпись преподавателя', ''],

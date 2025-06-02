@@ -1,7 +1,5 @@
 from datetime import date
 
-from fpdf import FPDF
-
 from app.services.reports.pdf_draw_row import PdfDrawRow
 
 

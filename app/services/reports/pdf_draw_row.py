@@ -1,14 +1,18 @@
 from datetime import date
+
 from flask import current_app
 from fpdf import FPDF
+
 
 class PdfDrawRow(FPDF):
 
     def __init__(self):
         super().__init__()
         self.line_height = self.font_size + 2
-        self.add_font('DejaVu', '', 'app/static/fonts/DejaVuSans.ttf', uni=True)
-        self.add_font('DejaVu', 'B', 'app/static/fonts/DejaVuSans-Bold.ttf', uni=True)
+        self.add_font(
+            'DejaVu', '', 'app/static/fonts/DejaVuSans.ttf', uni=True)
+        self.add_font(
+            'DejaVu', 'B', 'app/static/fonts/DejaVuSans-Bold.ttf', uni=True)
 
     def _to_str(self, text):
         if text is None:
@@ -53,4 +57,3 @@ class PdfDrawRow(FPDF):
             self.set_xy(x + col_widths[i], y_start)
 
         self.set_y(y_start + max_height)
-
