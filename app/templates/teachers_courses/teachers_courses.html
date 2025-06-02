@@ -66,7 +66,7 @@
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
             user_full_name=request.args.get('user_full_name'),
-            course_name=request.args.get('user_name'),
+            course_name=request.args.get('course_name'),
             ) }}">Предыдущая страница</a></li>
         {% else %}
          <li class="page-item disabled"><span class="page-link">Предыдущая страница</span>
@@ -80,7 +80,7 @@
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
             user_full_name=request.args.get('user_full_name'),
-            course_name=request.args.get('user_name'),
+            course_name=request.args.get('course_name'),
             ) }}">{{ page }}</a></li>
         {% elif page %}
          <li class="page-item"><a class="page-link" href="{{ url_for('main.teachers_courses', 
@@ -88,7 +88,7 @@
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
             user_full_name=request.args.get('user_full_name'),
-            course_name=request.args.get('user_name'),
+            course_name=request.args.get('course_name'),
             ) }}">{{ page }}</a></li>
         {% else %}
          <li class="page-item disabled" id="example_ellipsis"><a href="#" class="page-link">…</a></li> 
@@ -101,7 +101,7 @@
             faculty_id=request.args.get('faculty_id'),
             course_type_id=request.args.get('course_type_id'),
             user_full_name=request.args.get('user_full_name'),
-            course_name=request.args.get('user_name'),
+            course_name=request.args.get('course_name'),
             ) }}">Следующая</a></li>
         {% else %}
          <li class="page-item disabled"><span class="page-link">Следующая</span>
