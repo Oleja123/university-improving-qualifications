@@ -73,14 +73,12 @@ def get(user_id: int, course_id: int):
         raise Exception('Ошибка при получении курса пользователя')
 
 
-def get_user_courses(user_id: int, page: int, included=None):
+def get_user_courses(user_id: int, page: int):
     try:
         query = sa.select(TeacherCourse)
         conditions = []
         conditions.append(TeacherCourse.teacher_id == user_id)
-        if included is not None:
-            conditions.append(TeacherCourse.course.is_included == included)
-
+ 
         if conditions:
             query = query.where(*conditions)
 
