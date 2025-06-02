@@ -16,12 +16,12 @@
     {{ form.hidden_tag() }}
     <p>
       {{ form.date_completion.label(class="form-label") }}<br>
-      {{ form.date_completion }}
+      {{ form.date_completion(class="form-control") }}
       {% for error in form.date_completion.errors %}
       <span style="color: red;">[{{ error }}]</span>
       {% endfor %} <br>
       {{ form.confirming_document.label(class="form-label") }} <br>
-      {{ form.confirming_document }}
+      {{ form.confirming_document(class="form-control") }}
       {% for error in form.confirming_document.errors %}
       <span style="color: red;">[{{ error }}]</span>
       {% endfor %}
