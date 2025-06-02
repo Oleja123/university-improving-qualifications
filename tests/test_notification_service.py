@@ -1,15 +1,17 @@
 import os
+import unittest
+from datetime import datetime
 
 from tests.test_config import TestConfig
-os.environ['DATABASE_URL'] = 'sqlite://'
-
-from datetime import datetime, timezone
 from app.dto.notification_dto import NotificationDTO
 from app.services import user_service, notification_service
 from app.dto.user_dto import UserDTO
 from app.models import user
 from app import create_app, db
-import unittest
+
+
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 
 class FacultyServiceCase(unittest.TestCase):
     def setUp(self):
@@ -47,14 +49,16 @@ class FacultyServiceCase(unittest.TestCase):
         self.assertTrue(
             created_notification is not None and created_notification.message == notificationDTO.message)
         self.assertTrue(created_notification.time_sent.date()
-                        == datetime.now(timezone.utc).date())
+                        == datetime.now().date())
 
     def test_notification_count(self):
         self.app.logger.info('Запуск тестирования количества уведомлений')
         self.create_notifications()
-        self.assertEqual(notification_service.get_user_notifications_count(self.user.id), 3)
+        self.assertEqual(
+            notification_service.get_user_notifications_count(self.user.id), 3)
         notification_service.read_message(1)
-        self.assertEqual(notification_service.get_user_notifications_count(self.user.id), 2)
+        self.assertEqual(
+            notification_service.get_user_notifications_count(self.user.id), 2)
 
     def test_read(self):
         self.app.logger.info('Запуск тестирования чтения уведомления')
@@ -62,8 +66,10 @@ class FacultyServiceCase(unittest.TestCase):
         notification_service.read_message(1)
         created_notification = notification_service.get_by_id(1)
         self.assertTrue(created_notification.has_read == True)
-        self.assertTrue(len(user_service.get_notifications(1, True, user=self.user).items) == 2)
-        self.assertTrue(len(user_service.get_notifications(1, False, user=self.user).items) == 3)
+        self.assertTrue(len(user_service.get_notifications(
+            1, True, user=self.user).items) == 2)
+        self.assertTrue(len(user_service.get_notifications(
+            1, False, user=self.user).items) == 3)
 
     def test_delete(self):
         self.app.logger.info('Запуск тестирования удаления уведомления')
@@ -72,7 +78,8 @@ class FacultyServiceCase(unittest.TestCase):
         notification_service.delete(notification.id)
         with self.assertRaises(ValueError):
             notification = notification_service.get_by_id(1)
-        self.assertTrue(len(user_service.get_notifications(1, False, self.user).items) == 2)
+        self.assertTrue(len(user_service.get_notifications(
+            1, False, self.user).items) == 2)
 
 
 if __name__ == '__main__':

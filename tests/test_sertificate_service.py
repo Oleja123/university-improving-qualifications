@@ -1,15 +1,14 @@
-import unittest
 import os
+import unittest
 from datetime import datetime
 
+from tests.test_config import TestConfig
 from app import create_app, db
 from app.services import course_service, course_type_service, sertificate_service, user_service
 from app.models import user
 from app.dto.user_dto import UserDTO
 from app.dto.course_type_dto import CourseTypeDTO
 from app.dto.course_dto import CourseDTO
-
-from tests.test_config import TestConfig
 
 
 os.environ['DATABASE_URL'] = 'sqlite://'
@@ -30,6 +29,7 @@ class SertificateServiceTestCase(unittest.TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        db.engine.dispose()
         self.app_context.pop()
 
     def create_courses(self):
@@ -58,7 +58,7 @@ class SertificateServiceTestCase(unittest.TestCase):
         self.create_courses()
         teacher_course = sertificate_service.get(
             user_id=self.user.id, course_id=1)
-        timing = datetime.now()
+        timing = datetime.now().date()
         with self.assertRaises(ValueError):
             sertificate_service.update_teacher_course(self.user.id, 1, timing)
         teacher_course.sertificate_path = 'aboba'

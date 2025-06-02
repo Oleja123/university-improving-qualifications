@@ -1,12 +1,13 @@
 import os
+import unittest
 
 from tests.test_config import TestConfig
-os.environ['DATABASE_URL'] = 'sqlite://'
-
 from app.dto.faculty_dto import FacultyDTO
 from app.services import faculty_service
 from app import create_app, db
-import unittest
+
+
+os.environ['DATABASE_URL'] = 'sqlite://'
 
 
 class FacultyServiceCase(unittest.TestCase):
@@ -69,17 +70,20 @@ class FacultyServiceCase(unittest.TestCase):
             faculty_service.create(facultyDTO)
 
     def test_get_by_id_nonexistent(self):
-        self.app.logger.info('Запуск теста получения несуществующего факультета по ID')
+        self.app.logger.info(
+            'Запуск теста получения несуществующего факультета по ID')
         with self.assertRaises(ValueError):
             faculty = faculty_service.get_by_id(999)
 
     def test_get_by_name_nonexistent(self):
-        self.app.logger.info('Запуск теста получения несуществующего факультета по имени')
+        self.app.logger.info(
+            'Запуск теста получения несуществующего факультета по имени')
         with self.assertRaises(ValueError):
             faculty = faculty_service.get_by_name('NON_EXISTENT')
 
     def test_get_all_empty(self):
-        self.app.logger.info('Запуск теста получения всех факультетов из пустой БД')
+        self.app.logger.info(
+            'Запуск теста получения всех факультетов из пустой БД')
         self.assertEqual(len(faculty_service.get_all()), 0)
 
 

@@ -10,14 +10,14 @@ from app import db
 class Notification(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     message: so.Mapped[str] = so.mapped_column(
-        sa.String(256), index=True, unique=True)
+        sa.String(256), index=True)
     user_id: so.Mapped[int] = so.mapped_column(
         sa.ForeignKey('user.id', ondelete='CASCADE'), index=True)
     user: so.Mapped['User'] = so.relationship(
         back_populates='notifications')
     has_read: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False)
     time_sent: so.Mapped[datetime] = so.mapped_column(
-        index=True, default=lambda: datetime.now(timezone.utc))
+        index=True, default=lambda: datetime.now())
 
     def __repr__(self):
         return f'Notification {self.message}'

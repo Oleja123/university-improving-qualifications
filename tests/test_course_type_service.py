@@ -1,11 +1,13 @@
-from datetime import datetime
+import os
 import unittest
+
+from tests.test_config import TestConfig
+
 from app import create_app, db
 from app.services import course_type_service
 from app.dto.course_type_dto import CourseTypeDTO
-import os
 
-from tests.test_config import TestConfig
+
 os.environ['DATABASE_URL'] = 'sqlite://'
 
 

@@ -128,7 +128,7 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
         raise Exception('Ошибка при получении курсов')
 
 
-def update_teacher_course(user_id: int, course_id: int, date_completion: datetime, confirming_document: str = None):
+def update_teacher_course(user_id: int, course_id: int, date_completion: date, confirming_document: str = None):
     try:
         if confirming_document is not None: 
             confirming_document = confirming_document.strip()

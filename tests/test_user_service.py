@@ -1,9 +1,7 @@
 import os
+import unittest
 
 from tests.test_config import TestConfig
-os.environ['DATABASE_URL'] = 'sqlite://'
-
-import unittest
 from app import create_app, db
 from app.dto.department_dto import DepartmentDTO
 from app.dto.faculty_dto import FacultyDTO
@@ -12,6 +10,10 @@ from app.dto.user_dto import UserDTO
 from app.exceptions.wrong_password_error import WrongPasswordError
 from app.services import department_service, faculty_service, user_service, notification_service
 from app.models.user import TEACHER, ADMIN
+
+
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 
 class UserServiceTestCase(unittest.TestCase):
     def setUp(self):
@@ -22,7 +24,8 @@ class UserServiceTestCase(unittest.TestCase):
 
         faculty_service.create(FacultyDTO(name='test faculty'))
         self.faculty = faculty_service.get_by_name('test faculty')
-        department_service.create(DepartmentDTO(faculty_id=self.faculty.id, name='test department'))
+        department_service.create(DepartmentDTO(
+            faculty_id=self.faculty.id, name='test department'))
         self.department = department_service.get_by_name('test department')
 
         self.user_data = {
@@ -61,7 +64,8 @@ class UserServiceTestCase(unittest.TestCase):
             user_service.check_password('testuser', 'wrongpass')
 
     def test_update_user(self):
-        self.app.logger.info('Запуск тестирования обновления данных пользователя')
+        self.app.logger.info(
+            'Запуск тестирования обновления данных пользователя')
         user_service.create(UserDTO(**self.user_data))
         user = user_service.get_by_username('testuser')
 
@@ -110,8 +114,8 @@ class UserServiceTestCase(unittest.TestCase):
         user_service.add_to_department(teacher.id, self.department.id)
 
         teacher = user_service.get_by_id(teacher.id)
-        self.assertIn(self.department, user_service.get_departments(UserDTO(id=teacher.id)))
-
+        self.assertIn(self.department, user_service.get_departments(
+            UserDTO(id=teacher.id)))
 
     def test_add_to_department_non_teacher(self):
         admin_data = {
@@ -125,7 +129,6 @@ class UserServiceTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError) as context:
             user_service.add_to_department(admin.id, self.department.id)
-
 
     def test_add_to_department_invalid_department(self):
         teacher_data = {

@@ -1,13 +1,15 @@
 import os
+import unittest
 
 from tests.test_config import TestConfig
-os.environ['DATABASE_URL'] = 'sqlite://'
-
 from app.dto.department_dto import DepartmentDTO
 from app.dto.faculty_dto import FacultyDTO
 from app.services import department_service, faculty_service
 from app import create_app, db
-import unittest
+
+
+os.environ['DATABASE_URL'] = 'sqlite://'
+
 
 class DepartmentServiceCase(unittest.TestCase):
     def setUp(self):
@@ -34,7 +36,8 @@ class DepartmentServiceCase(unittest.TestCase):
 
     def test_create(self):
         self.app.logger.info('Запуск теста создания кафедры')
-        departmentDTO = DepartmentDTO(name='Test Department', faculty_id=self.faculty.id)
+        departmentDTO = DepartmentDTO(
+            name='Test Department', faculty_id=self.faculty.id)
         department_service.create(departmentDTO)
         created = department_service.get_by_name(departmentDTO.name)
         self.assertEqual(created.name, 'Test Department')
@@ -45,16 +48,20 @@ class DepartmentServiceCase(unittest.TestCase):
         faculty_service.create(FacultyDTO(name='FIST'))
         new_faculty = faculty_service.get_by_name('FIST')
         new_name = 'SF'
-        department_service.create(DepartmentDTO(name='test', faculty_id=self.faculty.id))
+        department_service.create(DepartmentDTO(
+            name='test', faculty_id=self.faculty.id))
         department = department_service.get_by_name('test')
-        departmentDTO = DepartmentDTO(id=department.id, name=new_name, faculty_id=new_faculty.id)
+        departmentDTO = DepartmentDTO(
+            id=department.id, name=new_name, faculty_id=new_faculty.id)
         department_service.update(departmentDTO)
         department = department_service.get_by_id(department.id)
-        self.assertTrue(department is not None and department.name == new_name and department.faculty.id == new_faculty.id)
+        self.assertTrue(department is not None and department.name ==
+                        new_name and department.faculty.id == new_faculty.id)
 
     def test_delete(self):
         self.app.logger.info('Запуск тестирования удаления кафедры')
-        department_service.create(DepartmentDTO(name='test', faculty_id=self.faculty.id))
+        department_service.create(DepartmentDTO(
+            name='test', faculty_id=self.faculty.id))
         department = department_service.get_by_name('test')
         department_service.delete(department.id)
         with self.assertRaises(ValueError):
@@ -62,31 +69,39 @@ class DepartmentServiceCase(unittest.TestCase):
 
     def test_department_faculty_relationship(self):
         self.app.logger.info('Запуск теста связи кафедры с факультетом')
-        department_service.create(DepartmentDTO(name='CS', faculty_id=self.faculty.id))
+        department_service.create(DepartmentDTO(
+            name='CS', faculty_id=self.faculty.id))
         department = department_service.get_by_name('CS')
         self.assertEqual(department.faculty.name, 'Test Faculty')
-        self.assertIn(department, faculty_service.get_departments(FacultyDTO(department.faculty.id)))
+        self.assertIn(department, faculty_service.get_departments(
+            FacultyDTO(department.faculty.id)))
 
-    def test_cascade_on_faculty_delete(self): 
-        self.app.logger.info('Запуск теста каскадного удаления при удалении факультета')
-        department_service.create(DepartmentDTO(name='Math', faculty_id=self.faculty.id))
+    def test_cascade_on_faculty_delete(self):
+        self.app.logger.info(
+            'Запуск теста каскадного удаления при удалении факультета')
+        department_service.create(DepartmentDTO(
+            name='Math', faculty_id=self.faculty.id))
         faculty_service.delete(self.faculty.id)
         with self.assertRaises(ValueError):
             deleted = department_service.get_by_name('Math')
 
     def test_same_name_create(self):
         self.app.logger.info('Запуск теста уникальности имени кафедры')
-        department_service.create(DepartmentDTO(name='Chemistry', faculty_id=self.faculty.id))
+        department_service.create(DepartmentDTO(
+            name='Chemistry', faculty_id=self.faculty.id))
         with self.assertRaises(ValueError):
-            department_service.create(DepartmentDTO(name='Chemistry', faculty_id=self.faculty.id))
+            department_service.create(DepartmentDTO(
+                name='Chemistry', faculty_id=self.faculty.id))
 
     def test_get_by_id_nonexistent(self):
-        self.app.logger.info('Запуск теста получения несуществующей кафедры по ID')
+        self.app.logger.info(
+            'Запуск теста получения несуществующей кафедры по ID')
         with self.assertRaises(ValueError):
             department = department_service.get_by_id(999)
 
     def test_get_by_name_nonexistent(self):
-        self.app.logger.info('Запуск теста получения несуществующей кафедры по имени')
+        self.app.logger.info(
+            'Запуск теста получения несуществующей кафедры по имени')
         with self.assertRaises(ValueError):
             department = department_service.get_by_name('NON_EXISTENT')
 
@@ -101,23 +116,24 @@ class DepartmentServiceCase(unittest.TestCase):
 
     def test_get_all_paginated(self):
         self.app.logger.info('Запуск теста пагинации кафедр')
-        self.create_departments()  
-        
+        self.create_departments()
+
         page1 = department_service.get_all_paginated(page=1)
         self.assertEqual(len(page1.items), 3)
         self.assertEqual(page1.page, 1)
-        self.assertEqual(page1.per_page, self.app.config['DEPARTMENTS_PER_PAGE'])
+        self.assertEqual(
+            page1.per_page, self.app.config['DEPARTMENTS_PER_PAGE'])
         self.assertFalse(page1.has_prev)
         self.assertFalse(page1.has_next)
-        
+
         original_per_page = self.app.config['DEPARTMENTS_PER_PAGE']
         self.app.config['DEPARTMENTS_PER_PAGE'] = 2
-        
+
         page1 = department_service.get_all_paginated(page=1)
         self.assertEqual(len(page1.items), 2)
         self.assertTrue(page1.has_next)
         self.assertFalse(page1.has_prev)
-            
+
         page2 = department_service.get_all_paginated(page=2)
         self.app.logger.info(page2.items)
         self.assertEqual(len(page2.items), 1)
@@ -145,19 +161,23 @@ class DepartmentServiceCase(unittest.TestCase):
         self.app.logger.info('Запуск теста пагинации с фильтром по факультету')
         faculty_service.create(FacultyDTO(name='Another Faculty'))
         faculty2 = faculty_service.get_by_name('Another Faculty')
-        
-        department_service.create(DepartmentDTO(name='Dep1', faculty_id=faculty2.id))
-        department_service.create(DepartmentDTO(name='Dep2', faculty_id=faculty2.id))
-        
+
+        department_service.create(DepartmentDTO(
+            name='Dep1', faculty_id=faculty2.id))
+        department_service.create(DepartmentDTO(
+            name='Dep2', faculty_id=faculty2.id))
+
         original_per_page = self.app.config['DEPARTMENTS_PER_PAGE']
         self.app.config['DEPARTMENTS_PER_PAGE'] = 1
-        
-        page1 = department_service.get_all_paginated(page=1, faculties=[faculty2.id])
+
+        page1 = department_service.get_all_paginated(
+            page=1, faculties=[faculty2.id])
         self.assertEqual(len(page1.items), 1)
         self.assertEqual(page1.items[0].name, 'Dep1')
         self.assertTrue(page1.has_next)
-            
-        page2 = department_service.get_all_paginated(page=2, faculties=[faculty2.id])
+
+        page2 = department_service.get_all_paginated(
+            page=2, faculties=[faculty2.id])
         self.assertEqual(len(page2.items), 1)
         self.assertEqual(page2.items[0].name, 'Dep2')
         self.assertFalse(page2.has_next)
