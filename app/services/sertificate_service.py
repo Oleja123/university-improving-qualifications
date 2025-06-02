@@ -8,7 +8,6 @@ from werkzeug.utils import secure_filename
 
 from app import db
 from app.models import user
-from app.models.course_type import CourseType
 from app.models.user import User
 from app.models.course import Course
 from app.services import user_service, course_service
@@ -130,7 +129,7 @@ def get_all_paginated(page: int, course_name=None, user_full_name=None, course_t
 
 def update_teacher_course(user_id: int, course_id: int, date_completion: date, confirming_document: str = None):
     try:
-        if confirming_document is not None: 
+        if confirming_document is not None:
             confirming_document = confirming_document.strip()
             if len(confirming_document) == 0:
                 confirming_document = None
@@ -148,18 +147,23 @@ def update_teacher_course(user_id: int, course_id: int, date_completion: date, c
         db.session.rollback()
         current_app.logger.error(e)
         raise Exception('Неизвестная ошибка')
-    
+
 
 def get_qualification_list():
     cur_date = datetime.now().strftime("%Y-%m-%d")
     try:
-        query = sa.text("SELECT public.user.full_name, public.user.username, course.name, course_type.name, teacher_course.date_completion, teacher_course.confirming_document "\
-        "FROM public.user CROSS JOIN course JOIN course_type ON course_type.id = course.course_type_id LEFT JOIN teacher_course ON "\
-        "teacher_course.teacher_id = public.user.id AND teacher_course.course_id = course.id WHERE public.user.role = :role AND " \
-        "(teacher_course.date_completion IS NULL OR EXTRACT(YEAR FROM AGE(:cur_date, teacher_course.date_completion )) >= 3) "\
-        "ORDER BY public.user.full_name, public.user.username;")
+        query = sa.text("SELECT public.user.full_name, public.user.username, course.name,"
+                        " course_type.name, teacher_course.date_completion, teacher_course.confirming_document "
+                        "FROM public.user CROSS JOIN course JOIN course_type ON course_type.id = "
+                        "course.course_type_id LEFT JOIN teacher_course ON "
+                        "teacher_course.teacher_id = public.user.id AND teacher_course.course_id = "
+                        "course.id WHERE public.user.role = :role AND "
+                        "(teacher_course.date_completion IS NULL OR "
+                        "EXTRACT(YEAR FROM AGE(:cur_date, teacher_course.date_completion )) >= 3) "
+                        "ORDER BY public.user.full_name, public.user.username;")
 
-        qualification_list = db.session.execute(query, {'cur_date': cur_date, 'role': user.TEACHER})
+        qualification_list = db.session.execute(
+            query, {'cur_date': cur_date, 'role': user.TEACHER})
         return qualification_list
     except Exception as e:
         current_app.logger.info(e)

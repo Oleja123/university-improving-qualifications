@@ -1,4 +1,3 @@
-from datetime import datetime
 import sqlalchemy as sa
 
 from flask import current_app

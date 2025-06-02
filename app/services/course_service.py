@@ -1,12 +1,9 @@
-from datetime import datetime
 from flask import current_app
 import sqlalchemy as sa
 
 from app import db
 from app.dto.course_dto import CourseDTO
 from app.models.course import Course
-from app.models.course_type import CourseType
-from app.models.teacher_course import TeacherCourse
 from app.services import course_type_service
 
 
@@ -16,11 +13,10 @@ def get_all_paginated(page: int, course_types=None):
             course_types = [course_types]
         query = sa.select(Course)
         conditions = []
-        current_app.logger.info(f"условия { course_types }")
+        current_app.logger.info(f"условия {course_types}")
 
         if course_types is not None:
             conditions.append(Course.course_type_id.in_(course_types))
-
 
         current_app.logger.info(f"условия {conditions}")
 

@@ -341,7 +341,8 @@ def check_token(token):
     try:
         user = db.session.scalar(sa.select(User).where(User.token == token))
         if user is None or user.token_expiration < datetime.now():
-            raise ValueError(f'Пользователь с  токеном = {token} не существует')
+            raise ValueError(
+                f'Пользователь с  токеном = {token} не существует')
         return user
     except ValueError as e:
         current_app.logger.error(e)
@@ -349,12 +350,12 @@ def check_token(token):
     except Exception as e:
         current_app.logger.error(e)
         raise Exception('Ошибка при получении пользователя по токену')
-    
+
 
 def get_latest_course(user_id):
     try:
         user = get_by_id(user_id)
-        res = sa.select(TeacherCourse).where(TeacherCourse.teacher_id==user_id)\
+        res = sa.select(TeacherCourse).where(TeacherCourse.teacher_id == user_id)\
                                       .order_by(TeacherCourse.date_completion.desc())
         res = db.session.scalars(res).first()
         if res is None or res.date_completion is None:
