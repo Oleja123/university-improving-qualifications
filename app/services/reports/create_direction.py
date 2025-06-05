@@ -2,6 +2,7 @@ from datetime import date
 
 import sqlalchemy as sa
 
+from app.dto.user_dto import UserDTO
 from app.models.course import Course
 from app.services import user_service
 from app import db
@@ -10,13 +11,17 @@ from app.services.reports.pdf_draw_row import PdfDrawRow
 
 class DirectionCreator(PdfDrawRow):
 
-    def __init__(self, teacher, courses, date_from, date_to, admin):
+    def __init__(self, teacher, courses, date_from, date_to, place, admin):
         super().__init__()
+        if date_from > date_to:
+            raise ValueError('Дата начала не должна быть позже даты конца')
         self.teacher = teacher
         self.courses = db.session.scalars(
             sa.select(Course).where(Course.id.in_(courses))).all()
         self.period = f"С {date_from} по {date_to}"
+        self.departments = user_service.get_departments(UserDTO(teacher.id))
         self.admin = admin
+        self.place = place
 
     def create_latest_course_info(self, latest_course):
         return f"Тип курса: {latest_course.course.course_type.name}\n" +\
@@ -28,6 +33,12 @@ class DirectionCreator(PdfDrawRow):
         res = ""
         for course in self.courses:
             res += f"{course.course_type.name}: {course.name}\n"
+        return res
+    
+    def create_departments_info(self):
+        res = ""
+        for department in self.departments:
+            res += f"{department.faculty.name}: {department.name}\n"
         return res
 
     def create_table(self):
@@ -44,19 +55,23 @@ class DirectionCreator(PdfDrawRow):
         self.draw_row(['Информация о слушателе'], [180])
         self.set_font(style="")
         self.draw_row(['ФИО', self.teacher.full_name], [90, 90])
+        self.draw_row(['Кафедры', self.create_departments_info()],
+                      [90, 90])
         latest_course = user_service.get_latest_course(self.teacher.id)
         if latest_course is None:
-            self.draw_row(['Последнее повышение квалификации:', 'Не проходилось'],
+            self.draw_row(['Последнее повышение квалификации', 'Не проходилось'],
                           [90, 90])
         else:
-            self.draw_row(['Последнее повышение квалификации:', self.create_latest_course_info(latest_course)],
+            self.draw_row(['Последнее повышение квалификации', self.create_latest_course_info(latest_course)],
                           [90, 90])
         self.set_font(style="B")
         self.draw_row(['Информация о программе повышения квалификации'], [180])
         self.set_font(style="")
         self.draw_row(['Наименования программ',
                       self.create_courses_info()], [90, 90])
-        self.draw_row(['Период прохождения повышения квалификации:', self.period],
+        self.draw_row(['Место повышения квалификации', self.place],
+                      [90, 90])
+        self.draw_row(['Период прохождения повышения квалификации', self.period],
                       [90, 90])
         self.draw_row(['Подпись преподавателя', ''],
                       [90, 90])

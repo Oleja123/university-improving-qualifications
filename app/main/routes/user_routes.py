@@ -39,11 +39,14 @@ def users():
 def create_user_qualifications(user_id):
     try:
         page = request.args.get('page', 1, type=int)
-        user = user_service.get_by_id(user_id)
+        teacher = user_service.get_by_id(user_id)
+        if teacher.role != user.TEACHER:
+            raise ValueError('Создать квалификацию можно только для преподавателя')
+
         courses = course_service.get_all_paginated(page)
         return render_template('users/create_user_qualification.html',
                             title='Квалификация пользователя',
-                            user=user,
+                            user=teacher,
                             courses=courses)
     except ValueError as e:
         abort(404)
@@ -61,6 +64,7 @@ def download_user_qualifications(user_id):
         courses = request.form.getlist("selected")
         date_from = request.form.get("date_from")
         date_to = request.form.get("date_to")
+        place = request.form.get("place")
 
         if not courses:
             raise ValueError("Не выбраны курсы")
@@ -68,7 +72,7 @@ def download_user_qualifications(user_id):
         if not date_from or not date_to:
             raise ValueError("Даты начала и окончания обязательны")
 
-        pdf = DirectionCreator(teacher, courses, date_from, date_to, current_user)
+        pdf = DirectionCreator(teacher, courses, date_from, date_to, place, current_user)
         pdf.create_table()
         pdf_output = pdf.output(dest="S")
         current_app.logger.info('ВКИД')
