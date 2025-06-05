@@ -1,0 +1,26 @@
+subquery = sa.select(TeacherCourse.teacher_id, TeacherCourse.course_id)\
+                      .join(User)\
+                      .join(User.departments)\
+                      .where(
+                              Department.faculty_id == 5,  
+                        )\
+                      .distinct()\
+                      .subquery()
+query = sa.select(sa.func.count().label('faculty_total'))\
+                .select_from(subquery)
+
+cnt = db.session.scalar(query)
+
+count_expr = sa.func.count().label('on_department')
+
+query = sa.select(Department.name, 
+                          count_expr,
+                          (count_expr * 100.0 / cnt).label('on_department_percent')
+                          ).select_from(Faculty)\
+                          .join(Faculty.departments)\
+                          .join(Department.teachers)\
+                          .join(User.courses)\
+                          .where(Department.faculty_id == 5 )\
+                          .group_by(Department.id, Department.name)\
+                          .order_by(Department.name)
+print(db.session.execute(query).all())

@@ -1,5 +1,7 @@
 from datetime import date
 
+from flask import current_app
+
 from app.services.reports.pdf_draw_row import PdfDrawRow
 
 
