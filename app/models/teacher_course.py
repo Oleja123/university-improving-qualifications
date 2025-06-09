@@ -24,8 +24,6 @@ class TeacherCourse(db.Model):
     confirming_document: so.Mapped[Optional[str]] = so.mapped_column(
         sa.String(64), index=True, nullable=True
     )
-    document_number: so.Mapped[Optional[str]] = so.mapped_column(
-        sa.String(260), nullable=True)
 
     def __repr__(self):
         return f'Teacher Course {self.teacher.full_name}, {self.course.name}'
@@ -36,7 +34,6 @@ class TeacherCourse(db.Model):
             'course_id': self.course_id, 
             'date_completion': (self.date_completion.isoformat() if self.date_completion else None),
             'course_name': self.course.name,
-            'document_number': self.document_number,
             'sertificate_loaded': (self.sertificate_path is not None),
             'confirming_document': self.confirming_document,
             '_links': {
