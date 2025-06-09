@@ -20,4 +20,4 @@ class CourseType(db.Model):
 
     @classmethod
     def from_form(cls, form, faculty):
-        return cls(name=form.name.data, faculty=faculty)
+        return cls(name=form.name.data)
