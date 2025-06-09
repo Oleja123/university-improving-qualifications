@@ -98,4 +98,4 @@ class ReportForm(FlaskForm):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.filter_id.choices = [(f.id, f.name) for f in filter]
         if filter_name:
-            self.filter_id.label.data = filter_name
+            self.filter_id.label.text = filter_name
